@@ -1,6 +1,6 @@
 # Timeliner
 
-Timeliner is an early stage timeline / sequencing javascript library that can prototype and create animations quickly and works across different javascript / webgl frameworks.
+Timeliner is a graphical javascript library that can prototype and create animations quickly that works across different javascript / webgl frameworks. You may find timeline familiar if you have used adobe flash, after effects, edge animate or other animation software. Except this in its really early (prototyping) stage with no testers/users but myself, so expect breakages and use at your own risk.
 
 Follow [blurspline](https://twitter.com/blurspline) on twitter for updates.
 
@@ -72,4 +72,11 @@ or
 - adjust values (basic)
 
 ## TODO
-- a whole ton
+- undo / redo
+- save / load
+- attempt virtual-dom / v.rendering
+- timeliner window management
+- curve editor
+- support audio
+- npm-ify
+- a whole ton more
