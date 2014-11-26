@@ -4,13 +4,22 @@ Timeliner is an early stage timeline / sequencing javascript library that can pr
 
 Follow [blurspline](https://twitter.com/blurspline) on twitter for updates.
 
+## Demo
+[Example](http://zz85.github.io/timeliner/test.html)
+
+[Video](https://plus.google.com/117614030945250277079/posts/BiWe8Z7nHdk?pid=6086039289973564578&oid=117614030945250277079)
+
+![screenshot](screenshot.png)
+
+
 ## Another js timeline library?
 
 There are currently already couple of timeline libraries which are pretty good (which I also gather some inspiration from). I wrote this partly to scratch my itch, partly to challange myself technically. Hopfully I'm able to build something easy to use and makes much sense. For your own good (esp for production use), you should check them out these libraries.
 
 1. [Timeline.js](https://github.com/vorg/timeline.js) by Marcin Ignac
 2. [Keytime Editor](https://github.com/mattdesl/keytime-editor/) by Matt DesLauriers
-3. [Frame.js](https://github.com/mrdoob/frame.js/) by mrdoob
+3. [Frame.js](https://github.com/mrdoob/frame.js/) by Ricardo Cabello
+(Side note: mrdoob's [talk on this](http://2013.jsconf.asia/blog/2013/11/8/jsconfasia-2013-mrdoob-ricardo-cabello-framejs) also showcase interesting editors used by the demoscene)
 
 I initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
 
@@ -42,7 +51,6 @@ or
 1. Select time between 2 keyframes
 2. Select easing type from the dropdown
 
-
 ## Curent Features
 
 - slider time scale (basic)
@@ -63,3 +71,5 @@ or
 - insert keyframe
 - adjust values (basic)
 
+## TODO
+- a whole ton
