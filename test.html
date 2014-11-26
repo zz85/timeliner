@@ -34,10 +34,6 @@ var h2 = window.innerHeight / 2;
 function animate() {
 	requestAnimationFrame(animate);
 
-	// box.style.left = (target.x * 100 + w2) + 'px';
-	// box.style.top = (target.y * 100 + h2) + 'px';
-	// box.style.transform = 'rotate(' + target.rotate * 50 + 'deg)';
-
 	box.style.transform = 'translateX(' +  (target.x * 100 + w2) + 'px) translateY(' + (target.y * 100 + h2) + 'px) rotate(' + target.rotate * 50 + 'deg)';
 }
 

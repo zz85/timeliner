@@ -423,7 +423,11 @@
 
 		this.updateTime = updateCursor;
 
-
+		this.setState = function(state) {
+			console.log('undo', state);
+			layers = state;
+			repaint();
+		};
 
 	}
 
@@ -498,17 +502,15 @@
 		var undo_button = document.createElement('button');
 		undo_button.textContent = 'undo';
 		top.appendChild(undo_button);
-		var playing = false;
 		undo_button.addEventListener('click', function() {
-			
+			dispatcher.fire('controls.undo');
 		});
 
 		var redo_button = document.createElement('button');
 		redo_button.textContent = 'redo';
 		top.appendChild(redo_button);
-		var playing = false;
 		redo_button.addEventListener('click', function() {
-			
+			dispatcher.fire('controls.redo');
 		});
 
 		var range = document.createElement('input');
@@ -757,6 +759,74 @@
 
 	}
 
+	/**************************/
+	// Undo Manager
+	/**************************/
+
+	function UndoState(state, description) {
+		this.state = JSON.stringify(state);
+		this.description = description;
+		console.log('Saved: ', description);
+	}
+	 
+	function UndoManager(max) {
+		this.MAX_ITEMS = max || 100;
+		this.clear();
+	}
+	 
+	UndoManager.prototype.save = function(state) {
+		var states = this.states;
+		var next_index = this.index + 1;
+		var to_remove = states.length - next_index;
+		states.splice(next_index, to_remove, state);
+	 
+		if (states.length > this.MAX_ITEMS) {
+			states.shift();
+		}
+	 
+		this.index = states.length - 1;
+	};
+	 
+	UndoManager.prototype.clear = function() {
+		this.states = [];
+		this.index = -1;
+		// FIXME: leave default state or always leave one state?
+	};
+	 
+	UndoManager.prototype.canUndo = function() {
+		return this.index > 0;
+	};
+	 
+	UndoManager.prototype.canRedo = function() {
+		return this.index < this.states.length - 1;
+	};
+	 
+	UndoManager.prototype.undo = function() {
+		if (this.canUndo()) {
+			this.index--;
+		}
+	 
+		return this.get();
+	};
+	 
+	 
+	UndoManager.prototype.redo = function() {
+		if (this.canRedo()) {
+			this.index++;
+		}
+	 
+		return this.get();
+	};
+	 
+	UndoManager.prototype.get = function() {
+		return this.states[this.index];
+	};
+
+
+	/**************************/
+	// Dispatcher
+	/**************************/
+
 	function Dispatcher() {
 
 		var event_listeners = {
@@ -958,6 +1028,9 @@
 		var timeline = new TimelinePanel(layers, dispatcher);
 		var layer_panel = new LayerContainer(layers, dispatcher);
 
+		var undo_manager = new UndoManager();
+		undo_manager.save(new UndoState(layers, 'Loaded'));
+
 		dispatcher.on('keyframe', function(layer, value) {
 			console.log('layer', layer, value);
 			var index = layers.indexOf(layer);
@@ -974,9 +1047,13 @@
 					value: value,
 					_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 				});
+
+				undo_manager.save(new UndoState(layers, 'Add Keyframe'));
 			} else {
 				console.log('remove from index', v);
 				layer.values.splice(v.index, 1);
+
+				undo_manager.save(new UndoState(layers, 'Removed Keyframe'));
 			}
 
 			layer_panel.repaint(t);
@@ -997,8 +1074,10 @@
 					value: value,
 					_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 				});
+				undo_manager.save(new UndoState(layers, 'Add value'));
 			} else {
 				v.object.value = value;
+				undo_manager.save(new UndoState(layers, 'Update value'));
 			}
 
 			layer_panel.repaint(t);
@@ -1012,6 +1091,8 @@
 			if (v && v.entry) {
 				v.entry.tween  = ease_type;
 			}
+
+			undo_manager.save(new UndoState(layers, 'Add Ease'));
 
 			layer_panel.repaint(t);
 			timeline.repaint();
@@ -1049,6 +1130,19 @@
 
 		dispatcher.on('repaint', function() {
 			timeline.repaint();
+		});
+
+		// handle undo / redo
+		dispatcher.on('controls.undo', function() {
+			var history = undo_manager.undo();
+			layers = JSON.parse(history.state);
+			timeline.setState(layers);
+		});
+
+		dispatcher.on('controls.redo', function() {
+			var history = undo_manager.redo();
+			layers = JSON.parse(history.state);
+			timeline.setState(layers);
 		});
 
 		function repaint() {

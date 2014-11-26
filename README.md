@@ -11,7 +11,6 @@ Follow [blurspline](https://twitter.com/blurspline) on twitter for updates.
 
 ![screenshot](screenshot.png)
 
-
 ## Another js timeline library?
 
 There are currently already couple of timeline libraries which are pretty good (which I also gather some inspiration from). I wrote this partly to scratch my itch, partly to challange myself technically. Hopfully I'm able to build something easy to use and makes much sense. For your own good (esp for production use), you should check them out these libraries.
@@ -23,8 +22,10 @@ There are currently already couple of timeline libraries which are pretty good (
 
 I initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
 
+## Usage
 
 ```js
+// target is a "pojo" which gets updated when values change.
 var target = {
 	name1: 1,
 	name2: 2,
@@ -52,7 +53,6 @@ or
 2. Select easing type from the dropdown
 
 ## Curent Features
-
 - slider time scale (basic)
 - fix positioning mouse events
 - basic play toggled with pause button
@@ -75,7 +75,7 @@ or
 - undo / redo
 - save / load
 - attempt virtual-dom / v.rendering
-- timeliner window management
+- [window management](http://codepen.io/zz85/pen/gbOoVP)
 - curve editor
 - support audio
 - npm-ify
