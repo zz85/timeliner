@@ -1,0 +1,49 @@
+<html>
+<body>
+<style>
+#box {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	background: red;
+}
+
+body {
+	overflow: hidden;
+}
+</style>
+
+<div id="box"></div>
+<script src="timeliner.js"></script>
+<script>
+var target = {
+	x: 0,
+	y: 0,
+	rotate: 0
+};
+
+// initialize timeliner
+var timeliner = new Timeliner(target);
+timeliner.addLayer('x');
+timeliner.addLayer('y');
+timeliner.addLayer('rotate');
+
+var w2 = window.innerWidth / 2;
+var h2 = window.innerHeight / 2;
+
+function animate() {
+	requestAnimationFrame(animate);
+
+	// box.style.left = (target.x * 100 + w2) + 'px';
+	// box.style.top = (target.y * 100 + h2) + 'px';
+	// box.style.transform = 'rotate(' + target.rotate * 50 + 'deg)';
+
+	box.style.transform = 'translateX(' +  (target.x * 100 + w2) + 'px) translateY(' + (target.y * 100 + h2) + 'px) rotate(' + target.rotate * 50 + 'deg)';
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
