@@ -4,6 +4,8 @@
 
 var undo = require('./undo'),
 	Dispatcher = require('./dispatcher'),
+	NumberUI = require('./ui/number'),
+	Theme = require('./theme'),
 	UndoManager = undo.UndoManager,
 	UndoState = undo.UndoState
 	;
@@ -24,7 +26,7 @@ var undo = require('./undo'),
 	Aka. Subdivison LOD
 	// Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
 	*/
-	// TODO: refacor / use some scale
+	// TODO: refactor to use a nicer scale
 
 	var subds, subd_type, subd1, subd2, subd3;
 
@@ -72,14 +74,6 @@ var undo = require('./undo'),
 
 	time_scaled();
 
-	var Theme = {
-		// photoshop colors
-		a: '#343434',
-		b: '#535353',
-		c: '#b8b8b8',
-		d: '#d6d6d6',
-
-	};
 
 	/**************************/
 	// Tweens
@@ -638,7 +632,7 @@ var undo = require('./undo'),
 		dom.appendChild(button);
 		*/
 
-		var value = new ValueUI(layer, dispatcher);
+		var value = new NumberUI(layer, dispatcher);
 
 		dom.appendChild(label);
 		dom.appendChild(keyframe_button);
@@ -685,73 +679,6 @@ var undo = require('./undo'),
 
 	}
 
-
-	function ValueUI(layer, dispatcher) {
-		// number editor spinner - see https://github.com/mattdesl/number-editor https://github.com/mattdesl/number-unit-editor
-		var span = document.createElement('input');
-		// span.type = 'number'; // spinner
-		
-		span.style.cssText = 'text-align: center; font-size: 10px; padding: 1px; cursor: ns-resize; float:right; width:40px; margin: 0;  margin-right: 10px; appearance: none; outline: none; border: 0; background: none; border-bottom: 1px dotted '+ Theme.c+ '; color: ' + Theme.c;
-
-		var me = this;
-
-		me.value = span.value = layer.tmpValue;
-
-
-		span.addEventListener('change', function(e) {
-			console.log('input changed', span.value);
-			fireChange();
-		});
-
-		this.value = layer.tmpValue;
-
-		var startx, starty, moved;
-
-		span.addEventListener('mousedown', function(e) {
-			e.preventDefault();
-			startx = e.clientX;
-			starty = e.clientY;
-			moved = false;
-
-			// 
-
-			document.addEventListener('mousemove', onMouseMove);
-			document.addEventListener('mouseup', onMouseUp);
-		});
-
-		function onMouseMove(e) {
-			// console.log(e.clientX, e.clientY);
-			var dx = e.clientX - startx;
-			var dy = e.clientY - starty;
-			span.value = me.value + dx * 0.000001 + dy * -10 * 0.01;
-			dispatcher.fire('target.notify', layer.name, span.value);
-
-			moved = true;
-		}
-
-		function onMouseUp() {
-			document.removeEventListener('mousemove', onMouseMove);
-			document.removeEventListener('mouseup', onMouseUp);
-
-			if (moved) fireChange();
-			else {
-				// single click
-				span.focus();
-			}
-		}
-
-		function fireChange() {
-			layer.tmpValue = me.value = parseFloat(span.value, 10);
-			dispatcher.fire('value.change', layer, me.value);
-			dispatcher.fire('target.notify', layer.name, me.value);
-		}
-
-		this.dom = span;
-
-		this.setValue = function(e) {
-			span.value = e;
-		};
-	}
 
 	function restyle(left, right) {
 		left.style.cssText = 'position: absolute; left: 0px; top: 0px; width: 400px; height: ' + height + 'px;background: ' + Theme.a + ';';
