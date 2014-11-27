@@ -7,6 +7,8 @@ var
 	utils = require('../utils')
 ;
 
+// TODO - tagged by index instead, work off layers.
+
 function LayerView(layer, dispatcher) {
 	var dom = document.createElement('div');
 
@@ -74,6 +76,10 @@ function LayerView(layer, dispatcher) {
 	this.dom = dom;
 
 	this.repaint = repaint;
+
+	this.setState = function(l) {
+		layer = l;
+	};
 
 	function repaint(s) {
 

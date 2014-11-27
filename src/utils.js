@@ -1,3 +1,6 @@
+var
+	Tweens = require('./tween');
+
 module.exports = {
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,

@@ -333,7 +333,7 @@ var undo = require('./undo'),
 		});
 
 		canvas.addEventListener('dblclick', function(e) {
-			console.log('dblclick!')
+			console.log('dblclick!');
 			var b = canvas.getBoundingClientRect();
 			var mx = e.clientX - b.left , my = e.clientY - b.top;
 
@@ -345,8 +345,6 @@ var undo = require('./undo'),
 			dispatcher.fire('keyframe', layers[track], current_frame);
 			
 		});
-
-
 
 		function onMouseUp(e) {		
 			var b = canvas.getBoundingClientRect();
@@ -423,12 +421,6 @@ var undo = require('./undo'),
 			else  dispatcher.fire('controls.pause');
 		});
 
-		dispatcher.on('controls.status', function(v) {
-			playing = v;
-			if (playing) play_button.textContent = 'pause';
-			else play_button.textContent = 'play';
-		});
-
 		var stop_button = document.createElement('button');
 		stop_button.textContent = 'stop';
 		top.appendChild(stop_button);
@@ -483,36 +475,51 @@ var undo = require('./undo'),
 			console.log('range', v);
 			time_scale = v;
 			time_scaled();
+			// FIXME
 			dispatcher.fire('repaint');
 		}		
 
 		var layer_uis = [];
-		var inserted_layers = [];
 		this.layers = layer_uis;
 
-		function repaint(s) {
-			// load
+		this.setControlStatus = function(v) {
+			playing = v;
+			if (playing) play_button.textContent = 'pause';
+			else play_button.textContent = 'play';
+		};
+
+		this.setState = function(state) {
+			layers = state;
+			console.log(layer_uis.length, layers);
 			var i, layer;
 			for (i = 0; i < layers.length; i++) {
 				layer = layers[i];
 
-				if (inserted_layers.indexOf(layer) === -1) {
+				if (!layer_uis[i]) {
 					// new
 					var layer_ui = new LayerUI(layer, dispatcher);
 					div.appendChild(layer_ui.dom);
-					inserted_layers.push(layer);
 					layer_uis.push(layer_ui);
 				}
+
+				layer_uis[i].setState(layer);
 			}
+			// TODO if more uis than layers, remove! / hide
+		};
+
+		function repaint(s) {
+			var i;
 
 			s = s || 0;
 			for (i = 0; i < layer_uis.length; i++) {
+				layer_uis[i].setState(layers[i]);
 				layer_uis[i].repaint(s);
 			}
 
 		}
 
 		this.repaint = repaint;
+		this.setState(layers);
 
 		this.dom = div;
 	}
@@ -578,6 +585,7 @@ var undo = require('./undo'),
 	function TimelineController(target) {
 		// Aka Layer Manager
 
+		// Should persist current time too.
 		var layers = [];
 		window.l2 = layers;
 		var div = document.createElement('div');
@@ -647,7 +655,7 @@ var undo = require('./undo'),
 
 		dispatcher.on('ease', function(layer, ease_type) {
 			var t = timeline.current_frame;
-			var v = timeAtLayer(layer, t);
+			var v = utils.timeAtLayer(layer, t);
 			// console.log('Ease Change > ', layer, value, v);
 			if (v && v.entry) {
 				v.entry.tween  = ease_type;
@@ -667,12 +675,14 @@ var undo = require('./undo'),
 
 		function startPlaying() {
 			start_play = performance.now() - timeline.current_frame * 1000;
-			dispatcher.fire('controls.status', true);
+			layer_panel.setControlStatus(true);
+			// dispatcher.fire('controls.status', true);
 		}
 
 		function pausePlaying() {
 			start_play = null;
-			dispatcher.fire('controls.status', false);
+			layer_panel.setControlStatus(false);
+			// dispatcher.fire('controls.status', false);
 		}
 
 		dispatcher.on('controls.stop', function() {
@@ -697,13 +707,23 @@ var undo = require('./undo'),
 		dispatcher.on('controls.undo', function() {
 			var history = undo_manager.undo();
 			layers = JSON.parse(history.state);
+			layer_panel.setState(layers);
 			timeline.setState(layers);
+			var t = timeline.current_frame;
+			layer_panel.repaint(t);
+			timeline.repaint();
 		});
 
 		dispatcher.on('controls.redo', function() {
 			var history = undo_manager.redo();
 			layers = JSON.parse(history.state);
+
+			layer_panel.setState(layers);
 			timeline.setState(layers);
+
+			var t = timeline.current_frame;
+			layer_panel.repaint(t);
+			timeline.repaint();
 		});
 
 		function repaint() {
@@ -749,6 +769,7 @@ var undo = require('./undo'),
 
 			layers.push(layer);
 
+			layer_panel.setState(layers);
 			layer_panel.repaint();
 			timeline.repaint();
 		}

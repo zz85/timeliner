@@ -14,6 +14,9 @@ function NumberUI(layer, dispatcher) {
 
 	me.value = span.value = layer.tmpValue;
 
+	this.setState = function(l) {
+		layer = l;
+	};
 
 	span.addEventListener('change', function(e) {
 		console.log('input changed', span.value);
