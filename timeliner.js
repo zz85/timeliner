@@ -1,18 +1,83 @@
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/**************************/
+// Dispatcher
+/**************************/
+
+function Dispatcher() {
+
+	var event_listeners = {
+
+	};
+
+	function on(type, listener) {
+		if (!(type in event_listeners)) {
+			event_listeners[type] = [];
+		}
+		var listeners = event_listeners[type];
+		listeners.push(listener);
+	}
+
+	function fire(type) {
+		var args = Array.prototype.slice.call(arguments);
+		args.shift();
+		var listeners = event_listeners[type];
+		if (!listeners) return;
+		for (var i = 0; i < listeners.length; i++) {
+			var listener = listeners[i];
+			listener.apply(listener, args);
+		}
+	}
+
+	this.on = on;
+	this.fire = fire;
+
+}
+
+module.exports = Dispatcher;
+},{}],2:[function(require,module,exports){
+
+var DEFAULT_TIME_SCALE = 60;
+module.exports = {
+	LINE_HEIGHT: 20,
+	DIAMOND_SIZE: 10,
+	MARKER_TRACK_HEIGHT: 50,
+	width: 600,
+	height: 200,
+	LEFT_PANE_WIDTH: 250,
+	time_scale: DEFAULT_TIME_SCALE // number of pixels to 1 secon,
+};
+},{}],3:[function(require,module,exports){
+module.exports = {
+	// photoshop colors
+	a: '#343434',
+	b: '#535353',
+	c: '#b8b8b8',
+	d: '#d6d6d6',
+};
+},{}],4:[function(require,module,exports){
 /*
  * @author Joshua Koo http://joshuakoo.com
  */
 
-(function() {
+var undo = require('./undo'),
+	Dispatcher = require('./dispatcher'),
+	LayerUI = require('./ui/layer_view'),
+	Theme = require('./theme'),
+	Tweens = require('./tween'),
+	UndoManager = undo.UndoManager,
+	UndoState = undo.UndoState,
+	Settings = require('./settings'),
+	utils = require('./utils')
+	;
 
-	var LINE_HEIGHT = 20;
-	var DIAMOND_SIZE = 10;
-	var MARKER_TRACK_HEIGHT = 50;
-	var width = 600;
-	var height = 200;
-
-	var LEFT_PANE_WIDTH = 250;
-	var DEFAULT_TIME_SCALE = 60;
-	var time_scale = DEFAULT_TIME_SCALE; // number of pixels to 1 second
+	var 
+		LINE_HEIGHT = Settings.LINE_HEIGHT,
+		DIAMOND_SIZE = Settings.DIAMOND_SIZE,
+		MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
+		width = Settings.width,
+		height = Settings.height,
+		LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
+		time_scale = Settings.time_scale;
 
 	var frame_start = 0; // this is the current scroll position.
 
@@ -20,7 +85,7 @@
 	Aka. Subdivison LOD
 	// Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
 	*/
-	// TODO: refacor / use some scale
+	// TODO: refactor to use a nicer scale
 
 	var subds, subd_type, subd1, subd2, subd3;
 
@@ -67,39 +132,6 @@
 	}
 
 	time_scaled();
-
-	var Theme = {
-		// photoshop colors
-		a: '#343434',
-		b: '#535353',
-		c: '#b8b8b8',
-		d: '#d6d6d6',
-
-	};
-
-	/**************************/
-	// Tweens
-	/**************************/
-
-	var Tweens = {
-		none: function(k) {
-			return 0;
-		},
-		linear: function(k) {
-			return k;
-		},
-		quadEaseIn: function(k) {
-			return k * k;
-		},
-		quadEaseOut: function(k) {
-			return - k * ( k - 2 );
-		},
-		quadEaseInOut: function(k) {
-			if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
-			return - 0.5 * ( --k * ( k - 2 ) - 1 );
-		}
-	};
-
 
 	/**************************/
 	// Timeline Panel
@@ -175,7 +207,7 @@
 				ctx.textAlign = 'center';
 
 				var t = i * units / time_scale;
-				t = format_friendly_seconds(t, subd_type);
+				t = utils.format_friendly_seconds(t, subd_type);
 				ctx.fillText(t, x, 28);
 			}
 
@@ -267,7 +299,7 @@
 			ctx.strokeStyle = 'red'; // Theme.c
 			x = (me.current_frame - frame_start) * time_scale + LEFT_GUTTER;
 
-			var txt = format_friendly_seconds(me.current_frame);
+			var txt = utils.format_friendly_seconds(me.current_frame);
 			var textWidth = ctx.measureText(txt).width;
 
 			var base_line = MARKER_TRACK_HEIGHT- 5, half_rect = textWidth / 2 + 4;
@@ -345,7 +377,7 @@
 			console.log('track', track, 't',s, layers[track]);
 			
 			if (layers[track]) {
-				var tmp = findTimeinLayer(layers[track], s);
+				var tmp = utils.findTimeinLayer(layers[track], s);
 
 			 	if (typeof(tmp) !== 'number') dragObject = tmp;
 			}
@@ -358,7 +390,7 @@
 		});
 
 		canvas.addEventListener('dblclick', function(e) {
-			console.log('dblclick!')
+			console.log('dblclick!');
 			var b = canvas.getBoundingClientRect();
 			var mx = e.clientX - b.left , my = e.clientY - b.top;
 
@@ -370,8 +402,6 @@
 			dispatcher.fire('keyframe', layers[track], current_frame);
 			
 		});
-
-
 
 		function onMouseUp(e) {		
 			var b = canvas.getBoundingClientRect();
@@ -431,42 +461,6 @@
 
 	}
 
-
-	/**************************/
-	// Utils
-	/**************************/
-
-
-	function format_friendly_seconds(s, type) {
-		// TODO Refactor to 60fps???
-		// 20 mins * 60 sec = 1080 
-		// 1080s * 60fps = 1080 * 60 < Number.MAX_SAFE_INTEGER
-
-		var raw_secs = s | 0;
-		var secs_micro = s % 60;
-		var secs = raw_secs % 60;
-		var raw_mins = raw_secs / 60 | 0;
-		var mins = raw_mins % 60;
-		var hours = raw_mins / 60 | 0;
-
-		var secs_str = (secs / 100).toFixed(2).substring(2);
-
-		var str = mins + ':' + secs_str;
-
-		if (s % 1 > 0) {
-			var t2 = (s % 1) * 60;
-			if (type === 'frames') str = secs + '+' + t2.toFixed(0) + 'f';
-			else str += ((s % 1).toFixed(2)).substring(1);
-			// else str = mins + ':' + secs_micro;
-			// else str = secs_micro + 's'; /// .toFixed(2)
-		}
-		return str;
-
-		
-	}
-
-
-
 	function LayerContainer(layers, dispatcher) {
 		var div = document.createElement('div');
 
@@ -482,12 +476,6 @@
 		play_button.addEventListener('click', function() {
 			if (!playing) dispatcher.fire('controls.play');
 			else  dispatcher.fire('controls.pause');
-		});
-
-		dispatcher.on('controls.status', function(v) {
-			playing = v;
-			if (playing) play_button.textContent = 'pause';
-			else play_button.textContent = 'play';
 		});
 
 		var stop_button = document.createElement('button');
@@ -544,209 +532,53 @@
 			console.log('range', v);
 			time_scale = v;
 			time_scaled();
+			// FIXME
 			dispatcher.fire('repaint');
 		}		
 
 		var layer_uis = [];
-		var inserted_layers = [];
 		this.layers = layer_uis;
 
-		function repaint(s) {
-			// load
+		this.setControlStatus = function(v) {
+			playing = v;
+			if (playing) play_button.textContent = 'pause';
+			else play_button.textContent = 'play';
+		};
+
+		this.setState = function(state) {
+			layers = state;
+			console.log(layer_uis.length, layers);
 			var i, layer;
 			for (i = 0; i < layers.length; i++) {
 				layer = layers[i];
 
-				if (inserted_layers.indexOf(layer) === -1) {
+				if (!layer_uis[i]) {
 					// new
 					var layer_ui = new LayerUI(layer, dispatcher);
 					div.appendChild(layer_ui.dom);
-					inserted_layers.push(layer);
 					layer_uis.push(layer_ui);
 				}
+
+				layer_uis[i].setState(layer);
 			}
+			// TODO if more uis than layers, remove! / hide
+		};
+
+		function repaint(s) {
+			var i;
 
 			s = s || 0;
 			for (i = 0; i < layer_uis.length; i++) {
+				layer_uis[i].setState(layers[i]);
 				layer_uis[i].repaint(s);
 			}
 
 		}
 
 		this.repaint = repaint;
+		this.setState(layers);
 
 		this.dom = div;
-	}
-
-	function LayerUI(layer, dispatcher) {
-		var dom = document.createElement('div');
-
-		var label = document.createElement('span');
-		label.textContent = layer.name;
-		label.style.cssText = 'font-size: 12px; padding: 4px;';
-
-		var dropdown = document.createElement('select');
-		var option;
-		dropdown.style.cssText = 'font-size: 10px; width: 60px; margin: 0; float: right; text-align: right;';
-
-		for (var k in Tweens) {
-			option = document.createElement('option');
-			option.text = k;
-			dropdown.appendChild(option);
-		}
-
-		dropdown.addEventListener('change', function(e) {
-			dispatcher.fire('ease', layer, dropdown.value);
-		});
-
-		var keyframe_button = document.createElement('button');
-		keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
-		keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
-		
-		keyframe_button.addEventListener('click', function(e) {
-			console.log('keyframing...');
-			dispatcher.fire('keyframe', layer, value.value);
-		});
-
-		/*
-		// Prev Keyframe
-		var button = document.createElement('button');
-		button.textContent = '<';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-
-		// Next Keyframe
-		button = document.createElement('button');
-		button.textContent = '>';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-
-		// Mute
-		button = document.createElement('button');
-		button.textContent = 'M';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-
-		// Solo
-		button = document.createElement('button');
-		button.textContent = 'S';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-		*/
-
-		var value = new ValueUI(layer, dispatcher);
-
-		dom.appendChild(label);
-		dom.appendChild(keyframe_button);
-		dom.appendChild(value.dom);
-		dom.appendChild(dropdown);
-		
-		dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
-		this.dom = dom;
-
-
-		this.repaint = repaint;
-
-		function repaint(s) {
-
-			dropdown.style.opacity = 0;
-			dropdown.disabled = true;
-			keyframe_button.style.color = Theme.b;
-			// keyframe_button.disabled = false;
-			// keyframe_button.style.borderStyle = 'solid';
-
-			var tween = null;
-			var o = timeAtLayer(layer, s);
-
-			if (!o) return;
-
-			if (o.can_tween) {
-				dropdown.style.opacity = 1;
-				dropdown.disabled = false;
-				// if (o.tween)
-				dropdown.value = o.tween ? o.tween : 'none';
-				if (dropdown.value === 'none') dropdown.style.opacity = 0.5;
-			}
-
-			if (o.keyframe) {
-				keyframe_button.style.color = Theme.c;
-				// keyframe_button.disabled = true;
-				// keyframe_button.style.borderStyle = 'inset';
-			}
-
-			value.setValue(o.value);
-
-			dispatcher.fire('target.notify', layer.name, o.value);
-		}
-
-	}
-
-
-	function ValueUI(layer, dispatcher) {
-		// number editor spinner - see https://github.com/mattdesl/number-editor https://github.com/mattdesl/number-unit-editor
-		var span = document.createElement('input');
-		// span.type = 'number'; // spinner
-		
-		span.style.cssText = 'text-align: center; font-size: 10px; padding: 1px; cursor: ns-resize; float:right; width:40px; margin: 0;  margin-right: 10px; appearance: none; outline: none; border: 0; background: none; border-bottom: 1px dotted '+ Theme.c+ '; color: ' + Theme.c;
-
-		var me = this;
-
-		me.value = span.value = layer.tmpValue;
-
-
-		span.addEventListener('change', function(e) {
-			console.log('input changed', span.value);
-			fireChange();
-		});
-
-		this.value = layer.tmpValue;
-
-		var startx, starty, moved;
-
-		span.addEventListener('mousedown', function(e) {
-			e.preventDefault();
-			startx = e.clientX;
-			starty = e.clientY;
-			moved = false;
-
-			// 
-
-			document.addEventListener('mousemove', onMouseMove);
-			document.addEventListener('mouseup', onMouseUp);
-		});
-
-		function onMouseMove(e) {
-			// console.log(e.clientX, e.clientY);
-			var dx = e.clientX - startx;
-			var dy = e.clientY - starty;
-			span.value = me.value + dx * 0.000001 + dy * -10 * 0.01;
-			dispatcher.fire('target.notify', layer.name, span.value);
-
-			moved = true;
-		}
-
-		function onMouseUp() {
-			document.removeEventListener('mousemove', onMouseMove);
-			document.removeEventListener('mouseup', onMouseUp);
-
-			if (moved) fireChange();
-			else {
-				// single click
-				span.focus();
-			}
-		}
-
-		function fireChange() {
-			layer.tmpValue = me.value = parseFloat(span.value, 10);
-			dispatcher.fire('value.change', layer, me.value);
-			dispatcher.fire('target.notify', layer.name, me.value);
-		}
-
-		this.dom = span;
-
-		this.setValue = function(e) {
-			span.value = e;
-		};
 	}
 
 	function restyle(left, right) {
@@ -756,213 +588,6 @@
 		right.style.cssText = 'position: absolute; left: 400px; top: 0px;';
 		right.style.left = LEFT_PANE_WIDTH + 'px';
 		
-
-	}
-
-	/**************************/
-	// Undo Manager
-	/**************************/
-
-	function UndoState(state, description) {
-		this.state = JSON.stringify(state);
-		this.description = description;
-		console.log('Saved: ', description);
-	}
-	 
-	function UndoManager(max) {
-		this.MAX_ITEMS = max || 100;
-		this.clear();
-	}
-	 
-	UndoManager.prototype.save = function(state) {
-		var states = this.states;
-		var next_index = this.index + 1;
-		var to_remove = states.length - next_index;
-		states.splice(next_index, to_remove, state);
-	 
-		if (states.length > this.MAX_ITEMS) {
-			states.shift();
-		}
-	 
-		this.index = states.length - 1;
-	};
-	 
-	UndoManager.prototype.clear = function() {
-		this.states = [];
-		this.index = -1;
-		// FIXME: leave default state or always leave one state?
-	};
-	 
-	UndoManager.prototype.canUndo = function() {
-		return this.index > 0;
-	};
-	 
-	UndoManager.prototype.canRedo = function() {
-		return this.index < this.states.length - 1;
-	};
-	 
-	UndoManager.prototype.undo = function() {
-		if (this.canUndo()) {
-			this.index--;
-		}
-	 
-		return this.get();
-	};
-	 
-	 
-	UndoManager.prototype.redo = function() {
-		if (this.canRedo()) {
-			this.index++;
-		}
-	 
-		return this.get();
-	};
-	 
-	UndoManager.prototype.get = function() {
-		return this.states[this.index];
-	};
-
-
-	/**************************/
-	// Dispatcher
-	/**************************/
-
-	function Dispatcher() {
-
-		var event_listeners = {
-
-		};
-
-		function on(type, listener) {
-			if (!(type in event_listeners)) {
-				event_listeners[type] = [];
-			}
-			var listeners = event_listeners[type];
-			listeners.push(listener);
-		}
-
-		function fire(type) {
-			var args = Array.prototype.slice.call(arguments);
-			args.shift();
-			var listeners = event_listeners[type];
-			if (!listeners) return;
-			for (var i = 0; i < listeners.length; i++) {
-				var listener = listeners[i];
-				listener.apply(listener, args);
-			}
-		}
-
-		this.on = on;
-		this.fire = fire;
-
-	}
-
-	function findTimeinLayer(layer, time) {
-		var values = layer.values;
-		var i, il;
-
-		// TODO optimize by checking time / binary search
-
-		for (i=0, il=values.length; i<il; i++) {
-			var value = values[i];
-			if (value.time === time) {
-				return {
-					index: i,
-					object: value
-				};
-			} else if (value.time > time) {
-				return i;
-			}
-		}
-
-		return i;
-	}
-
-
-	function timeAtLayer(layer, t) {
-		// Find the value of layer at t seconds.
-		// this expect layer to be sorted
-		// not the most optimize for now, but would do.
-
-		var values = layer.values;
-		var i, il, entry, prev_entry;
-
-		il = values.length;
-
-		// can't do anything
-		if (il === 0) return;
-
-		// find boundary cases
-		entry = values[0];
-		if (t < entry.time) {
-			return {
-				value: entry.value,
-				can_tween: false, // cannot tween
-				keyframe: false // not on keyframe
-			};
-		}
-
-		for (i=0; i<il; i++) {
-			prev_entry = entry;
-			entry = values[i];
-
-			if (t === entry.time) {
-				// only exception is on the last KF, where we display tween from prev entry
-				if (i === il - 1) {
-					return {
-						// index: i,
-						entry: prev_entry,
-						tween: prev_entry.tween,
-						can_tween: il > 1,
-						value: entry.value,
-						keyframe: true
-					};
-				}
-				return {
-					// index: i,
-					entry: entry,
-					tween: entry.tween,
-					can_tween: il > 1,
-					value: entry.value,
-					keyframe: true // il > 1
-				};
-			}
-			if (t < entry.time) {
-				// possibly a tween
-				if (!prev_entry.tween) { // or if value is none
-					return {
-						value: prev_entry.value,
-						tween: false,
-						entry: prev_entry,
-						can_tween: true,
-						keyframe: false
-					};
-				}
-
-				// calculate tween
-				var time_diff = entry.time - prev_entry.time;
-				var value_diff = entry.value - prev_entry.value;
-				var tween = prev_entry.tween;
-
-				var dt = t - prev_entry.time;
-				var k = dt / time_diff;
-				var new_value = prev_entry.value + Tweens[tween](k) * value_diff;
-
-				return {
-					entry: prev_entry,
-					value: new_value,
-					tween: prev_entry.tween,
-					can_tween: true,
-					keyframe: false
-				};
-			}
-		}
-		// time is after all entries
-		return {
-			value: entry.value,
-			can_tween: false,
-			keyframe: false
-		}; 
 
 	}
 
@@ -1014,9 +639,10 @@
 	*/
 
 
-	function TimelineController(target) {
-		// Aka Layer Manager
+	function Timeliner(target) {
+		// Aka Layer Manager / Controller
 
+		// Should persist current time too.
 		var layers = [];
 		window.l2 = layers;
 		var div = document.createElement('div');
@@ -1029,18 +655,22 @@
 		var layer_panel = new LayerContainer(layers, dispatcher);
 
 		var undo_manager = new UndoManager();
-		undo_manager.save(new UndoState(layers, 'Loaded'));
+
+		setTimeout(function() {
+			// hack!
+			undo_manager.save(new UndoState(layers, 'Loaded'));	
+		});
 
 		dispatcher.on('keyframe', function(layer, value) {
 			console.log('layer', layer, value);
 			var index = layers.indexOf(layer);
 			
-			// layer.values.push	
+			// layer.values.push
 			var t = timeline.current_frame;
 			
-			var v = findTimeinLayer(layer, t);
+			var v = utils.findTimeinLayer(layer, t);
 
-			console.log(v, '...keyframe index', index, format_friendly_seconds(t), typeof(v));
+			console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
 			if (typeof(v) === 'number') {
 				layer.values.splice(v, 0, {
 					time: t,
@@ -1065,9 +695,9 @@
 		dispatcher.on('value.change', function(layer, value) {
 			var t = timeline.current_frame;
 			
-			var v = findTimeinLayer(layer, t);
+			var v = utils.findTimeinLayer(layer, t);
 
-			console.log(v, 'value.change', layer, value, format_friendly_seconds(t), typeof(v));
+			console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
 			if (typeof(v) === 'number') {
 				layer.values.splice(v, 0, {
 					time: t,
@@ -1086,7 +716,7 @@
 
 		dispatcher.on('ease', function(layer, ease_type) {
 			var t = timeline.current_frame;
-			var v = timeAtLayer(layer, t);
+			var v = utils.timeAtLayer(layer, t);
 			// console.log('Ease Change > ', layer, value, v);
 			if (v && v.entry) {
 				v.entry.tween  = ease_type;
@@ -1106,12 +736,14 @@
 
 		function startPlaying() {
 			start_play = performance.now() - timeline.current_frame * 1000;
-			dispatcher.fire('controls.status', true);
+			layer_panel.setControlStatus(true);
+			// dispatcher.fire('controls.status', true);
 		}
 
 		function pausePlaying() {
 			start_play = null;
-			dispatcher.fire('controls.status', false);
+			layer_panel.setControlStatus(false);
+			// dispatcher.fire('controls.status', false);
 		}
 
 		dispatcher.on('controls.stop', function() {
@@ -1136,13 +768,23 @@
 		dispatcher.on('controls.undo', function() {
 			var history = undo_manager.undo();
 			layers = JSON.parse(history.state);
+			layer_panel.setState(layers);
 			timeline.setState(layers);
+			var t = timeline.current_frame;
+			layer_panel.repaint(t);
+			timeline.repaint();
 		});
 
 		dispatcher.on('controls.redo', function() {
 			var history = undo_manager.redo();
 			layers = JSON.parse(history.state);
+
+			layer_panel.setState(layers);
 			timeline.setState(layers);
+
+			var t = timeline.current_frame;
+			layer_panel.repaint(t);
+			timeline.repaint();
 		});
 
 		function repaint() {
@@ -1177,7 +819,6 @@
 
 		div.style.cssText = 'position: absolute; top: 0px;  '; // resize: both; left: 50px;
 
-
 		div.appendChild(layer_panel.dom);
 		div.appendChild(timeline.dom);
 
@@ -1188,6 +829,7 @@
 
 			layers.push(layer);
 
+			layer_panel.setState(layers);
 			layer_panel.repaint();
 			timeline.repaint();
 		}
@@ -1196,5 +838,447 @@
 
 	}
 
-	window.Timeliner = TimelineController;
-})();
+	window.Timeliner = Timeliner;
+
+},{"./dispatcher":1,"./settings":2,"./theme":3,"./tween":5,"./ui/layer_view":6,"./undo":8,"./utils":9}],5:[function(require,module,exports){
+/**************************/
+// Tweens
+/**************************/
+
+var Tweens = {
+	none: function(k) {
+		return 0;
+	},
+	linear: function(k) {
+		return k;
+	},
+	quadEaseIn: function(k) {
+		return k * k;
+	},
+	quadEaseOut: function(k) {
+		return - k * ( k - 2 );
+	},
+	quadEaseInOut: function(k) {
+		if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
+		return - 0.5 * ( --k * ( k - 2 ) - 1 );
+	}
+};
+
+module.exports = Tweens;
+},{}],6:[function(require,module,exports){
+var
+	Theme = require('../theme'),
+	Tweens = require('../tween'),
+	NumberUI = require('./number'),
+	Tweens = require('../tween'),
+	Settings = require('../settings'),
+	utils = require('../utils')
+;
+
+// TODO - tagged by index instead, work off layers.
+
+function LayerView(layer, dispatcher) {
+	var dom = document.createElement('div');
+
+	var label = document.createElement('span');
+	label.textContent = layer.name;
+	label.style.cssText = 'font-size: 12px; padding: 4px;';
+
+	var dropdown = document.createElement('select');
+	var option;
+	dropdown.style.cssText = 'font-size: 10px; width: 60px; margin: 0; float: right; text-align: right;';
+
+	for (var k in Tweens) {
+		option = document.createElement('option');
+		option.text = k;
+		dropdown.appendChild(option);
+	}
+
+	dropdown.addEventListener('change', function(e) {
+		dispatcher.fire('ease', layer, dropdown.value);
+	});
+
+	var keyframe_button = document.createElement('button');
+	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
+	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
+	
+	keyframe_button.addEventListener('click', function(e) {
+		console.log('keyframing...');
+		dispatcher.fire('keyframe', layer, value.value);
+	});
+
+	/*
+	// Prev Keyframe
+	var button = document.createElement('button');
+	button.textContent = '<';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+
+	// Next Keyframe
+	button = document.createElement('button');
+	button.textContent = '>';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+
+	// Mute
+	button = document.createElement('button');
+	button.textContent = 'M';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+
+	// Solo
+	button = document.createElement('button');
+	button.textContent = 'S';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+	*/
+
+	var value = new NumberUI(layer, dispatcher);
+
+	dom.appendChild(label);
+	dom.appendChild(keyframe_button);
+	dom.appendChild(value.dom);
+	dom.appendChild(dropdown);
+	
+	dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (Settings.LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
+	this.dom = dom;
+
+	this.repaint = repaint;
+
+	this.setState = function(l) {
+		layer = l;
+	};
+
+	function repaint(s) {
+
+		dropdown.style.opacity = 0;
+		dropdown.disabled = true;
+		keyframe_button.style.color = Theme.b;
+		// keyframe_button.disabled = false;
+		// keyframe_button.style.borderStyle = 'solid';
+
+		var tween = null;
+		var o = utils.timeAtLayer(layer, s);
+
+		if (!o) return;
+
+		if (o.can_tween) {
+			dropdown.style.opacity = 1;
+			dropdown.disabled = false;
+			// if (o.tween)
+			dropdown.value = o.tween ? o.tween : 'none';
+			if (dropdown.value === 'none') dropdown.style.opacity = 0.5;
+		}
+
+		if (o.keyframe) {
+			keyframe_button.style.color = Theme.c;
+			// keyframe_button.disabled = true;
+			// keyframe_button.style.borderStyle = 'inset';
+		}
+
+		value.setValue(o.value);
+
+		dispatcher.fire('target.notify', layer.name, o.value);
+	}
+
+}
+
+module.exports = LayerView;
+
+},{"../settings":2,"../theme":3,"../tween":5,"../utils":9,"./number":7}],7:[function(require,module,exports){
+var Theme = require('../theme');
+
+/**************************/
+// NumberUI
+/**************************/
+
+function NumberUI(layer, dispatcher) {
+	var span = document.createElement('input');
+	// span.type = 'number'; // spinner
+	
+	span.style.cssText = 'text-align: center; font-size: 10px; padding: 1px; cursor: ns-resize; float:right; width:40px; margin: 0;  margin-right: 10px; appearance: none; outline: none; border: 0; background: none; border-bottom: 1px dotted '+ Theme.c+ '; color: ' + Theme.c;
+
+	var me = this;
+
+	me.value = span.value = layer.tmpValue;
+
+	this.setState = function(l) {
+		layer = l;
+	};
+
+	span.addEventListener('change', function(e) {
+		console.log('input changed', span.value);
+		fireChange();
+	});
+
+	this.value = layer.tmpValue;
+
+	var startx, starty, moved;
+
+	span.addEventListener('mousedown', function(e) {
+		e.preventDefault();
+		startx = e.clientX;
+		starty = e.clientY;
+		moved = false;
+
+		// 
+
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+	});
+
+	function onMouseMove(e) {
+		// console.log(e.clientX, e.clientY);
+		var dx = e.clientX - startx;
+		var dy = e.clientY - starty;
+		span.value = me.value + dx * 0.000001 + dy * -10 * 0.01;
+		dispatcher.fire('target.notify', layer.name, span.value);
+
+		moved = true;
+	}
+
+	function onMouseUp() {
+		document.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
+
+		if (moved) fireChange();
+		else {
+			// single click
+			span.focus();
+		}
+	}
+
+	function fireChange() {
+		layer.tmpValue = me.value = parseFloat(span.value, 10);
+		dispatcher.fire('value.change', layer, me.value);
+		dispatcher.fire('target.notify', layer.name, me.value);
+	}
+
+	this.dom = span;
+
+	this.setValue = function(e) {
+		span.value = e;
+	};
+}
+
+module.exports = NumberUI;
+},{"../theme":3}],8:[function(require,module,exports){
+/**************************/
+// Undo Manager
+/**************************/
+
+function UndoState(state, description) {
+	this.state = JSON.stringify(state);
+	this.description = description;
+	console.log('Saved: ', description);
+}
+
+function UndoManager(max) {
+	this.MAX_ITEMS = max || 100;
+	this.clear();
+}
+
+UndoManager.prototype.save = function(state) {
+	var states = this.states;
+	var next_index = this.index + 1;
+	var to_remove = states.length - next_index;
+	states.splice(next_index, to_remove, state);
+
+	if (states.length > this.MAX_ITEMS) {
+		states.shift();
+	}
+
+	this.index = states.length - 1;
+};
+
+UndoManager.prototype.clear = function() {
+	this.states = [];
+	this.index = -1;
+	// FIXME: leave default state or always leave one state?
+};
+
+UndoManager.prototype.canUndo = function() {
+	return this.index > 0;
+	// && this.states.length > 1
+};
+
+UndoManager.prototype.canRedo = function() {
+	return this.index < this.states.length - 1;
+};
+
+UndoManager.prototype.undo = function() {
+	if (this.canUndo()) {
+		this.index--;
+	}
+
+	return this.get();
+};
+
+UndoManager.prototype.redo = function() {
+	if (this.canRedo()) {
+		this.index++;
+	}
+
+	return this.get();
+};
+
+UndoManager.prototype.get = function() {
+	return this.states[this.index];
+};
+
+module.exports = {
+	UndoState: UndoState,
+	UndoManager: UndoManager
+};
+},{}],9:[function(require,module,exports){
+var
+	Tweens = require('./tween');
+
+module.exports = {
+	format_friendly_seconds: format_friendly_seconds,
+	findTimeinLayer: findTimeinLayer,
+	timeAtLayer: timeAtLayer
+};
+
+/**************************/
+// Utils
+/**************************/
+
+
+function format_friendly_seconds(s, type) {
+	// TODO Refactor to 60fps???
+	// 20 mins * 60 sec = 1080 
+	// 1080s * 60fps = 1080 * 60 < Number.MAX_SAFE_INTEGER
+
+	var raw_secs = s | 0;
+	var secs_micro = s % 60;
+	var secs = raw_secs % 60;
+	var raw_mins = raw_secs / 60 | 0;
+	var mins = raw_mins % 60;
+	var hours = raw_mins / 60 | 0;
+
+	var secs_str = (secs / 100).toFixed(2).substring(2);
+
+	var str = mins + ':' + secs_str;
+
+	if (s % 1 > 0) {
+		var t2 = (s % 1) * 60;
+		if (type === 'frames') str = secs + '+' + t2.toFixed(0) + 'f';
+		else str += ((s % 1).toFixed(2)).substring(1);
+		// else str = mins + ':' + secs_micro;
+		// else str = secs_micro + 's'; /// .toFixed(2)
+	}
+	return str;	
+}
+
+
+function findTimeinLayer(layer, time) {
+	var values = layer.values;
+	var i, il;
+
+	// TODO optimize by checking time / binary search
+
+	for (i=0, il=values.length; i<il; i++) {
+		var value = values[i];
+		if (value.time === time) {
+			return {
+				index: i,
+				object: value
+			};
+		} else if (value.time > time) {
+			return i;
+		}
+	}
+
+	return i;
+}
+
+
+function timeAtLayer(layer, t) {
+	// Find the value of layer at t seconds.
+	// this expect layer to be sorted
+	// not the most optimized for now, but would do.
+
+	var values = layer.values;
+	var i, il, entry, prev_entry;
+
+	il = values.length;
+
+	// can't do anything
+	if (il === 0) return;
+
+	// find boundary cases
+	entry = values[0];
+	if (t < entry.time) {
+		return {
+			value: entry.value,
+			can_tween: false, // cannot tween
+			keyframe: false // not on keyframe
+		};
+	}
+
+	for (i=0; i<il; i++) {
+		prev_entry = entry;
+		entry = values[i];
+
+		if (t === entry.time) {
+			// only exception is on the last KF, where we display tween from prev entry
+			if (i === il - 1) {
+				return {
+					// index: i,
+					entry: prev_entry,
+					tween: prev_entry.tween,
+					can_tween: il > 1,
+					value: entry.value,
+					keyframe: true
+				};
+			}
+			return {
+				// index: i,
+				entry: entry,
+				tween: entry.tween,
+				can_tween: il > 1,
+				value: entry.value,
+				keyframe: true // il > 1
+			};
+		}
+		if (t < entry.time) {
+			// possibly a tween
+			if (!prev_entry.tween) { // or if value is none
+				return {
+					value: prev_entry.value,
+					tween: false,
+					entry: prev_entry,
+					can_tween: true,
+					keyframe: false
+				};
+			}
+
+			// calculate tween
+			var time_diff = entry.time - prev_entry.time;
+			var value_diff = entry.value - prev_entry.value;
+			var tween = prev_entry.tween;
+
+			var dt = t - prev_entry.time;
+			var k = dt / time_diff;
+			var new_value = prev_entry.value + Tweens[tween](k) * value_diff;
+
+			return {
+				entry: prev_entry,
+				value: new_value,
+				tween: prev_entry.tween,
+				can_tween: true,
+				keyframe: false
+			};
+		}
+	}
+	// time is after all entries
+	return {
+		value: entry.value,
+		can_tween: false,
+		keyframe: false
+	}; 
+
+}
+
+},{"./tween":5}]},{},[1,2,3,4,5,8,9])
