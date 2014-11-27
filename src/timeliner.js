@@ -4,21 +4,23 @@
 
 var undo = require('./undo'),
 	Dispatcher = require('./dispatcher'),
-	NumberUI = require('./ui/number'),
+	LayerUI = require('./ui/layer_view'),
 	Theme = require('./theme'),
+	Tweens = require('./tween'),
 	UndoManager = undo.UndoManager,
-	UndoState = undo.UndoState
+	UndoState = undo.UndoState,
+	Settings = require('./settings'),
+	utils = require('./utils')
 	;
 
-	var LINE_HEIGHT = 20;
-	var DIAMOND_SIZE = 10;
-	var MARKER_TRACK_HEIGHT = 50;
-	var width = 600;
-	var height = 200;
-
-	var LEFT_PANE_WIDTH = 250;
-	var DEFAULT_TIME_SCALE = 60;
-	var time_scale = DEFAULT_TIME_SCALE; // number of pixels to 1 second
+	var 
+		LINE_HEIGHT = Settings.LINE_HEIGHT,
+		DIAMOND_SIZE = Settings.DIAMOND_SIZE,
+		MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
+		width = Settings.width,
+		height = Settings.height,
+		LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
+		time_scale = Settings.time_scale;
 
 	var frame_start = 0; // this is the current scroll position.
 
@@ -73,31 +75,6 @@ var undo = require('./undo'),
 	}
 
 	time_scaled();
-
-
-	/**************************/
-	// Tweens
-	/**************************/
-
-	var Tweens = {
-		none: function(k) {
-			return 0;
-		},
-		linear: function(k) {
-			return k;
-		},
-		quadEaseIn: function(k) {
-			return k * k;
-		},
-		quadEaseOut: function(k) {
-			return - k * ( k - 2 );
-		},
-		quadEaseInOut: function(k) {
-			if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
-			return - 0.5 * ( --k * ( k - 2 ) - 1 );
-		}
-	};
-
 
 	/**************************/
 	// Timeline Panel
@@ -173,7 +150,7 @@ var undo = require('./undo'),
 				ctx.textAlign = 'center';
 
 				var t = i * units / time_scale;
-				t = format_friendly_seconds(t, subd_type);
+				t = utils.format_friendly_seconds(t, subd_type);
 				ctx.fillText(t, x, 28);
 			}
 
@@ -265,7 +242,7 @@ var undo = require('./undo'),
 			ctx.strokeStyle = 'red'; // Theme.c
 			x = (me.current_frame - frame_start) * time_scale + LEFT_GUTTER;
 
-			var txt = format_friendly_seconds(me.current_frame);
+			var txt = utils.format_friendly_seconds(me.current_frame);
 			var textWidth = ctx.measureText(txt).width;
 
 			var base_line = MARKER_TRACK_HEIGHT- 5, half_rect = textWidth / 2 + 4;
@@ -343,7 +320,7 @@ var undo = require('./undo'),
 			console.log('track', track, 't',s, layers[track]);
 			
 			if (layers[track]) {
-				var tmp = findTimeinLayer(layers[track], s);
+				var tmp = utils.findTimeinLayer(layers[track], s);
 
 			 	if (typeof(tmp) !== 'number') dragObject = tmp;
 			}
@@ -428,42 +405,6 @@ var undo = require('./undo'),
 		};
 
 	}
-
-
-	/**************************/
-	// Utils
-	/**************************/
-
-
-	function format_friendly_seconds(s, type) {
-		// TODO Refactor to 60fps???
-		// 20 mins * 60 sec = 1080 
-		// 1080s * 60fps = 1080 * 60 < Number.MAX_SAFE_INTEGER
-
-		var raw_secs = s | 0;
-		var secs_micro = s % 60;
-		var secs = raw_secs % 60;
-		var raw_mins = raw_secs / 60 | 0;
-		var mins = raw_mins % 60;
-		var hours = raw_mins / 60 | 0;
-
-		var secs_str = (secs / 100).toFixed(2).substring(2);
-
-		var str = mins + ':' + secs_str;
-
-		if (s % 1 > 0) {
-			var t2 = (s % 1) * 60;
-			if (type === 'frames') str = secs + '+' + t2.toFixed(0) + 'f';
-			else str += ((s % 1).toFixed(2)).substring(1);
-			// else str = mins + ':' + secs_micro;
-			// else str = secs_micro + 's'; /// .toFixed(2)
-		}
-		return str;
-
-		
-	}
-
-
 
 	function LayerContainer(layers, dispatcher) {
 		var div = document.createElement('div');
@@ -576,110 +517,6 @@ var undo = require('./undo'),
 		this.dom = div;
 	}
 
-	function LayerUI(layer, dispatcher) {
-		var dom = document.createElement('div');
-
-		var label = document.createElement('span');
-		label.textContent = layer.name;
-		label.style.cssText = 'font-size: 12px; padding: 4px;';
-
-		var dropdown = document.createElement('select');
-		var option;
-		dropdown.style.cssText = 'font-size: 10px; width: 60px; margin: 0; float: right; text-align: right;';
-
-		for (var k in Tweens) {
-			option = document.createElement('option');
-			option.text = k;
-			dropdown.appendChild(option);
-		}
-
-		dropdown.addEventListener('change', function(e) {
-			dispatcher.fire('ease', layer, dropdown.value);
-		});
-
-		var keyframe_button = document.createElement('button');
-		keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
-		keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
-		
-		keyframe_button.addEventListener('click', function(e) {
-			console.log('keyframing...');
-			dispatcher.fire('keyframe', layer, value.value);
-		});
-
-		/*
-		// Prev Keyframe
-		var button = document.createElement('button');
-		button.textContent = '<';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-
-		// Next Keyframe
-		button = document.createElement('button');
-		button.textContent = '>';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-
-		// Mute
-		button = document.createElement('button');
-		button.textContent = 'M';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-
-		// Solo
-		button = document.createElement('button');
-		button.textContent = 'S';
-		button.style.cssText = 'font-size: 12px; padding: 1px; ';
-		dom.appendChild(button);
-		*/
-
-		var value = new NumberUI(layer, dispatcher);
-
-		dom.appendChild(label);
-		dom.appendChild(keyframe_button);
-		dom.appendChild(value.dom);
-		dom.appendChild(dropdown);
-		
-		dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
-		this.dom = dom;
-
-
-		this.repaint = repaint;
-
-		function repaint(s) {
-
-			dropdown.style.opacity = 0;
-			dropdown.disabled = true;
-			keyframe_button.style.color = Theme.b;
-			// keyframe_button.disabled = false;
-			// keyframe_button.style.borderStyle = 'solid';
-
-			var tween = null;
-			var o = timeAtLayer(layer, s);
-
-			if (!o) return;
-
-			if (o.can_tween) {
-				dropdown.style.opacity = 1;
-				dropdown.disabled = false;
-				// if (o.tween)
-				dropdown.value = o.tween ? o.tween : 'none';
-				if (dropdown.value === 'none') dropdown.style.opacity = 0.5;
-			}
-
-			if (o.keyframe) {
-				keyframe_button.style.color = Theme.c;
-				// keyframe_button.disabled = true;
-				// keyframe_button.style.borderStyle = 'inset';
-			}
-
-			value.setValue(o.value);
-
-			dispatcher.fire('target.notify', layer.name, o.value);
-		}
-
-	}
-
-
 	function restyle(left, right) {
 		left.style.cssText = 'position: absolute; left: 0px; top: 0px; width: 400px; height: ' + height + 'px;background: ' + Theme.a + ';';
 		left.style.width = LEFT_PANE_WIDTH + 'px';
@@ -687,116 +524,6 @@ var undo = require('./undo'),
 		right.style.cssText = 'position: absolute; left: 400px; top: 0px;';
 		right.style.left = LEFT_PANE_WIDTH + 'px';
 		
-
-	}
-
-	
-	function findTimeinLayer(layer, time) {
-		var values = layer.values;
-		var i, il;
-
-		// TODO optimize by checking time / binary search
-
-		for (i=0, il=values.length; i<il; i++) {
-			var value = values[i];
-			if (value.time === time) {
-				return {
-					index: i,
-					object: value
-				};
-			} else if (value.time > time) {
-				return i;
-			}
-		}
-
-		return i;
-	}
-
-
-	function timeAtLayer(layer, t) {
-		// Find the value of layer at t seconds.
-		// this expect layer to be sorted
-		// not the most optimize for now, but would do.
-
-		var values = layer.values;
-		var i, il, entry, prev_entry;
-
-		il = values.length;
-
-		// can't do anything
-		if (il === 0) return;
-
-		// find boundary cases
-		entry = values[0];
-		if (t < entry.time) {
-			return {
-				value: entry.value,
-				can_tween: false, // cannot tween
-				keyframe: false // not on keyframe
-			};
-		}
-
-		for (i=0; i<il; i++) {
-			prev_entry = entry;
-			entry = values[i];
-
-			if (t === entry.time) {
-				// only exception is on the last KF, where we display tween from prev entry
-				if (i === il - 1) {
-					return {
-						// index: i,
-						entry: prev_entry,
-						tween: prev_entry.tween,
-						can_tween: il > 1,
-						value: entry.value,
-						keyframe: true
-					};
-				}
-				return {
-					// index: i,
-					entry: entry,
-					tween: entry.tween,
-					can_tween: il > 1,
-					value: entry.value,
-					keyframe: true // il > 1
-				};
-			}
-			if (t < entry.time) {
-				// possibly a tween
-				if (!prev_entry.tween) { // or if value is none
-					return {
-						value: prev_entry.value,
-						tween: false,
-						entry: prev_entry,
-						can_tween: true,
-						keyframe: false
-					};
-				}
-
-				// calculate tween
-				var time_diff = entry.time - prev_entry.time;
-				var value_diff = entry.value - prev_entry.value;
-				var tween = prev_entry.tween;
-
-				var dt = t - prev_entry.time;
-				var k = dt / time_diff;
-				var new_value = prev_entry.value + Tweens[tween](k) * value_diff;
-
-				return {
-					entry: prev_entry,
-					value: new_value,
-					tween: prev_entry.tween,
-					can_tween: true,
-					keyframe: false
-				};
-			}
-		}
-		// time is after all entries
-		return {
-			value: entry.value,
-			can_tween: false,
-			keyframe: false
-		}; 
 
 	}
 
@@ -872,9 +599,9 @@ var undo = require('./undo'),
 			// layer.values.push	
 			var t = timeline.current_frame;
 			
-			var v = findTimeinLayer(layer, t);
+			var v = utils.findTimeinLayer(layer, t);
 
-			console.log(v, '...keyframe index', index, format_friendly_seconds(t), typeof(v));
+			console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
 			if (typeof(v) === 'number') {
 				layer.values.splice(v, 0, {
 					time: t,
@@ -899,9 +626,9 @@ var undo = require('./undo'),
 		dispatcher.on('value.change', function(layer, value) {
 			var t = timeline.current_frame;
 			
-			var v = findTimeinLayer(layer, t);
+			var v = utils.findTimeinLayer(layer, t);
 
-			console.log(v, 'value.change', layer, value, format_friendly_seconds(t), typeof(v));
+			console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
 			if (typeof(v) === 'number') {
 				layer.values.splice(v, 0, {
 					time: t,
