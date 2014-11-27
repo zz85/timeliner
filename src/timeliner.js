@@ -582,8 +582,8 @@ var undo = require('./undo'),
 	*/
 
 
-	function TimelineController(target) {
-		// Aka Layer Manager
+	function Timeliner(target) {
+		// Aka Layer Manager / Controller
 
 		// Should persist current time too.
 		var layers = [];
@@ -598,13 +598,17 @@ var undo = require('./undo'),
 		var layer_panel = new LayerContainer(layers, dispatcher);
 
 		var undo_manager = new UndoManager();
-		undo_manager.save(new UndoState(layers, 'Loaded'));
+
+		setTimeout(function() {
+			// hack!
+			undo_manager.save(new UndoState(layers, 'Loaded'));	
+		});
 
 		dispatcher.on('keyframe', function(layer, value) {
 			console.log('layer', layer, value);
 			var index = layers.indexOf(layer);
 			
-			// layer.values.push	
+			// layer.values.push
 			var t = timeline.current_frame;
 			
 			var v = utils.findTimeinLayer(layer, t);
@@ -758,7 +762,6 @@ var undo = require('./undo'),
 
 		div.style.cssText = 'position: absolute; top: 0px;  '; // resize: both; left: 50px;
 
-
 		div.appendChild(layer_panel.dom);
 		div.appendChild(timeline.dom);
 
@@ -778,4 +781,4 @@ var undo = require('./undo'),
 
 	}
 
-	window.Timeliner = TimelineController;
+	window.Timeliner = Timeliner;

@@ -34,6 +34,7 @@ UndoManager.prototype.clear = function() {
 
 UndoManager.prototype.canUndo = function() {
 	return this.index > 0;
+	// && this.states.length > 1
 };
 
 UndoManager.prototype.canRedo = function() {

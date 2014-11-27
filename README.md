@@ -19,8 +19,12 @@ There are currently already couple of timeline libraries which are pretty good (
 2. [Keytime Editor](https://github.com/mattdesl/keytime-editor/) by Matt DesLauriers
 3. [Frame.js](https://github.com/mrdoob/frame.js/) by Ricardo Cabello
 (Side note: mrdoob's [talk on this](http://2013.jsconf.asia/blog/2013/11/8/jsconfasia-2013-mrdoob-ricardo-cabello-framejs) also showcase interesting editors used by the demoscene)
+4. [TweenTime](https://github.com/idflood/TweenTime/) by idflood.
 
 I initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
+
+## Philosophy
+Timeliner should be lightweight and should be added into any webpages with ease. It could but should not standalone, with capabilities to work well with other controls like dat.gui or gui.js.
 
 ## Usage
 
@@ -53,6 +57,7 @@ or
 2. Select easing type from the dropdown
 
 ## Curent Features
+- undo / redo (basic)
 - slider time scale (basic)
 - fix positioning mouse events
 - basic play toggled with pause button
@@ -72,11 +77,15 @@ or
 - adjust values (basic)
 
 ## TODO
-- undo / redo
 - save / load
 - attempt virtual-dom / v.rendering
 - [window management](http://codepen.io/zz85/pen/gbOoVP)
 - curve editor
 - support audio
 - npm-ify
+- keyboard shortcuts
+- support touch
+- support hdpi
+- scrolling
+- icons
 - a whole ton more
