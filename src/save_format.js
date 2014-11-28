@@ -31,17 +31,16 @@
 ] currently_playing, scale.
 */
 
-// {
-// 	version: 11,
-// 	modified: 123,
-// 	name: 'Name',
+var sample = {
+	version: 1.1,
+	modified: new Date,
+	title: 'Sample Title',
 
-// 	ui: {
+	ui: {
 
-// 	},
+	},
 
-// 	data: {
+	data: {
 
-// 	}
-
-// }
+	}
+}

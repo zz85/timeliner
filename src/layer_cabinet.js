@@ -69,11 +69,7 @@ function LayerCabinet(layers, dispatcher) {
 	function changeRange() {
 		// var v = range.max - range.value;
 		var v = range.value;
-		console.log('range', v);
-		time_scale = v;
-		time_scaled();
-		// FIXME
-		dispatcher.fire('repaint');
+		dispatcher.fire('update.scale', v);
 	}		
 
 	var layer_uis = [];

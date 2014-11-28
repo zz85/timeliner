@@ -78,6 +78,7 @@ function LayerView(layer, dispatcher) {
 
 	this.setState = function(l) {
 		layer = l;
+		value.setState(l);
 	};
 
 	function repaint(s) {

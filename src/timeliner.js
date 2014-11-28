@@ -5,7 +5,6 @@
 var undo = require('./undo'),
 	Dispatcher = require('./dispatcher'),
 	Theme = require('./theme'),
-	Tweens = require('./tween'),
 	UndoManager = undo.UndoManager,
 	UndoState = undo.UndoState,
 	Settings = require('./settings'),
@@ -13,8 +12,6 @@ var undo = require('./undo'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel')
 	;
-
-	
 
 	function LayerProp(name) {
 		this.name = name;
@@ -158,7 +155,9 @@ var undo = require('./undo'),
 			if (target) target[name] = value;
 		});
 
-		dispatcher.on('repaint', function() {
+		dispatcher.on('update.scale', function(v) {
+			console.log('range', v);
+			timeline.setTimeScale(v);
 			timeline.repaint();
 		});
 
@@ -215,7 +214,16 @@ var undo = require('./undo'),
 			}
 		}
 
+		function load(o) {
+			layers = o;
+			layer_panel.setState(layers);
+			timeline.setState(layers);
+			layer_panel.repaint();
+			timeline.repaint();
+		}
+
 		this.save = save;
+		this.load = load;
 
 		div.style.cssText = 'position: absolute; top: 0px;  '; // resize: both; left: 50px;
 

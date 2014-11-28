@@ -1,8 +1,8 @@
 
 var DEFAULT_TIME_SCALE = 60;
 module.exports = {
-	LINE_HEIGHT: 28,
-	DIAMOND_SIZE: 10,
+	LINE_HEIGHT: 26,
+	DIAMOND_SIZE: 12,
 	MARKER_TRACK_HEIGHT: 50,
 	width: 600,
 	height: 200,

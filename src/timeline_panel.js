@@ -82,6 +82,11 @@ function TimelinePanel(layers, dispatcher) {
 		canvas.height = Settings.height;
 	};
 
+	this.setTimeScale = function(v) {
+		time_scale = v;
+		time_scaled();
+	};
+
 	this.dom = canvas;
 
 	var ctx = canvas.getContext('2d');
@@ -210,6 +215,12 @@ function TimelinePanel(layers, dispatcher) {
 				ctx.fill();
 
 				// draw easing graph
+				var color = parseInt(frame._color.substring(1,7), 16);
+				color = 0xffffff ^ color;
+				color = color.toString(16);           // convert to hex
+				color = '#' + ('000000' + color).slice(-6); 
+
+				ctx.strokeStyle = color;
 				var x3;
 				ctx.beginPath();
 				ctx.moveTo(x, y2);
