@@ -1,14 +1,14 @@
 var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
-	utils = require('./utils');
+	utils = require('./utils'),
+	Tweens = require('./tween');
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,
 		DIAMOND_SIZE = Settings.DIAMOND_SIZE,
 		MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
-		width = Settings.width,
-		height = Settings.height,
+		
 		LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
 		time_scale = Settings.time_scale;
 
@@ -77,6 +77,11 @@ function TimelinePanel(layers, dispatcher) {
 	canvas.width = Settings.width;
 	canvas.height = Settings.height;
 
+	this.resize = function() {
+		canvas.width = Settings.width;
+		canvas.height = Settings.height;
+	};
+
 	this.dom = canvas;
 
 	var ctx = canvas.getContext('2d');
@@ -109,6 +114,8 @@ function TimelinePanel(layers, dispatcher) {
 
 		ctx.lineWidth = 1; // .5, 1, 2
 
+		width = Settings.width,
+		height = Settings.height,
 
 		il = layers.length;
 		for (i = 0; i <= il; i++) {
@@ -191,22 +198,34 @@ function TimelinePanel(layers, dispatcher) {
 
 				if (!frame.tween || frame.tween == 'none') continue;
 				
-				var y2 = y + LINE_HEIGHT;
+				var y1 = y + 2;
+				var y2 = y + LINE_HEIGHT - 2;
 				// console.log('concert', frame.time, '->', x, y2);
 				ctx.beginPath();
-				ctx.moveTo(x, y + 2);
-				ctx.lineTo(x2, y + 2);
-				ctx.lineTo(x2, y2 - 2);
-				ctx.lineTo(x, y2 - 2);
+				ctx.moveTo(x, y1);
+				ctx.lineTo(x2, y1);
+				ctx.lineTo(x2, y2);
+				ctx.lineTo(x, y2);
 				ctx.closePath();
 				ctx.fill();
-				// ctx.stroke();
+
+				// draw easing graph
+				var x3;
+				ctx.beginPath();
+				ctx.moveTo(x, y2);
+				var dy = y1 - y2;
+				var dx = x2 - x;
+
+				for (x3=x; x3 < x2; x3++) {
+					ctx.lineTo(x3, y2 + Tweens[frame.tween]((x3 - x)/dx) * dy);
+				}
+				ctx.stroke();
 			}
 
 			ctx.fillStyle = Theme.d;
 			ctx.strokeStyle = Theme.b;
 
-			var j, frame, y2;
+			var j, frame;
 
 			for (j = 0; j < values.length; j++) {
 				frame = values[j];

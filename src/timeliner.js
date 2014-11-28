@@ -15,13 +15,6 @@ var undo = require('./undo'),
 	;
 
 	
-	function restyle(left, right) {
-		left.style.cssText = 'position: absolute; left: 0px; top: 0px; width: 400px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
-		left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
-
-		right.style.cssText = 'position: absolute; left: 400px; top: 0px;';
-		right.style.left = Settings.LEFT_PANE_WIDTH + 'px';
-	}
 
 	function LayerProp(name) {
 		this.name = name;
@@ -36,40 +29,6 @@ var undo = require('./undo'),
 		this.step
 		*/
 	}
-
-	/* Schema */
-	/*
-	[
-		{
-			name: 'abc',
-			props: {
-				min:
-				max:
-				step:
-				real_step:
-			},
-			values: [
-				[t, v, ''],
-				{time: t, value: v, tween: bla, _color: 'red'},
-				{time: t, value: v, tween: bla},
-				{time: t, value: v, tween: bla},
-				{time: t, value: v, tween: bla},
-				{time: t, value: v},
-			],
-			ui: {
-				mute: true, // mute
-				solo: true,
-
-			},
-			tmp: {
-				value: value,
-				_color:
-			}
-		}
-		,...
-	] currently_playing, scale.
-	*/
-
 
 	function Timeliner(target) {
 		// Aka Layer Manager / Controller
@@ -238,8 +197,10 @@ var undo = require('./undo'),
 					start_play = performance.now();
 				}
 			}
-			timeline._paint();
+
 			restyle(layer_panel.dom, timeline.dom);
+			timeline._paint();
+			
 		}
 
 		repaint();
@@ -283,9 +244,26 @@ var undo = require('./undo'),
 				dispatcher.fire('controls.toggle_play');
 			}
 			if (undo) {
-				dispatcher.fire('controls.undo');
+				// dispatcher.fire('controls.undo');
 			}
 		});
+
+
+
+		window.addEventListener('resize', function() {
+			console.log('resized', innerWidth, innerHeight);
+			Settings.width = innerWidth - Settings.LEFT_PANE_WIDTH;
+			timeline.resize();
+			timeline.repaint();
+		});
+
+		function restyle(left, right) {
+			left.style.cssText = 'position: absolute; left: 0px; top: 0px; width: 400px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
+			left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
+
+			right.style.cssText = 'position: absolute; left: 400px; top: 0px;';
+			right.style.left = Settings.LEFT_PANE_WIDTH + 'px';
+		}
 
 		document.body.appendChild(div);
 

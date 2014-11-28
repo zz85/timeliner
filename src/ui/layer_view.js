@@ -1,6 +1,5 @@
 var
 	Theme = require('../theme'),
-	Tweens = require('../tween'),
 	NumberUI = require('./number'),
 	Tweens = require('../tween'),
 	Settings = require('../settings'),
