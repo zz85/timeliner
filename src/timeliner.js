@@ -117,7 +117,8 @@ var undo = require('./undo'),
 			// save();
 		});
 
-		var start_play = null;
+		var start_play = null,
+			played_from = 0; // requires some more tweaking
 		
 		dispatcher.on('controls.toggle_play', function() {
 			if (start_play) {
@@ -126,10 +127,20 @@ var undo = require('./undo'),
 				startPlaying();
 			}
 		});
+
+		dispatcher.on('controls.restart_play', function() {
+			if (!start_play) {
+				startPlaying();
+			}
+
+			timeline.updateTime(played_from);
+		});
+
 		dispatcher.on('controls.play', startPlaying);
 		dispatcher.on('controls.pause', pausePlaying);
 
 		function startPlaying() {
+			// played_from = timeline.current_frame;
 			start_play = performance.now() - timeline.current_frame * 1000;
 			layer_panel.setControlStatus(true);
 			// dispatcher.fire('controls.status', true);
@@ -235,23 +246,34 @@ var undo = require('./undo'),
 		// 	console.log('kp', e);
 		// });
 		// document.addEventListener('keyup', function(e) {
-		// 	var undo = e.metaKey && e.keyCode == 91 && !e.shiftKey;
-		// 	var redo = e.metaKey && e.keyCode == 91 && e.shiftKey;
-			
 		// 	if (undo) console.log('UNDO');
 			
 		// 	console.log('kd', e);
 		// });
 
+		// Keyboard Shortcuts
+		// Space - play
+		// Enter - play from last played or beginging
+		// k - keyframe
+
 		document.addEventListener('keydown', function(e) {
 			var play = e.keyCode == 32; // space
+			var enter = e.keyCode == 13; // 
 			var undo = e.metaKey && e.keyCode == 91 && !e.shiftKey;
 			// enter
+
+			console.log(e.keyCode);
+
+			var active = document.activeElement.nodeName;
+			console.log( active);
+
+			if (active.match(/(INPUT|BUTTON|SELECT)/)) return;
 
 			if (play) {
 				dispatcher.fire('controls.toggle_play');
 			}
-			if (undo) {
+			else if (enter) {
+				dispatcher.fire('controls.restart_play');
 				// dispatcher.fire('controls.undo');
 			}
 		});
