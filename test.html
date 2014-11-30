@@ -1,4 +1,7 @@
 <html>
+<head>
+	<link rel="stylesheet" href="fonts/font-awesome-4.2.0/css/font-awesome.css">
+</head>
 <body>
 <style>
 #box {
@@ -10,6 +13,25 @@
 
 body {
 	overflow: hidden;
+	font-family: monospace;
+}
+
+.tfa {
+	color: #b8b8b8;
+	padding: 0.3em;
+	margin: 0.2em;
+	background: none;
+	outline: none;
+	border: none;
+	font-size: 16px;
+}
+
+.tfa:hover {
+	color: #d6d6d6;
+}
+
+.tfa:inactive {
+	color: #535353;
 }
 </style>
 
@@ -24,9 +46,12 @@ var target = {
 
 // initialize timeliner
 var timeliner = new Timeliner(target);
-timeliner.addLayer('x');
-timeliner.addLayer('y');
-timeliner.addLayer('rotate');
+// timeliner.addLayer('x');
+// timeliner.addLayer('y');
+// timeliner.addLayer('rotate');
+
+var o = [{"name":"x","values":[],"tmpValue":0,"_color":"#10b00d"},{"name":"y","values":[{"time":0,"value":3,"_color":"#4a2392","tween":"quadEaseIn"},{"time":3.3,"value":-1.1999850000000003,"_color":"#cddfd8"}],"tmpValue":-1.1999850000000003,"_color":"#344260"},{"name":"rotate","values":[{"time":0,"value":4.200005,"_color":"#ec9bb5","tween":"quadEaseInOut"},{"time":2.1,"value":9.300005,"_color":"#ac8e14","tween":"quadEaseIn"},{"time":5,"value":9.300005,"_color":"#5c659"}],"tmpValue":9.300005,"_color":"#1fa995"}];
+timeliner.load(o);
 
 var w2 = window.innerWidth / 2;
 var h2 = window.innerHeight / 2;

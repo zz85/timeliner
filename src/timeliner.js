@@ -79,6 +79,11 @@ var undo = require('./undo'),
 
 		});
 
+		dispatcher.on('keyframe.move', function(layer, value) {
+			console.log('kf moved!!!')
+			undo_manager.save(new UndoState(layers, 'Moved Keyframe'));
+		});
+
 		// dispatcher.fire('value.change', layer, me.value);
 		dispatcher.on('value.change', function(layer, value) {
 			var t = timeline.current_frame;
@@ -264,10 +269,12 @@ var undo = require('./undo'),
 
 			console.log(e.keyCode);
 
-			var active = document.activeElement.nodeName;
-			console.log( active);
+			var active = document.activeElement;
+			// console.log( active.nodeName );
 
-			if (active.match(/(INPUT|BUTTON|SELECT)/)) return;
+			if (active.nodeName.match(/(INPUT|BUTTON|SELECT)/)) {
+				active.blur();
+			};
 
 			if (play) {
 				dispatcher.fire('controls.toggle_play');
@@ -288,12 +295,15 @@ var undo = require('./undo'),
 		});
 
 		function restyle(left, right) {
-			left.style.cssText = 'position: absolute; left: 0px; top: 0px; width: 400px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
+			left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
 			left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
 
-			right.style.cssText = 'position: absolute; left: 400px; top: 0px;';
+			// right.style.cssText = 'position: absolute; top: 0px;';
+			right.style.position = 'absolute';
+			right.style.top = '0px';
 			right.style.left = Settings.LEFT_PANE_WIDTH + 'px';
 		}
+
 
 		document.body.appendChild(div);
 

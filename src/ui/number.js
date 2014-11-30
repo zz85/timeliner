@@ -34,9 +34,34 @@ function NumberUI(layer, dispatcher) {
 		moved = false;
 
 		// 
-
 		document.addEventListener('mousemove', onMouseMove);
 		document.addEventListener('mouseup', onMouseUp);
+	});
+
+	span.addEventListener('touchstart', function(e) {
+		e.preventDefault();
+		var e = e.touches[0];
+		startx = e.clientX;
+		starty = e.clientY;
+		console.log(startx);
+		moved = false;
+
+		// 
+		// document.addEventListener('mousemove', onMouseMove);
+		// document.addEventListener('mouseup', onMouseUp);
+	});
+
+	span.addEventListener('touchmove', function(e) {
+		var e = e.touches[0];
+		onMouseMove(e);
+	});
+
+	span.addEventListener('touchend', function(e) {
+		if (moved) fireChange();
+		else {
+			// single click
+			span.focus();
+		}
 	});
 
 	function onMouseMove(e) {

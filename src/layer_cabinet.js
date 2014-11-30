@@ -1,6 +1,8 @@
 var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view');
 
+var FONT = 'tfa fa fa-';
+
 function LayerCabinet(layers, dispatcher) {
 	var div = document.createElement('div');
 
@@ -9,17 +11,20 @@ function LayerCabinet(layers, dispatcher) {
 	// background: green;
 
 	var play_button = document.createElement('button');
-	play_button.textContent = 'play';
+	// play_button.textContent = 'play';
+	play_button.className = FONT + 'play';
 	top.appendChild(play_button);
 	var playing = false;
-	play_button.addEventListener('click', function() {
+	play_button.addEventListener('click', function(e) {
+		e.preventDefault();
 		dispatcher.fire('controls.toggle_play');
 		// if (!playing) dispatcher.fire('controls.play');
 		// else  dispatcher.fire('controls.pause');
 	});
 
 	var stop_button = document.createElement('button');
-	stop_button.textContent = 'stop';
+	// stop_button.textContent = 'stop';
+	stop_button.className = FONT + 'stop';
 	top.appendChild(stop_button);
 	stop_button.addEventListener('click', function() {
 		dispatcher.fire('controls.stop');
@@ -28,18 +33,101 @@ function LayerCabinet(layers, dispatcher) {
 	div.appendChild(top);
 
 	var undo_button = document.createElement('button');
-	undo_button.textContent = 'undo';
+	// undo_button.textContent = 'undo';
+	undo_button.className = FONT + 'undo';
 	top.appendChild(undo_button);
 	undo_button.addEventListener('click', function() {
 		dispatcher.fire('controls.undo');
 	});
 
 	var redo_button = document.createElement('button');
-	redo_button.textContent = 'redo';
+	// redo_button.textContent = 'redo';
+	redo_button.className = FONT + 'repeat';
 	top.appendChild(redo_button);
 	redo_button.addEventListener('click', function() {
 		dispatcher.fire('controls.redo');
 	});
+
+	/*
+	// Hide or show
+	var hide_button = document.createElement('button');
+	hide_button.className = FONT + 'eye';
+	hide_button.className = FONT + 'eye-slash';
+	top.appendChild(hide_button);
+	
+	// New
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'file';
+	top.appendChild(tmp_button);
+
+	// Open
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'folder-open';
+	top.appendChild(tmp_button);
+
+	// Save
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'save';
+	top.appendChild(tmp_button);
+
+	// Download JSON
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'download';
+	top.appendChild(tmp_button);
+
+	// upload json?
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'upload';
+	top.appendChild(tmp_button);
+
+	// Add
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'plus';
+	top.appendChild(tmp_button);
+
+	// Remove
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'minus';
+	top.appendChild(tmp_button);
+
+	// Load from remote server?
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'cloud-download';
+	top.appendChild(tmp_button);
+
+	// Save to remote server
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'cloud-upload';
+	top.appendChild(tmp_button);
+
+	// Set animation properties
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'edit';
+	top.appendChild(tmp_button);
+
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'inbox';
+	top.appendChild(tmp_button);
+
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'gear';
+	top.appendChild(tmp_button);
+
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'trash';
+	top.appendChild(tmp_button);
+
+	// Show List
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'list';
+	top.appendChild(tmp_button);
+
+	// Remove
+	var tmp_button = document.createElement('button');
+	tmp_button.className = FONT + 'remove';
+	top.appendChild(tmp_button);
+
+	*/
 
 	var range = document.createElement('input');
 	range.type = "range";
@@ -77,8 +165,14 @@ function LayerCabinet(layers, dispatcher) {
 
 	this.setControlStatus = function(v) {
 		playing = v;
-		if (playing) play_button.textContent = 'pause';
-		else play_button.textContent = 'play';
+		if (playing) {
+			// play_button.textContent = 'pause';
+			play_button.className = FONT + 'pause';
+		}
+		else {
+			// play_button.textContent = 'play';
+			play_button.className = FONT + 'play';
+		}
 	};
 
 	this.setState = function(state) {

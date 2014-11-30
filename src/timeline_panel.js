@@ -73,9 +73,14 @@ time_scaled();
 
 function TimelinePanel(layers, dispatcher) {
 
+	var dpr = window.devicePixelRatio;
+
 	var canvas = document.createElement('canvas');
-	canvas.width = Settings.width;
-	canvas.height = Settings.height;
+	canvas.width = Settings.width * dpr;
+	canvas.height = Settings.height * dpr;
+
+	canvas.style.width = Settings.width + 'px';
+	canvas.style.height = Settings.height + 'px';
 
 	this.resize = function() {
 		canvas.width = Settings.width;
@@ -112,6 +117,8 @@ function TimelinePanel(layers, dispatcher) {
 
 		ctx.fillStyle = Theme.a;
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.save();
+		ctx.scale(dpr, dpr);
 
 		// ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -289,6 +296,8 @@ function TimelinePanel(layers, dispatcher) {
 		ctx.fillStyle = 'white';
 		ctx.fillText(txt, x, base_line - 4);
 
+		ctx.restore();
+
 		needsRepaint = false;
 
 	}
@@ -325,13 +334,25 @@ function TimelinePanel(layers, dispatcher) {
 	var mousedown = false, selection = false;
 
 	var dragObject;
+	var canvasBounds;
 
-	canvas.addEventListener('mousedown', function(e) {
+	canvas.addEventListener('touchstart', function(ev) {
+		e = ev.touches[0];
+		pointerStart(e);
+		ev.preventDefault();
+	});
+
+	canvas.addEventListener('touchmove', function(ev) {
+		e = ev.touches[0];
+		onMouseMove(e);
+	});
+
+	function pointerStart(e) {
 		mousedown = true;
 
-		var b = canvas.getBoundingClientRect();
-		var mx = e.clientX - b.left , my = e.clientY - b.top;
-		console.log(canvas.offsetTop, b);
+		canvasBounds = canvas.getBoundingClientRect();
+		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
+		console.log(canvas.offsetTop, canvasBounds);
 
 		var track = y_to_track(my);
 		var s = x_to_time(mx);
@@ -345,8 +366,13 @@ function TimelinePanel(layers, dispatcher) {
 
 		 	if (typeof(tmp) !== 'number') dragObject = tmp;
 		}
-		
-		onMousemove(mx, my);
+
+		onPointerDrag(mx, my);
+	}
+
+	canvas.addEventListener('mousedown', function(e) {
+		pointerStart(e);
+
 		e.preventDefault();
 
 		document.addEventListener('mousemove', onMouseMove);
@@ -355,8 +381,8 @@ function TimelinePanel(layers, dispatcher) {
 
 	canvas.addEventListener('dblclick', function(e) {
 		console.log('dblclick!');
-		var b = canvas.getBoundingClientRect();
-		var mx = e.clientX - b.left , my = e.clientY - b.top;
+		// canvasBounds = canvas.getBoundingClientRect();
+		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 
 
 		var track = y_to_track(my);
@@ -368,10 +394,13 @@ function TimelinePanel(layers, dispatcher) {
 	});
 
 	function onMouseUp(e) {		
-		var b = canvas.getBoundingClientRect();
-		var mx = e.clientX - b.left , my = e.clientY - b.top;
+		// canvasBounds = canvas.getBoundingClientRect();
+		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 
-		onMousemove(mx, my);
+		onPointerDrag(mx, my);
+		if (dragObject) {
+			dispatcher.fire('keyframe.move');
+		}
 		mousedown = false;
 		dragObject = null;
 
@@ -380,20 +409,19 @@ function TimelinePanel(layers, dispatcher) {
 	}
 
 	function onMouseMove(e) {
-		var b = canvas.getBoundingClientRect();
-		var mx = e.clientX - b.left , my = e.clientY - b.top;
+		// canvasBounds = canvas.getBoundingClientRect();
+		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 
 		// offsetY d.getBoundingClientRect()  d.offsetLeft
 		// console.log('...', mx, my, div.offsetLeft);
-		onMousemove(mx, my);
+		onPointerDrag(mx, my);
 
 	}
 
-	function onMousemove(x, y) {
+	function onPointerDrag(x, y) {
 		if (x < LEFT_GUTTER) x = LEFT_GUTTER;
 		if (x > width) return;
 		current = x; // <---- ??!??!!
-		
 
 		var s = x_to_time(x);
 		if (dragObject) {
