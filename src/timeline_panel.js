@@ -83,8 +83,12 @@ function TimelinePanel(layers, dispatcher) {
 	canvas.style.height = Settings.height + 'px';
 
 	this.resize = function() {
-		canvas.width = Settings.width;
-		canvas.height = Settings.height;
+		dpr = window.devicePixelRatio;
+		canvas.width = Settings.width * dpr;
+		canvas.height = Settings.height * dpr;
+		canvas.style.width = Settings.width + 'px';
+		canvas.style.height = Settings.height + 'px';
+		console.log(canvas.width, canvas.height, dpr);
 	};
 
 	this.setTimeScale = function(v) {
