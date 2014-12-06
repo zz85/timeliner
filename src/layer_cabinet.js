@@ -1,17 +1,31 @@
 var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view');
 
-var FONT = 'tfa fa fa-';
+var FONT = 'tfa fa fa-'; //  fa fa-
 
+var font = require('./font.json');
 
 function IconButton() {
 	var canvas = document.createElement('canvas');
-	canvas.width = 40;
-	canvas.height = 40;
+	
+
+	var dpr = window.devicePixelRatio;
+	var height = 16;
+	canvas.height = height * dpr;
+	canvas.style.height = height + 'px';
+
+	var glyph = font.fonts['play.F04B'];
+
+	var scale = height / font.unitsPerEm;
+	var width = glyph.advanceWidth * scale;
+
+	canvas.width = width * dpr;
+	canvas.style.width = width + 'px';
+
 
 	var ctx = canvas.getContext('2d');
-	ctx.fillStyle = 'red';
-	ctx.fillRect(0, 0, 40, 40);
+	this.ctx = ctx;
+	
 
 	this.dom = canvas;
 
@@ -19,6 +33,60 @@ function IconButton() {
 		// bla
 	};
 }
+
+IconButton.prototype.draw = function() {
+
+	var ctx = this.ctx;
+	ctx.save();
+	ctx.fillStyle = 'red';
+
+
+	var glyph = font.fonts['play.F04B'];
+
+	var height = 16;
+	var dpr = window.devicePixelRatio;
+	var scale = height / font.unitsPerEm * dpr;
+	var path_commands =  glyph.commands;
+
+	ctx.scale(scale, -scale);
+
+	// var oheight = font.ascender - font.descender;
+	// scale = height / oheight * dpr;
+	// ctx.scale(scale, -scale);
+	ctx.translate(0, -font.ascender);
+	var i = 0, il = path_commands.length;
+	ctx.beginPath();
+	for (; i < il; i++) {
+		var cmd = path_commands[i];
+
+		switch (cmd.type) {
+			case 'M':
+				ctx.moveTo(cmd.x, cmd.y);
+				break;
+			case 'L':
+				ctx.lineTo(cmd.x, cmd.y);
+				break;
+			case 'Q':
+				ctx.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y);
+				break;
+			case 'C':
+				ctx.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
+				break;
+			case 'Z':
+				ctx.closePath();
+				ctx.fill();
+				break;
+		}
+	}
+	ctx.restore();
+};
+
+function SVGButton() {
+	d.innerHTML = '<svg width="16" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><path d="M 96.00,64.00L 416.00,256.00L 96.00,448.00 z" ></path></svg>';
+	this.dom = d;
+}
+
+
 
 function LayerCabinet(layers, dispatcher) {
 	var div = document.createElement('div');
@@ -33,6 +101,7 @@ function LayerCabinet(layers, dispatcher) {
 
 	var icon = new IconButton();
 	play_button.appendChild(icon.dom);
+	icon.draw();
 	
 	var playing = false;
 	play_button.addEventListener('click', function(e) {
