@@ -85,7 +85,6 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('keyframe.move', function(layer, value) {
-		console.log('kf moved!!!')
 		undo_manager.save(new UndoState(layers, 'Moved Keyframe'));
 	});
 
@@ -279,37 +278,64 @@ function Timeliner(target) {
 		}
 	};
 
+	// utils
+	function style(element, styles) {
+		for (var s in styles) {
+			element.style[s] = styles[s];
+		}
+	}
 
 	var div = document.createElement('div');
-	div.style.cssText = 'position: absolute; top: 0px;'; // resize: both; left: 50px;
-	div.style.backgroundColor = Theme.a;
+	div.style.cssText = 'position: absolute;';
+	div.style.top = '16px';
+	// div.style.backgroundColor = Theme.a;
 
 	var pane = document.createElement('div');
 	pane.id = 'pane';
-	pane.style.cssText = 
-		'position: absolute;\
-		margin: 0;\
-		padding: 0;\
-		z-index: 99;\
-		border: 2px solid purple;\
-		background: #fefefe;'
+	
+	style(pane, {
+		position: 'absolute',
+		margin: 0,
+		padding: 0,
+		fontFamily: 'monospace',
+		zIndex: 99,
+		border: '2px solid ' + Theme.b,
+		fontSize: '12px',
+		color: Theme.d,
+		overflow: 'hidden'
+	});
+
+	pane.style.backgroundColor = Theme.a;
 
 	var pane_title = document.createElement('div');
 	pane_title.id = 'title';
-	pane_title.style.cssText = 
-		'font-family: monospace;\
-		background: purple;\
-		color: white;\
-		font-size: 24px;\
-		height: 30px;\
-		width: 100%;\
-		position:absolute;\
-		bottom: 0px;\
-		text-align: center;';
-	pane_title.innerHTML = 'test';
+	
+	style(pane_title, {
+		position: 'absolute',
+		width: '100%',
+		textAlign: 'center',
+		top: '0px',
+		height: '15px',
+		borderBottom: '1px solid ' + Theme.b
+	});
+	pane_title.innerHTML = 'Timeliner';
+
+	var pane_status = document.createElement('div');
+	//pane_status.innerHTML = '';
+
+	style(pane_status, {
+		position: 'absolute',
+		height: '15px',
+		bottom: '0',
+		width: '100%',
+		// padding: '2px',
+		background: Theme.a,
+		borderTop: '1px solid ' + Theme.b
+	});
 
 	pane.appendChild(pane_title);
 	pane.appendChild(div);
+	pane.appendChild(pane_status);
 
 	var ghostpane = document.createElement('div');
 	ghostpane.id = 'ghostpane';
@@ -372,6 +398,9 @@ function Timeliner(target) {
 	});
 
 	function resize(width, height) {
+		width -= 4;
+		height -= 32;
+
 		console.log('resized', width, height);
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
@@ -383,6 +412,7 @@ function Timeliner(target) {
 
 	function restyle(left, right) {
 		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
+		left.style.overflow = 'hidden';
 		left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
 
 		// right.style.cssText = 'position: absolute; top: 0px;';
@@ -429,6 +459,7 @@ function Timeliner(target) {
 		var pane = document.getElementById('pane');
 		var ghostpane = document.getElementById('ghostpane');
 
+		// utils
 		function setBounds(element, x, y, w, h) {
 			element.style.left = x + 'px';
 			element.style.top = y + 'px';
@@ -437,7 +468,7 @@ function Timeliner(target) {
 
 			if (element === pane) {
 				console.log('presss');
-				resize(w, h - 30);
+				resize(w, h);
 			}
 		}
 
@@ -476,12 +507,11 @@ function Timeliner(target) {
 		}
 
 		function onTouchEnd(e) {
-			if (e.touches.length ==0) onUp(e.changedTouches[0]);
+			if (e.touches.length == 0) onUp(e.changedTouches[0]);
 		}
 
 		function onMouseDown(e) {
 			onDown(e);
-			e.preventDefault();
 		}
 
 		function onDown(e) {
@@ -504,12 +534,15 @@ function Timeliner(target) {
 				onBottomEdge: onBottomEdge
 			};
 
-			if (isResizing || isMoving) e.preventPropagation();
+			if (isResizing || isMoving) {
+				e.preventDefault();
+				e.stopPropagation();
+			}
 		}
 
 		function canMove() {
 			return x > 0 && x < b.width && y > 0 && y < b.height
-			&& y < 30;
+			&& y < 18;
 		}
 
 		function calc(e) {
@@ -568,7 +601,7 @@ function Timeliner(target) {
 
 				hintHide();
 
-				resize(b.width, b.height - 30);
+				resize(b.width, b.height);
 
 				return;
 			}

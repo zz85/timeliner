@@ -1,4 +1,4 @@
-/* Schema */
+/* Layer Schema */
 /*
 [
 	{
@@ -31,16 +31,21 @@
 ] currently_playing, scale.
 */
 
+/* Timeline Data Schema */
+
 var sample = {
 	version: 1.1,
 	modified: new Date,
+
+	name: 'sample',
+
 	title: 'Sample Title',
 
 	ui: {
-
+		position: '0:0:0',
 	},
 
-	data: {
+	layers: [{
 
-	}
+	}]
 }

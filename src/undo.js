@@ -5,7 +5,6 @@
 function UndoState(state, description) {
 	this.state = JSON.stringify(state);
 	this.description = description;
-	console.log('Undo State Saved: ', description);
 }
 
 function UndoManager(max) {
@@ -24,6 +23,8 @@ UndoManager.prototype.save = function(state) {
 	}
 
 	this.index = states.length - 1;
+
+	console.log('Undo State Saved: ', state.description);
 };
 
 UndoManager.prototype.clear = function() {

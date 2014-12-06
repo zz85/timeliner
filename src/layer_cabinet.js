@@ -8,7 +8,7 @@ function LayerCabinet(layers, dispatcher) {
 
 	var top = document.createElement('div');
 	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
-	// background: green;
+	top.style.textAlign = 'right';
 
 	var play_button = document.createElement('button');
 	// play_button.textContent = 'play';
@@ -31,6 +31,8 @@ function LayerCabinet(layers, dispatcher) {
 	});
 
 	div.appendChild(top);
+
+	top.appendChild(document.createElement('br'));
 
 	var undo_button = document.createElement('button');
 	// undo_button.textContent = 'undo';
