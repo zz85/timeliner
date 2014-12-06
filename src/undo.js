@@ -7,7 +7,8 @@ function UndoState(state, description) {
 	this.description = description;
 }
 
-function UndoManager(max) {
+function UndoManager(dispatcher, max) {
+	this.dispatcher = dispatcher;
 	this.MAX_ITEMS = max || 100;
 	this.clear();
 }
@@ -24,7 +25,8 @@ UndoManager.prototype.save = function(state) {
 
 	this.index = states.length - 1;
 
-	console.log('Undo State Saved: ', state.description);
+	// console.log('Undo State Saved: ', state.description);
+	this.dispatcher.fire('status', state.description);
 };
 
 UndoManager.prototype.clear = function() {
@@ -44,7 +46,10 @@ UndoManager.prototype.canRedo = function() {
 
 UndoManager.prototype.undo = function() {
 	if (this.canUndo()) {
+		this.dispatcher.fire('status', 'Undo: ' + this.get().description);
 		this.index--;
+	} else {
+		this.dispatcher.fire('status', 'Nothing to undo');
 	}
 
 	return this.get();
@@ -53,6 +58,9 @@ UndoManager.prototype.undo = function() {
 UndoManager.prototype.redo = function() {
 	if (this.canRedo()) {
 		this.index++;
+		this.dispatcher.fire('status', 'Redo: ' + this.get().description);
+	} else {
+		this.dispatcher.fire('status', 'Nothing to redo');
 	}
 
 	return this.get();

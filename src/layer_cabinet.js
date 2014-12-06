@@ -3,17 +3,37 @@ var Settings = require('./settings'),
 
 var FONT = 'tfa fa fa-';
 
+
+function IconButton() {
+	var canvas = document.createElement('canvas');
+	canvas.width = 40;
+	canvas.height = 40;
+
+	var ctx = canvas.getContext('2d');
+	ctx.fillStyle = 'red';
+	ctx.fillRect(0, 0, 40, 40);
+
+	this.dom = canvas;
+
+	this.setIcon = function() {
+		// bla
+	};
+}
+
 function LayerCabinet(layers, dispatcher) {
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
 	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
-	top.style.textAlign = 'right';
+	// top.style.textAlign = 'right';
 
 	var play_button = document.createElement('button');
 	// play_button.textContent = 'play';
 	play_button.className = FONT + 'play';
-	top.appendChild(play_button);
+
+	var icon = new IconButton();
+	play_button.appendChild(icon.dom);
+	
 	var playing = false;
 	play_button.addEventListener('click', function(e) {
 		e.preventDefault();
@@ -25,19 +45,15 @@ function LayerCabinet(layers, dispatcher) {
 	var stop_button = document.createElement('button');
 	// stop_button.textContent = 'stop';
 	stop_button.className = FONT + 'stop';
-	top.appendChild(stop_button);
+	
 	stop_button.addEventListener('click', function() {
 		dispatcher.fire('controls.stop');
 	});
 
-	div.appendChild(top);
-
-	top.appendChild(document.createElement('br'));
 
 	var undo_button = document.createElement('button');
 	// undo_button.textContent = 'undo';
 	undo_button.className = FONT + 'undo';
-	top.appendChild(undo_button);
 	undo_button.addEventListener('click', function() {
 		dispatcher.fire('controls.undo');
 	});
@@ -45,10 +61,10 @@ function LayerCabinet(layers, dispatcher) {
 	var redo_button = document.createElement('button');
 	// redo_button.textContent = 'redo';
 	redo_button.className = FONT + 'repeat';
-	top.appendChild(redo_button);
 	redo_button.addEventListener('click', function() {
 		dispatcher.fire('controls.redo');
 	});
+
 
 	/*
 	// Hide or show
@@ -137,7 +153,7 @@ function LayerCabinet(layers, dispatcher) {
 	range.value = Settings.time_scale;
 	range.max = 600;
 	range.step = 1;
-	top.appendChild(range);
+	
 
 	var dd = 0;
 	range.addEventListener('mousedown', function() {
@@ -153,6 +169,20 @@ function LayerCabinet(layers, dispatcher) {
 		if (!dd) return;
 		changeRange();
 	});
+
+	div.appendChild(top);
+
+
+	
+	top.appendChild(undo_button);
+	top.appendChild(redo_button);
+	top.appendChild(document.createElement('br'));
+
+	
+	top.appendChild(play_button);
+	top.appendChild(stop_button);
+	top.appendChild(range);
+
 
 	// range.addEventListener('change', changeRange);
 
