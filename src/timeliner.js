@@ -42,16 +42,6 @@ function Timeliner(target) {
 	var layers = [];
 	window.l2 = layers;
 
-	var div = document.createElement('div');
-	div.style.backgroundColor = Theme.a;
-
-	var pane = document.createElement('div');
-	pane.id = 'pane';
-	pane.appendChild(div);
-
-	var ghostpane = document.createElement('div');
-	ghostpane.id = 'ghostpane';
-
 	var dispatcher = new Dispatcher();
 
 	var timeline = new TimelinePanel(layers, dispatcher);
@@ -270,7 +260,7 @@ function Timeliner(target) {
 	};
 
 	this.promptOpen = function() {
-		var prefix = 'timeliner-'
+		var prefix = 'timeliner-';
 		var regex = new RegExp(prefix + '(.*)');
 		var matches = [];
 		for (var key in localStorage) {
@@ -289,7 +279,52 @@ function Timeliner(target) {
 		}
 	};
 
+
+	var div = document.createElement('div');
 	div.style.cssText = 'position: absolute; top: 10px;'; // resize: both; left: 50px;
+	div.style.backgroundColor = Theme.a;
+
+	var pane = document.createElement('div');
+	pane.id = 'pane';
+	pane.style.cssText = 
+		'position: absolute;\
+		margin: 0;\
+		padding: 0;\
+		z-index: 99;\
+		border: 2px solid purple;\
+		background: #fefefe;'
+
+	var pane_title = document.createElement('div');
+	pane_title.id = 'title';
+	pane_title.style.cssText = 
+		'font-family: monospace;\
+		background: purple;\
+		color: white;\
+		font-size: 24px;\
+		height: 30px;\
+		text-align: center;';
+
+	pane.appendChild(pane_title);
+	pane.appendChild(div);
+
+	var ghostpane = document.createElement('div');
+	ghostpane.id = 'ghostpane';
+	ghostpane.style.cssText = 
+		'background: #999;\
+		opacity: 0.2;\
+		position: absolute;\
+		margin: 0;\
+		padding: 0;\
+		z-index: 98;\
+		-webkit-transition: all 0.25s ease-in-out;\
+		-moz-transition: all 0.25s ease-in-out;\
+		-ms-transition: all 0.25s ease-in-out;\
+		-o-transition: all 0.25s ease-in-out;\
+		transition: all 0.25s ease-in-out;';
+
+	// document.body.appendChild(div);
+	document.body.appendChild(pane);
+	document.body.appendChild(ghostpane);
 
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
@@ -332,14 +367,12 @@ function Timeliner(target) {
 		}
 	});
 
-	// window.addEventListener('resize', function() {
-	// 	resize(innerWidth, innerHeight);
-	// });
-
 	function resize(width, height) {
 		console.log('resized', width, height);
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
+		div.style.width = width + 'px';
+		div.style.height = height + 'px';
 		timeline.resize();
 		timeline.repaint();
 	}
@@ -354,11 +387,6 @@ function Timeliner(target) {
 		right.style.left = Settings.LEFT_PANE_WIDTH + 'px';
 	}
 
-
-	// document.body.appendChild(div);
-	document.body.appendChild(pane);
-	document.body.appendChild(ghostpane);
-
 	function addLayer(name) {
 		var layer = new LayerProp(name);
 
@@ -371,7 +399,7 @@ function Timeliner(target) {
 
 	this.addLayer = addLayer;
 
-	(function() {
+	(function DockableWindow() {
 		"use strict";
 
 		// Minimum resizable area
@@ -404,7 +432,7 @@ function Timeliner(target) {
 			element.style.height = h + 'px';
 
 			if (element === pane) {
-				console.log('presss')
+				console.log('presss');
 				resize(w, h);
 			}
 		}
@@ -420,6 +448,8 @@ function Timeliner(target) {
 			// ghostpane.style.height = 0;
 		}
 
+		setBounds(pane, 0, 0, Settings.width, Settings.height);
+		setBounds(ghostpane, 0, 0, Settings.width, Settings.height);
 
 		// Mouse events
 		pane.addEventListener('mousedown', onMouseDown);

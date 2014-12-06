@@ -120,11 +120,10 @@ function TimelinePanel(layers, dispatcher) {
 		// background
 
 		ctx.fillStyle = Theme.a;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		//ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.save();
 		ctx.scale(dpr, dpr);
-
-		// ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		// 
 
@@ -139,6 +138,7 @@ function TimelinePanel(layers, dispatcher) {
 			ctx.strokeStyle = Theme.b;
 			ctx.beginPath();
 			y = i * LINE_HEIGHT + MARKER_TRACK_HEIGHT;
+			y = ~~y - 0.5;
 
 			ctx.moveTo(0, y);
 			ctx.lineTo(width, y);
