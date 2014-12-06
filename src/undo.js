@@ -5,7 +5,7 @@
 function UndoState(state, description) {
 	this.state = JSON.stringify(state);
 	this.description = description;
-	console.log('Saved: ', description);
+	console.log('Undo State Saved: ', description);
 }
 
 function UndoManager(max) {

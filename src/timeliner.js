@@ -220,14 +220,18 @@ var undo = require('./undo'),
 
 		repaint();
 
-		function save() {
+		function save(name) {
+			if (!name) name = 'autosave';
+
 			var json = JSON.stringify(layers);
 
 			try {
-				localStorage['timeline-wip'] = json;	
+				localStorage['timeliner-' + name] = json;	
 			} catch (e) {
-				console.log('Cannot save', json);
+				console.log('Cannot save', name, json);
 			}
+
+			prompt('Saved', json);
 		}
 
 		function load(o) {
@@ -236,12 +240,42 @@ var undo = require('./undo'),
 			timeline.setState(layers);
 			layer_panel.repaint();
 			timeline.repaint();
+
+			undo_manager.clear();
+			undo_manager.save(new UndoState(layers, 'Loaded'));
 		}
 
 		this.save = save;
 		this.load = load;
 
-		div.style.cssText = 'position: absolute; top: 0px;  '; // resize: both; left: 50px;
+		this.promptLoad = function() {
+			var json = prompt('Load?');
+			if (!json) return;
+			console.log('Loading.. ', json);
+			load(JSON.parse(json));
+		};
+
+		this.promptOpen = function() {
+			var prefix = 'timeliner-'
+			var regex = new RegExp(prefix + '(.*)');
+			var matches = [];
+			for (var key in localStorage) {
+				console.log(key);
+
+				var match = regex.exec(key);
+				if (match) {
+					matches.push(match[1]);
+				}
+			}
+			var title = prompt('You have saved ' + matches.join(',') 
+				+ '.\nWhich would you like to open?');
+
+			if (title) {
+				load(JSON.parse(localStorage[prefix + title]));
+			}
+		};
+
+		div.style.cssText = 'position: absolute; top: 0px;'; // resize: both; left: 50px;
 
 		div.appendChild(layer_panel.dom);
 		div.appendChild(timeline.dom);
