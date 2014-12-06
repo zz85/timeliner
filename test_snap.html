@@ -1,0 +1,121 @@
+<html>
+<head>
+	<link rel="stylesheet" href="fonts/font-awesome-4.2.0/css/font-awesome.css">
+</head>
+<body>
+<style>
+#box {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	background: red;
+}
+
+body {
+	overflow: hidden;
+	font-family: monospace;
+}
+
+.tfa {
+	color: #b8b8b8;
+	padding: 0.3em;
+	margin: 0.2em;
+	background: none;
+	outline: none;
+	border: none;
+	font-size: 16px;
+}
+
+.tfa:hover {
+	color: #d6d6d6;
+}
+
+.tfa:inactive {
+	color: #535353;
+}
+
+/**** pane ****/
+
+#pane {
+	/*background: purple;*/
+	position: absolute;
+	width: 45%;
+	height: 45%;
+	top: 20%;
+	left: 20%;
+	
+	
+	margin: 0;
+	padding: 0;
+	z-index: 99;
+	border: 2px solid purple;
+	background: #fefefe;
+}
+
+#title {
+	font-family: monospace;
+	background: purple;
+	color: white;
+	font-size: 24px;
+	height: 30px;
+	text-align: center;
+}
+
+#ghostpane {
+	background: #999;
+	opacity: 0.2;
+
+	width: 45%;
+	height: 45%;
+	top: 20%;
+	left: 20%;
+	
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	z-index: 98;
+
+	-webkit-transition: all 0.25s ease-in-out;
+	-moz-transition: all 0.25s ease-in-out;
+	-ms-transition: all 0.25s ease-in-out;
+	-o-transition: all 0.25s ease-in-out;
+	transition: all 0.25s ease-in-out;
+}
+
+
+
+</style>
+
+<div id="box"></div>
+<script src="timeliner.js"></script>
+<script>
+var target = {
+	x: 0,
+	y: 0,
+	rotate: 0
+};
+
+// initialize timeliner
+var timeliner = new Timeliner(target);
+// timeliner.addLayer('x');
+// timeliner.addLayer('y');
+// timeliner.addLayer('rotate');
+
+var o = [{"name":"x","values":[],"tmpValue":0,"_color":"#10b00d"},{"name":"y","values":[{"time":0,"value":3,"_color":"#4a2392","tween":"quadEaseIn"},{"time":3.3,"value":-1.1999850000000003,"_color":"#cddfd8"}],"tmpValue":-1.1999850000000003,"_color":"#344260"},{"name":"rotate","values":[{"time":0,"value":4.200005,"_color":"#ec9bb5","tween":"quadEaseInOut"},{"time":2.1,"value":9.300005,"_color":"#ac8e14","tween":"quadEaseIn"},{"time":5,"value":9.300005,"_color":"#5c659"}],"tmpValue":9.300005,"_color":"#1fa995"}];
+timeliner.load(o);
+
+var w2 = window.innerWidth / 2;
+var h2 = window.innerHeight / 2;
+
+function animate() {
+	requestAnimationFrame(animate);
+
+	box.style.transform = 'translateX(' +  (target.x * 100 + w2) + 'px) translateY(' + (target.y * 100 + h2) + 'px) rotate(' + target.rotate * 50 + 'deg)';
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
