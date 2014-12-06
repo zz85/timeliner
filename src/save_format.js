@@ -43,6 +43,8 @@ var sample = {
 
 	ui: {
 		position: '0:0:0',
+		bounds: '10 10 100 100',
+		snap: 'full | left-half | top-half | right-half | bottom-half'
 	},
 
 	layers: [{
