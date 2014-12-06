@@ -57,6 +57,10 @@ or
 2. Select easing type from the dropdown
 
 ## Curent Features
+- [window management](http://codepen.io/zz85/pen/gbOoVP)
+- basic keyboard shortcuts
+- basic hdpi
+- basic touch support
 - undo / redo (basic)
 - slider time scale (basic)
 - fix positioning mouse events
@@ -79,13 +83,12 @@ or
 ## TODO
 - save / load
 - attempt virtual-dom / v.rendering
-- [window management](http://codepen.io/zz85/pen/gbOoVP)
 - curve editor
 - support audio
 - npm-ify
-- keyboard shortcuts
-- support touch
-- support hdpi
 - scrolling
 - icons
+- support guestures
+- remote control
+- tween values
 - a whole ton more

@@ -304,7 +304,7 @@ function Timeliner(target) {
 		border: '2px solid ' + Theme.b,
 		fontSize: '12px',
 		color: Theme.d,
-		// overflow: 'hidden'
+		overflow: 'hidden'
 	});
 
 	pane.style.backgroundColor = Theme.a;
@@ -317,13 +317,14 @@ function Timeliner(target) {
 		textAlign: 'left',
 		top: '0px',
 		height: '15px',
-		borderBottom: '1px solid ' + Theme.b
+		borderBottom: '1px solid ' + Theme.b,
+		overflow: 'hidden'
 	});
 
 	pane_title.innerHTML = 'Timeliner ' + package_json.version;
 
 	var pane_status = document.createElement('div');
-	pane_status.innerHTML = 'Status | Dock? | Load | Save | zoom in | zoom out';
+	pane_status.innerHTML = 'TODO: Status | Dock Full | Dock Botton | Snap Window Edges | Load | Save | zoom in | zoom out | Settings';
 
 	style(pane_status, {
 		position: 'absolute',
@@ -445,8 +446,8 @@ function Timeliner(target) {
 		var minHeight = 80;
 
 		// Thresholds
-		var FULLSCREEN_MARGINS = -10;
-		var MARGINS = 4;
+		var FULLSCREEN_MARGINS = 2;
+		var MARGINS = 8;
 
 		// End of what's configurable.
 		var clicked = null;
@@ -462,6 +463,8 @@ function Timeliner(target) {
 		// var ghostpane = document.getElementById('ghostpane');
 
 		var mouseOnTitle = false;
+		var snapType;
+
 		pane_title.addEventListener('mouseover', function() {
 			console.log('mouseover');
 			mouseOnTitle = true;
@@ -470,6 +473,10 @@ function Timeliner(target) {
 		pane_title.addEventListener('mouseout', function() {
 			mouseOnTitle = false;
 			console.log('mouseout');
+		});
+
+		window.addEventListener('resize', function() {
+			resizeEdges();
 		});
 
 		// utils
@@ -705,7 +712,7 @@ function Timeliner(target) {
 			if (b.bottom > bottomScreenEdge) return 'snap-bottom-edge';
 			*/
 
-			
+			if (e.clientY < FULLSCREEN_MARGINS) return 'edge-over-bounds';
 
 			if (e.clientY < MARGINS) return 'snap-top-edge';
 
@@ -722,6 +729,29 @@ function Timeliner(target) {
 
 		animate();
 
+		function resizeEdges() {
+			switch(snapType) {
+				case 'edge-over-bounds':
+					// hintFull();
+					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
+					break;
+				case 'snap-top-edge':
+					// hintTop();
+					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
+					break;
+				case 'snap-left-edge':
+					// hintLeft();
+					setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
+					break;
+				case 'snap-right-edge':
+					setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+					break;
+				case 'snap-bottom-edge':
+					setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerWidth / 2);
+					break;
+			}
+		}
+
 		function onUp(e) {
 			calc(e);
 
@@ -732,32 +762,13 @@ function Timeliner(target) {
 					height: b.height
 				};
 
-				switch(checks()) {
-					case 'edge-over-bounds':
-						// hintFull();
-						setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
-						preSnapped = snapped;
-						break;
-					case 'snap-top-edge':
-						// hintTop();
-						setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
-						preSnapped = snapped;
-						break;
-					case 'snap-left-edge':
-						// hintLeft();
-						setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
-						preSnapped = snapped;
-						break;
-					case 'snap-right-edge':
-						setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-bottom-edge':
-						setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerWidth / 2);
-						preSnapped = snapped;
-						break;
-					default:
-						preSnapped = null;
+
+				snapType = checks();
+				if (snapType) {
+					preSnapped = snapped;
+					resizeEdges();
+				} else {
+					preSnapped = null;
 				}
 
 				hintHide();
