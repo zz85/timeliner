@@ -281,7 +281,7 @@ function Timeliner(target) {
 
 
 	var div = document.createElement('div');
-	div.style.cssText = 'position: absolute; top: 10px;'; // resize: both; left: 50px;
+	div.style.cssText = 'position: absolute; top: 0px;'; // resize: both; left: 50px;
 	div.style.backgroundColor = Theme.a;
 
 	var pane = document.createElement('div');
@@ -302,7 +302,11 @@ function Timeliner(target) {
 		color: white;\
 		font-size: 24px;\
 		height: 30px;\
+		width: 100%;\
+		position:absolute;\
+		bottom: 0px;\
 		text-align: center;';
+	pane_title.innerHTML = 'test';
 
 	pane.appendChild(pane_title);
 	pane.appendChild(div);
@@ -356,7 +360,7 @@ function Timeliner(target) {
 
 		if (active.nodeName.match(/(INPUT|BUTTON|SELECT)/)) {
 			active.blur();
-		};
+		}
 
 		if (play) {
 			dispatcher.fire('controls.toggle_play');
@@ -399,7 +403,7 @@ function Timeliner(target) {
 
 	this.addLayer = addLayer;
 
-	(function DockableWindow() {
+	(function DockingWindow() {
 		"use strict";
 
 		// Minimum resizable area
@@ -433,7 +437,7 @@ function Timeliner(target) {
 
 			if (element === pane) {
 				console.log('presss');
-				resize(w, h);
+				resize(w, h - 30);
 			}
 		}
 
@@ -484,7 +488,7 @@ function Timeliner(target) {
 			calc(e);
 
 			var isResizing = onRightEdge || onBottomEdge || onTopEdge || onLeftEdge;
-
+			var isMoving = !isResizing && canMove();
 			clicked = {
 				x: x,
 				y: y,
@@ -493,12 +497,14 @@ function Timeliner(target) {
 				w: b.width,
 				h: b.height,
 				isResizing: isResizing,
-				isMoving: !isResizing && canMove(),
+				isMoving: isMoving,
 				onTopEdge: onTopEdge,
 				onLeftEdge: onLeftEdge,
 				onRightEdge: onRightEdge,
 				onBottomEdge: onBottomEdge
 			};
+
+			if (isResizing || isMoving) e.preventPropagation();
 		}
 
 		function canMove() {
@@ -562,7 +568,7 @@ function Timeliner(target) {
 
 				hintHide();
 
-				resize(b.width, b.height);
+				resize(b.width, b.height - 30);
 
 				return;
 			}
