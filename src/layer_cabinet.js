@@ -1,49 +1,86 @@
 var Settings = require('./settings'),
-	LayerUI = require('./ui/layer_view');
+	LayerUI = require('./ui/layer_view'),
+	Theme = require('./theme');
 
 var FONT = 'tfa fa fa-'; //  fa fa-
 
 var font = require('./font.json');
 
-function IconButton() {
+function IconButton(size, icon) {
+	var button = document.createElement('button');
+	button.className = FONT;
+	// TODO tooltips
+
 	var canvas = document.createElement('canvas');
-	
-
-	var dpr = window.devicePixelRatio;
-	var height = 16;
-	canvas.height = height * dpr;
-	canvas.style.height = height + 'px';
-
-	var glyph = font.fonts['play.F04B'];
-
-	var scale = height / font.unitsPerEm;
-	var width = glyph.advanceWidth * scale;
-
-	canvas.width = width * dpr;
-	canvas.style.width = width + 'px';
-
-
 	var ctx = canvas.getContext('2d');
+
+	button.appendChild(canvas);
+
 	this.ctx = ctx;
+	this.dom = button;
+
+	var me = this;
+	this.size = size;
 	
 
-	this.dom = canvas;
+	this.setIcon = function(icon) {
+		me.icon = icon;
 
-	this.setIcon = function() {
-		// bla
+		var dpr = window.devicePixelRatio;
+		var height = size;
+
+		var glyph = font.fonts[icon];
+
+		canvas.height = height * dpr;
+		canvas.style.height = height + 'px';
+
+		var scale = height / font.unitsPerEm;
+		var width = glyph.advanceWidth * scale;
+
+		canvas.width = width * dpr;
+		canvas.style.width = width + 'px';
+
+		ctx.fillStyle = Theme.c;
+		me.draw();
 	};
+
+	this.onClick = function(e) {
+		button.addEventListener('click', e);
+	};
+
+	button.addEventListener('mouseover', function() {
+		ctx.fillStyle = Theme.d;
+		me.draw();
+	});
+
+	// button.addEventListener('mousedown', function() {
+	// 	ctx.fillStyle = Theme.c;
+	// 	me.draw();
+	// });
+
+	// button.addEventListener('mouseup', function() {
+	// 	ctx.fillStyle = Theme.d;
+	// 	me.draw();
+	// });
+
+	button.addEventListener('mouseout', function() {
+		ctx.fillStyle = Theme.c;
+		me.draw();
+	});
+
+	if (icon) this.setIcon(icon);
 }
 
 IconButton.prototype.draw = function() {
 
+	if (!this.icon) return;
+
 	var ctx = this.ctx;
 	ctx.save();
-	ctx.fillStyle = 'red';
+	
+	var glyph = font.fonts[this.icon];
 
-
-	var glyph = font.fonts['play.F04B'];
-
-	var height = 16;
+	var height = this.size;
 	var dpr = window.devicePixelRatio;
 	var scale = height / font.unitsPerEm * dpr;
 	var path_commands =  glyph.commands;
@@ -95,6 +132,8 @@ function LayerCabinet(layers, dispatcher) {
 	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
 	// top.style.textAlign = 'right';
 
+	/*
+
 	var play_button = document.createElement('button');
 	// play_button.textContent = 'play';
 	play_button.className = FONT + 'play';
@@ -116,6 +155,21 @@ function LayerCabinet(layers, dispatcher) {
 	stop_button.className = FONT + 'stop';
 	
 	stop_button.addEventListener('click', function() {
+		dispatcher.fire('controls.stop');
+	});
+
+*/
+
+	var play_button = new IconButton(16);
+	play_button.setIcon('play.F04B');
+	play_button.onClick(function(e) {
+		e.preventDefault();
+		dispatcher.fire('controls.toggle_play');
+	});
+
+
+	var stop_button = new IconButton(16, 'stop.F04D');
+	stop_button.onClick(function(e) {
 		dispatcher.fire('controls.stop');
 	});
 
@@ -248,8 +302,8 @@ function LayerCabinet(layers, dispatcher) {
 	top.appendChild(document.createElement('br'));
 
 	
-	top.appendChild(play_button);
-	top.appendChild(stop_button);
+	top.appendChild(play_button.dom);
+	top.appendChild(stop_button.dom);
 	top.appendChild(range);
 
 
@@ -268,11 +322,14 @@ function LayerCabinet(layers, dispatcher) {
 		playing = v;
 		if (playing) {
 			// play_button.textContent = 'pause';
-			play_button.className = FONT + 'pause';
+			// play_button.className = FONT + 'pause';
+
+			play_button.setIcon('pause.F04C');
 		}
 		else {
 			// play_button.textContent = 'play';
-			play_button.className = FONT + 'play';
+			// play_button.className = FONT + 'play';
+			play_button.setIcon('play.F04B');
 		}
 	};
 
