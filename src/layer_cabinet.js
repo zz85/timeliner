@@ -2,14 +2,14 @@ var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view'),
 	Theme = require('./theme');
 
-var FONT = 'tfa fa fa-'; //  fa fa-
-
 var font = require('./font.json');
+
+var FONT_CLASS = 'tfa';
 var dp;
 
 function IconButton(size, icon, tooltip) {
 	var button = document.createElement('button');
-	button.className = FONT;
+	button.className = FONT_CLASS;
 
 	var canvas = document.createElement('canvas');
 	var ctx = canvas.getContext('2d');
@@ -22,7 +22,6 @@ function IconButton(size, icon, tooltip) {
 
 	var me = this;
 	this.size = size;
-	
 
 	this.setIcon = function(icon) {
 		me.icon = icon;
@@ -47,6 +46,10 @@ function IconButton(size, icon, tooltip) {
 
 	this.onClick = function(e) {
 		button.addEventListener('click', e);
+	};
+
+	this.setTip = function(tip) {
+		tooltip = tip;
 	};
 
 	button.addEventListener('mouseover', function() {
@@ -74,15 +77,20 @@ function IconButton(size, icon, tooltip) {
 	if (icon) this.setIcon(icon);
 }
 
-IconButton.prototype.draw = function() {
+IconButton.prototype.CMD_MAP = {
+	M: 'moveTo',
+	L: 'lineTo',
+	Q: 'quadraticCurveTo',
+	C: 'bezierCurveTo',
+	Z: 'closePath'
+};
 
+IconButton.prototype.draw = function() {
 	if (!this.icon) return;
 
 	var ctx = this.ctx;
 	ctx.save();
 
-
-	
 	var glyph = font.fonts[this.icon];
 
 	var height = this.size;
@@ -91,36 +99,17 @@ IconButton.prototype.draw = function() {
 	var path_commands =  glyph.commands.split(' ');
 
 	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
-
 	ctx.scale(scale, -scale);
-
 	ctx.translate(0, -font.ascender);
-	var i = 0, il = path_commands.length;
-	
 	ctx.beginPath();
-	for (; i < il; i++) {
+
+	for (var i = 0, il = path_commands.length; i < il; i++) {
 		var cmds = path_commands[i].split(',');
 		var params = cmds.slice(1);
 
-		switch (cmds[0]) {
-			case 'M':
-				ctx.moveTo.apply(ctx, params);
-				break;
-			case 'L':
-				ctx.lineTo.apply(ctx, params);
-				break;
-			case 'Q':
-				ctx.quadraticCurveTo.apply(ctx, params);
-				break;
-			case 'C':
-				ctx.bezierCurveTo.apply(ctx, params);
-				break;
-			case 'Z':
-				ctx.closePath();
-				ctx.fill();
-				break;
-		}
+		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
 	}
+	ctx.fill();
 	ctx.restore();
 };
 
@@ -132,47 +121,8 @@ function LayerCabinet(layers, dispatcher) {
 	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
 	// top.style.textAlign = 'right';
 
-	/*
-
-	var play_button = document.createElement('button');
-	// play_button.textContent = 'play';
-	play_button.className = FONT + 'play';
-
-	var icon = new IconButton();
-	play_button.appendChild(icon.dom);
-	icon.draw();
-	
 	var playing = false;
-	play_button.addEventListener('click', function(e) {
-		e.preventDefault();
-		dispatcher.fire('controls.toggle_play');
-		// if (!playing) dispatcher.fire('controls.play');
-		// else  dispatcher.fire('controls.pause');
-	});
 
-	var stop_button = document.createElement('button');
-	// stop_button.textContent = 'stop';
-	stop_button.className = FONT + 'stop';
-	
-	stop_button.addEventListener('click', function() {
-		dispatcher.fire('controls.stop');
-	});
-
-	var undo_button = document.createElement('button');
-	// undo_button.textContent = 'undo';
-	undo_button.className = FONT + 'undo';
-	undo_button.addEventListener('click', function() {
-		dispatcher.fire('controls.undo');
-	});
-
-	var redo_button = document.createElement('button');
-	// redo_button.textContent = 'redo';
-	redo_button.className = FONT + 'repeat';
-	redo_button.addEventListener('click', function() {
-		dispatcher.fire('controls.redo');
-	});
-
-*/
 	var play_button = new IconButton(16, 'play', 'play');
 	play_button.onClick(function(e) {
 		e.preventDefault();
@@ -283,24 +233,23 @@ function LayerCabinet(layers, dispatcher) {
 	range.step = 1;
 	
 
-	var dd = 0;
+	var draggingRange = 0;
+
 	range.addEventListener('mousedown', function() {
-		dd = 1;
+		draggingRange = 1;
 	});
 
 	range.addEventListener('mouseup', function() {
-		dd = 0;
+		draggingRange = 0;
 		changeRange();
 	});
 
 	range.addEventListener('mousemove', function() {
-		if (!dd) return;
+		if (!draggingRange) return;
 		changeRange();
 	});
 
 	div.appendChild(top);
-
-
 	
 	top.appendChild(undo_button.dom);
 	top.appendChild(redo_button.dom);
@@ -326,15 +275,12 @@ function LayerCabinet(layers, dispatcher) {
 	this.setControlStatus = function(v) {
 		playing = v;
 		if (playing) {
-			// play_button.textContent = 'pause';
-			// play_button.className = FONT + 'pause';
-
 			play_button.setIcon('pause');
+			play_button.setTip('pause');
 		}
 		else {
-			// play_button.textContent = 'play';
-			// play_button.className = FONT + 'play';
 			play_button.setIcon('play');
+			play_button.setTip('play');
 		}
 	};
 

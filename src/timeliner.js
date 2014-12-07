@@ -457,7 +457,6 @@ function Timeliner(target) {
 		width -= 4;
 		height -= 32;
 
-		console.log('resized', width, height);
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
 
