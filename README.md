@@ -24,9 +24,15 @@ There are currently already couple of timeline libraries which are pretty good (
 I initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
 
 ## Philosophy
-Timeliner should be lightweight and should be added into any webpages with ease. It could but should not standalone, with capabilities to work well with other controls like dat.gui or gui.js.
+Timeliner should be lightweight and can be added into any webpages with ease. It could work as an included script, bookmarklet, or part of a bigger project with capabilities to work with other controls like dat.gui or gui.js.
 
 ## Usage
+
+include the timeliner.js file.
+
+```js
+<script src="timeliner.js"></script>
+```
 
 ```js
 // target is a "pojo" which gets updated when values change.
@@ -57,11 +63,16 @@ or
 2. Select easing type from the dropdown
 
 ## Curent Features
+1.2.0
+- icons using extracted fontawesome data
+- slightly npm-ify
 - [window management](http://codepen.io/zz85/pen/gbOoVP)
 - basic keyboard shortcuts
 - basic hdpi
 - basic touch support
+1.1.0
 - undo / redo (basic)
+1.0.0
 - slider time scale (basic)
 - fix positioning mouse events
 - basic play toggled with pause button
@@ -85,10 +96,9 @@ or
 - attempt virtual-dom / v.rendering
 - curve editor
 - support audio
-- npm-ify
 - scrolling
-- icons
 - support guestures
 - remote control
-- tween values
+- insert keyframes should interpolate
+- tweened values
 - a whole ton more
