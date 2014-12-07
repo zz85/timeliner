@@ -5,11 +5,11 @@ var Settings = require('./settings'),
 var FONT = 'tfa fa fa-'; //  fa fa-
 
 var font = require('./font.json');
+var dp;
 
-function IconButton(size, icon) {
+function IconButton(size, icon, tooltip) {
 	var button = document.createElement('button');
 	button.className = FONT;
-	// TODO tooltips
 
 	var canvas = document.createElement('canvas');
 	var ctx = canvas.getContext('2d');
@@ -18,6 +18,7 @@ function IconButton(size, icon) {
 
 	this.ctx = ctx;
 	this.dom = button;
+	this.canvas = canvas;
 
 	var me = this;
 	this.size = size;
@@ -51,17 +52,19 @@ function IconButton(size, icon) {
 	button.addEventListener('mouseover', function() {
 		ctx.fillStyle = Theme.d;
 		me.draw();
+
+		if (tooltip) dp.fire('status', 'button: ' + tooltip);
 	});
 
-	// button.addEventListener('mousedown', function() {
-	// 	ctx.fillStyle = Theme.c;
-	// 	me.draw();
-	// });
+	button.addEventListener('mousedown', function() {
+		ctx.fillStyle = Theme.b;
+		me.draw();
+	});
 
-	// button.addEventListener('mouseup', function() {
-	// 	ctx.fillStyle = Theme.d;
-	// 	me.draw();
-	// });
+	button.addEventListener('mouseup', function() {
+		ctx.fillStyle = Theme.d;
+		me.draw();
+	});
 
 	button.addEventListener('mouseout', function() {
 		ctx.fillStyle = Theme.c;
@@ -77,37 +80,40 @@ IconButton.prototype.draw = function() {
 
 	var ctx = this.ctx;
 	ctx.save();
+
+
 	
 	var glyph = font.fonts[this.icon];
 
 	var height = this.size;
 	var dpr = window.devicePixelRatio;
 	var scale = height / font.unitsPerEm * dpr;
-	var path_commands =  glyph.commands;
+	var path_commands =  glyph.commands.split(' ');
+
+	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
 
 	ctx.scale(scale, -scale);
 
-	// var oheight = font.ascender - font.descender;
-	// scale = height / oheight * dpr;
-	// ctx.scale(scale, -scale);
 	ctx.translate(0, -font.ascender);
 	var i = 0, il = path_commands.length;
+	
 	ctx.beginPath();
 	for (; i < il; i++) {
-		var cmd = path_commands[i];
+		var cmds = path_commands[i].split(',');
+		var params = cmds.slice(1);
 
-		switch (cmd.type) {
+		switch (cmds[0]) {
 			case 'M':
-				ctx.moveTo(cmd.x, cmd.y);
+				ctx.moveTo.apply(ctx, params);
 				break;
 			case 'L':
-				ctx.lineTo(cmd.x, cmd.y);
+				ctx.lineTo.apply(ctx, params);
 				break;
 			case 'Q':
-				ctx.quadraticCurveTo(cmd.x1, cmd.y1, cmd.x, cmd.y);
+				ctx.quadraticCurveTo.apply(ctx, params);
 				break;
 			case 'C':
-				ctx.bezierCurveTo(cmd.x1, cmd.y1, cmd.x2, cmd.y2, cmd.x, cmd.y);
+				ctx.bezierCurveTo.apply(ctx, params);
 				break;
 			case 'Z':
 				ctx.closePath();
@@ -118,14 +124,8 @@ IconButton.prototype.draw = function() {
 	ctx.restore();
 };
 
-function SVGButton() {
-	d.innerHTML = '<svg width="16" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><path d="M 96.00,64.00L 416.00,256.00L 96.00,448.00 z" ></path></svg>';
-	this.dom = d;
-}
-
-
-
 function LayerCabinet(layers, dispatcher) {
+	dp = dispatcher;
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
@@ -158,22 +158,6 @@ function LayerCabinet(layers, dispatcher) {
 		dispatcher.fire('controls.stop');
 	});
 
-*/
-
-	var play_button = new IconButton(16);
-	play_button.setIcon('play.F04B');
-	play_button.onClick(function(e) {
-		e.preventDefault();
-		dispatcher.fire('controls.toggle_play');
-	});
-
-
-	var stop_button = new IconButton(16, 'stop.F04D');
-	stop_button.onClick(function(e) {
-		dispatcher.fire('controls.stop');
-	});
-
-
 	var undo_button = document.createElement('button');
 	// undo_button.textContent = 'undo';
 	undo_button.className = FONT + 'undo';
@@ -188,6 +172,27 @@ function LayerCabinet(layers, dispatcher) {
 		dispatcher.fire('controls.redo');
 	});
 
+*/
+	var play_button = new IconButton(16, 'play', 'play');
+	play_button.onClick(function(e) {
+		e.preventDefault();
+		dispatcher.fire('controls.toggle_play');
+	});
+
+	var stop_button = new IconButton(16, 'stop', 'stop');
+	stop_button.onClick(function(e) {
+		dispatcher.fire('controls.stop');
+	});
+
+	var undo_button = new IconButton(16, 'undo', 'undo');
+	undo_button.onClick(function() {
+		dispatcher.fire('controls.undo');
+	});
+
+	var redo_button = new IconButton(16, 'repeat', 'redo');
+	redo_button.onClick(function() {
+		dispatcher.fire('controls.redo');
+	});
 
 	/*
 	// Hide or show
@@ -297,8 +302,8 @@ function LayerCabinet(layers, dispatcher) {
 
 
 	
-	top.appendChild(undo_button);
-	top.appendChild(redo_button);
+	top.appendChild(undo_button.dom);
+	top.appendChild(redo_button.dom);
 	top.appendChild(document.createElement('br'));
 
 	
@@ -324,12 +329,12 @@ function LayerCabinet(layers, dispatcher) {
 			// play_button.textContent = 'pause';
 			// play_button.className = FONT + 'pause';
 
-			play_button.setIcon('pause.F04C');
+			play_button.setIcon('pause');
 		}
 		else {
 			// play_button.textContent = 'play';
 			// play_button.className = FONT + 'play';
-			play_button.setIcon('play.F04B');
+			play_button.setIcon('play');
 		}
 	};
 
