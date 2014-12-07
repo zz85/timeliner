@@ -11,7 +11,7 @@ var undo = require('./undo'),
 	utils = require('./utils'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel'),
-	package_json = require('../package.json');
+	package_json = require('../package.json')
 	;
 
 var Z_INDEX = 999;

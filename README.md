@@ -101,4 +101,5 @@ or
 - remote control
 - insert keyframes should interpolate
 - tweened values
+- ghosting / onioning skinning
 - a whole ton more
