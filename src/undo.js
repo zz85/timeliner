@@ -3,7 +3,8 @@
 /**************************/
 
 function UndoState(state, description) {
-	this.state = JSON.stringify(state);
+	// this.state = JSON.stringify(state);
+	this.state = state.getJSONString();
 	this.description = description;
 }
 

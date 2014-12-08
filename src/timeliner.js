@@ -30,20 +30,46 @@ function LayerProp(name) {
 	*/
 }
 
-function Data() {
-	this.version = 1.1;
-	this.modified = new Date().toString();
-	this.title = 'Untitled';
+function DataStore() {
+	var data = {};
 
-	this.layers = [];
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+	data.title = 'Untitled';
+
+	data.layers = [];
+
+	this.data = data;
 }
+
+DataStore.prototype.update = function() {
+	var data = this.data;
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+};
+
+DataStore.prototype.setJSONString = function(data) {
+	this.data = JSON.parse(data);
+};
+
+DataStore.prototype.getJSONString = function(data) {
+	return JSON.stringify(this.data);
+};
+
+
+DataStore.prototype.get = function(path) {
+	return this.data[path];
+};
 
 function Timeliner(target) {
 	// Aka Layer Manager / Controller
 
 	// Should persist current time too.
-	var layers = [];
-	window.l2 = layers;
+	var data = new DataStore();
+	var layers = data.get('layers');
+
+	window._data = data;
 
 	var dispatcher = new Dispatcher();
 
@@ -54,7 +80,7 @@ function Timeliner(target) {
 
 	setTimeout(function() {
 		// hack!
-		undo_manager.save(new UndoState(layers, 'Loaded'));
+		undo_manager.save(new UndoState(data, 'Loaded'));
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {
@@ -74,12 +100,12 @@ function Timeliner(target) {
 				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 			});
 
-			undo_manager.save(new UndoState(layers, 'Add Keyframe'));
+			undo_manager.save(new UndoState(data, 'Add Keyframe'));
 		} else {
 			console.log('remove from index', v);
 			layer.values.splice(v.index, 1);
 
-			undo_manager.save(new UndoState(layers, 'Remove Keyframe'));
+			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
 		}
 
 		layer_panel.repaint(t);
@@ -88,7 +114,7 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('keyframe.move', function(layer, value) {
-		undo_manager.save(new UndoState(layers, 'Move Keyframe'));
+		undo_manager.save(new UndoState(data, 'Move Keyframe'));
 	});
 
 	// dispatcher.fire('value.change', layer, me.value);
@@ -104,10 +130,10 @@ function Timeliner(target) {
 				value: value,
 				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 			});
-			undo_manager.save(new UndoState(layers, 'Add value'));
+			undo_manager.save(new UndoState(data, 'Add value'));
 		} else {
 			v.object.value = value;
-			undo_manager.save(new UndoState(layers, 'Update value'));
+			undo_manager.save(new UndoState(data, 'Update value'));
 		}
 
 		layer_panel.repaint(t);
@@ -122,7 +148,7 @@ function Timeliner(target) {
 			v.entry.tween  = ease_type;
 		}
 
-		undo_manager.save(new UndoState(layers, 'Add Ease'));
+		undo_manager.save(new UndoState(data, 'Add Ease'));
 
 		layer_panel.repaint(t);
 		timeline.repaint();
@@ -187,9 +213,12 @@ function Timeliner(target) {
 	// handle undo / redo
 	dispatcher.on('controls.undo', function() {
 		var history = undo_manager.undo();
-		layers = JSON.parse(history.state);
+		data.setJSONString(history.state);
+		layers = data.get('layers');
+
 		layer_panel.setState(layers);
 		timeline.setState(layers);
+
 		var t = timeline.current_frame;
 		layer_panel.repaint(t);
 		timeline.repaint();
@@ -197,7 +226,8 @@ function Timeliner(target) {
 
 	dispatcher.on('controls.redo', function() {
 		var history = undo_manager.redo();
-		layers = JSON.parse(history.state);
+		data.setJSONString(history.state);
+		layers = data.get('layers');
 
 		layer_panel.setState(layers);
 		timeline.setState(layers);
@@ -240,7 +270,7 @@ function Timeliner(target) {
 	function save(name) {
 		if (!name) name = 'autosave';
 
-		var json = JSON.stringify(layers);
+		var json = data.getJSONString();
 
 		try {
 			localStorage['timeliner-' + name] = json;
@@ -259,7 +289,7 @@ function Timeliner(target) {
 		timeline.repaint();
 
 		undo_manager.clear();
-		undo_manager.save(new UndoState(layers, 'Loaded'));
+		undo_manager.save(new UndoState(data, 'Loaded'));
 	}
 
 	this.save = save;
@@ -356,6 +386,7 @@ function Timeliner(target) {
 
 	var label_status = document.createElement('span');
 	label_status.textContent = 'hello!';
+	label_status.style.marginLeft = '10px';
 
 	this.setStatus = function(text) {
 		label_status.textContent = text;
@@ -381,15 +412,18 @@ function Timeliner(target) {
 	button_open.textContent = 'Open';
 	button_open.onclick = this.promptOpen;
 
+
 	pane_status.appendChild(label_status);
 
-	pane_status.appendChild(document.createTextNode(' | '));
+	button_load.style.float = 'right';
+	button_save.style.float = 'right';
+	button_open.style.float = 'right';
 
-	pane_status.appendChild(button_open);
-	pane_status.appendChild(button_save);
 	pane_status.appendChild(button_load);
+	pane_status.appendChild(button_save);
+	pane_status.appendChild(button_open);
 	
-	pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
+	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
 
 	var ghostpane = document.createElement('div');
 	ghostpane.id = 'ghostpane';

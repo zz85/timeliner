@@ -7,7 +7,7 @@ var font = require('./font.json');
 var FONT_CLASS = 'tfa';
 var dp;
 
-function IconButton(size, icon, tooltip) {
+function IconButton(size, icon, tooltip, dp) {
 	var button = document.createElement('button');
 	button.className = FONT_CLASS;
 
@@ -35,7 +35,7 @@ function IconButton(size, icon, tooltip) {
 		canvas.style.height = height + 'px';
 
 		var scale = height / font.unitsPerEm;
-		var width = glyph.advanceWidth * scale;
+		var width = glyph.advanceWidth * scale + 0.5 | 0;
 
 		canvas.width = width * dpr;
 		canvas.style.width = width + 'px';
@@ -56,7 +56,7 @@ function IconButton(size, icon, tooltip) {
 		ctx.fillStyle = Theme.d;
 		me.draw();
 
-		if (tooltip) dp.fire('status', 'button: ' + tooltip);
+		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {
@@ -144,87 +144,6 @@ function LayerCabinet(layers, dispatcher) {
 		dispatcher.fire('controls.redo');
 	});
 
-	/*
-	// Hide or show
-	var hide_button = document.createElement('button');
-	hide_button.className = FONT + 'eye';
-	hide_button.className = FONT + 'eye-slash';
-	top.appendChild(hide_button);
-	
-	// New
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'file';
-	top.appendChild(tmp_button);
-
-	// Open
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'folder-open';
-	top.appendChild(tmp_button);
-
-	// Save
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'save';
-	top.appendChild(tmp_button);
-
-	// Download JSON
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'download';
-	top.appendChild(tmp_button);
-
-	// upload json?
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'upload';
-	top.appendChild(tmp_button);
-
-	// Add
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'plus';
-	top.appendChild(tmp_button);
-
-	// Remove
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'minus';
-	top.appendChild(tmp_button);
-
-	// Load from remote server?
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'cloud-download';
-	top.appendChild(tmp_button);
-
-	// Save to remote server
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'cloud-upload';
-	top.appendChild(tmp_button);
-
-	// Set animation properties
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'edit';
-	top.appendChild(tmp_button);
-
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'inbox';
-	top.appendChild(tmp_button);
-
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'gear';
-	top.appendChild(tmp_button);
-
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'trash';
-	top.appendChild(tmp_button);
-
-	// Show List
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'list';
-	top.appendChild(tmp_button);
-
-	// Remove
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'remove';
-	top.appendChild(tmp_button);
-
-	*/
-
 	var range = document.createElement('input');
 	range.type = "range";
 	range.min = 1;
@@ -250,15 +169,96 @@ function LayerCabinet(layers, dispatcher) {
 	});
 
 	div.appendChild(top);
+
+	// Play Controls
+	top.appendChild(play_button.dom);
+	top.appendChild(stop_button.dom);
+	top.appendChild(range);
+
+
+	top.appendChild(document.createElement('br'));
+	top.appendChild(document.createElement('br'));
+
+	// new
+	var file_alt = new IconButton(16, 'file_alt', 'New');
+	top.appendChild(file_alt.dom);
+
+	// open _alt
+	var folder_open_alt = new IconButton(16, 'folder_open_alt', 'Open');
+	top.appendChild(folder_open_alt.dom);
+
+	// save
+	var save = new IconButton(16, 'save', 'Save');
+	top.appendChild(save.dom);
+
+	// download json (export)
+	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON');
+	top.appendChild(download_alt.dom);
+
+	// upload json (import)
+	var upload = new IconButton(16, 'upload_alt', 'Upload / Import JSON');
+	top.appendChild(upload.dom);
+
+
+	// Cloud Download / Upload
+
+
 	
 	top.appendChild(undo_button.dom);
 	top.appendChild(redo_button.dom);
 	top.appendChild(document.createElement('br'));
 
-	
-	top.appendChild(play_button.dom);
-	top.appendChild(stop_button.dom);
-	top.appendChild(range);
+
+
+	/* 	*/
+	// zoom in
+	var zoom_in = new IconButton(12, 'zoom_in', 'zoom_in');
+	top.appendChild(zoom_in.dom);
+
+	// zoom out
+	var zoom_out = new IconButton(12, 'zoom_out', 'zoom_out');
+	top.appendChild(zoom_out.dom);
+
+	// resize full
+	var resize_full = new IconButton(16, 'resize_full', 'resize_full');
+	top.appendChild(resize_full.dom);
+
+	// resize minimize
+	var resize_small = new IconButton(16, 'resize_small', 'resize_small');
+	top.appendChild(resize_small.dom);
+
+	// show layer
+	var eye_open = new IconButton(16, 'eye_open', 'eye_open');
+	top.appendChild(eye_open.dom);
+
+	// hide / disable layer
+	var eye_close = new IconButton(16, 'eye_close', 'eye_close');
+	top.appendChild(eye_close.dom);
+
+	// add layer
+	var plus = new IconButton(16, 'plus', 'plus');
+	top.appendChild(plus.dom);
+
+	// remove layer
+	var minus = new IconButton(16, 'minus', 'minus');
+	top.appendChild(minus.dom);
+
+	// check
+	var ok = new IconButton(16, 'ok', 'ok');
+	top.appendChild(ok.dom);
+
+	// cross
+	var remove = new IconButton(16, 'remove', 'remove');
+	top.appendChild(remove.dom);
+
+	// settings
+	var cog = new IconButton(16, 'cog', 'cog');
+	top.appendChild(cog.dom);
+
+	// trash
+	var trash = new IconButton(16, 'trash', 'trash');
+	top.appendChild(trash.dom);
+
 
 
 	// range.addEventListener('change', changeRange);
