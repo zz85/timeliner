@@ -20,6 +20,11 @@ function IconButton(size, icon, tooltip, dp) {
 	var me = this;
 	this.size = size;
 
+	this.resize = function() {
+		me.setIcon(me.icon);
+	};
+	if (dp) dp.on('resize', this.resize);
+
 	this.setIcon = function(icon) {
 		me.icon = icon;
 

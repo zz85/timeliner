@@ -1,6 +1,6 @@
 /* Layer Schema */
 /*
-[
+var layer_1 = [
 	{
 		name: 'abc',
 		props: {
@@ -34,14 +34,16 @@
 /* Timeline Data Schema */
 
 var sample = {
-	version: 1.1,
+	version: '1.2.0',
 	modified: new Date,
 
 	name: 'sample',
-
 	title: 'Sample Title',
 
 	ui: {
+		current_time: 1,
+		duration: 100,
+
 		position: '0:0:0',
 		bounds: '10 10 100 100',
 		snap: 'full | left-half | top-half | right-half | bottom-half'
@@ -50,4 +52,4 @@ var sample = {
 	layers: [{
 
 	}]
-}
+};

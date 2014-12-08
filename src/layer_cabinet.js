@@ -13,23 +13,23 @@ function LayerCabinet(layers, dispatcher) {
 
 	var playing = false;
 
-	var play_button = new IconButton(16, 'play', 'play');
+	var play_button = new IconButton(16, 'play', 'play', dispatcher);
 	play_button.onClick(function(e) {
 		e.preventDefault();
 		dispatcher.fire('controls.toggle_play');
 	});
 
-	var stop_button = new IconButton(16, 'stop', 'stop');
+	var stop_button = new IconButton(16, 'stop', 'stop', dispatcher);
 	stop_button.onClick(function(e) {
 		dispatcher.fire('controls.stop');
 	});
 
-	var undo_button = new IconButton(16, 'undo', 'undo');
+	var undo_button = new IconButton(16, 'undo', 'undo', dispatcher);
 	undo_button.onClick(function() {
 		dispatcher.fire('controls.undo');
 	});
 
-	var redo_button = new IconButton(16, 'repeat', 'redo');
+	var redo_button = new IconButton(16, 'repeat', 'redo', dispatcher);
 	redo_button.onClick(function() {
 		dispatcher.fire('controls.redo');
 	});
@@ -69,30 +69,31 @@ function LayerCabinet(layers, dispatcher) {
 	top.appendChild(document.createElement('br'));
 	top.appendChild(document.createElement('br'));
 
-	// new
-	var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
-	top.appendChild(file_alt.dom);
-
 	// open _alt
 	var folder_open_alt = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
 	top.appendChild(folder_open_alt.dom);
+
+	// json import
+	var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
+	top.appendChild(import_json.dom);
+
+	// new
+	var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
+	top.appendChild(file_alt.dom);
 
 	// save
 	var save = new IconButton(16, 'save', 'Save', dispatcher);
 	top.appendChild(save.dom);
 
+	// edit pencil 
+	var save_as = new IconButton(16, 'copy', 'Save as', dispatcher);
+	top.appendChild(save_as.dom);
+
 	// download json (export)
 	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON', dispatcher);
 	top.appendChild(download_alt.dom);
 
-	// upload json (import)
-	var upload = new IconButton(16, 'upload_alt', 'Upload / Import JSON', dispatcher);
-	top.appendChild(upload.dom);
-
-
 	// Cloud Download / Upload
-
-
 	
 	top.appendChild(undo_button.dom);
 	top.appendChild(redo_button.dom);
@@ -100,7 +101,7 @@ function LayerCabinet(layers, dispatcher) {
 
 
 
-	/**/
+	/*
 	// // show layer
 	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
 	// top.appendChild(eye_open.dom);
@@ -125,12 +126,10 @@ function LayerCabinet(layers, dispatcher) {
 	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
 	top.appendChild(remove.dom);
 
-
-
 	// trash
 	var trash = new IconButton(16, 'trash', 'trash', dispatcher);
 	top.appendChild(trash.dom);
-
+	*/
 
 
 	// range.addEventListener('change', changeRange);

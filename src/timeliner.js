@@ -260,6 +260,8 @@ function Timeliner(target) {
 			timeline.resize();
 			timeline.repaint();
 			needsResize = false;
+
+			dispatcher.fire('resize');
 		}
 
 
@@ -459,9 +461,6 @@ function Timeliner(target) {
 	bottom_right.appendChild(button_open);
 
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
-
-
-
 
 	/*
 			End DOM Stuff
