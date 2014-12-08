@@ -11,7 +11,8 @@ var undo = require('./undo'),
 	utils = require('./utils'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel'),
-	package_json = require('../package.json')
+	package_json = require('../package.json'),
+	IconButton = require('./icon_button')
 	;
 
 var Z_INDEX = 999;
@@ -329,6 +330,11 @@ function Timeliner(target) {
 		}
 	}
 
+
+	/*
+		Start DOM Stuff (should separate file)
+	*/
+
 	var div = document.createElement('div');
 	div.style.cssText = 'position: absolute;';
 	div.style.top = '16px';
@@ -350,6 +356,24 @@ function Timeliner(target) {
 	pane.style.backgroundColor = Theme.a;
 
 	var pane_title = document.createElement('div');
+
+	var title_bar = document.createElement('span');
+	pane_title.appendChild(title_bar);
+
+
+	var top_right_bar = document.createElement('span');
+	top_right_bar.style.float = 'right';
+	pane_title.appendChild(top_right_bar);
+
+	// resize minimize
+	var resize_small = new IconButton(10, 'resize_small', 'minimize', dispatcher);
+	top_right_bar.appendChild(resize_small.dom);
+
+	// resize full
+	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
+	top_right_bar.appendChild(resize_full.dom);
+
+
 	
 	style(pane_title, {
 		position: 'absolute',
@@ -361,7 +385,7 @@ function Timeliner(target) {
 		overflow: 'hidden'
 	});
 
-	pane_title.innerHTML = 'Timeliner ' + package_json.version;
+	title_bar.innerHTML = 'Timeliner ' + package_json.version;
 
 	var pane_status = document.createElement('div');
 
@@ -412,18 +436,36 @@ function Timeliner(target) {
 	button_open.textContent = 'Open';
 	button_open.onclick = this.promptOpen;
 
+	var bottom_right = document.createElement('span');
+	bottom_right.style.float = 'right';
 
 	pane_status.appendChild(label_status);
+	pane_status.appendChild(bottom_right);
 
-	button_load.style.float = 'right';
-	button_save.style.float = 'right';
-	button_open.style.float = 'right';
+	/**/
+	// zoom in
+	var zoom_in = new IconButton(12, 'zoom_in', 'zoom in', dispatcher);
+	// zoom out
+	var zoom_out = new IconButton(12, 'zoom_out', 'zoom out', dispatcher);
+	// settings
+	var cog = new IconButton(12, 'cog', 'settings', dispatcher);	
 
-	pane_status.appendChild(button_load);
-	pane_status.appendChild(button_save);
-	pane_status.appendChild(button_open);
-	
+	bottom_right.appendChild(zoom_in.dom);
+	bottom_right.appendChild(zoom_out.dom);
+	bottom_right.appendChild(cog.dom);
+
+	bottom_right.appendChild(button_load);
+	bottom_right.appendChild(button_save);
+	bottom_right.appendChild(button_open);
+
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
+
+
+
+
+	/*
+			End DOM Stuff
+	*/
 
 	var ghostpane = document.createElement('div');
 	ghostpane.id = 'ghostpane';
