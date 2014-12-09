@@ -300,36 +300,26 @@ function Timeliner(target) {
 	this.save = save;
 	this.load = load;
 
-	this.promptLoad = function() {
+	function promptImport() {
 		var json = prompt('Copy and Paste JSON to Load');
 		if (!json) return;
 		console.log('Loading.. ', json);
 		load(JSON.parse(json));
-	};
+	}
 
 	dispatcher.on('import', function() {
-		this.promptLoad();
+		promptImport();
 	}.bind(this));
 
 	this.promptOpen = function() {
-		var prefix = 'timeliner-';
-		var regex = new RegExp(prefix + '(.*)');
-		var matches = [];
-		for (var key in localStorage) {
-			console.log(key);
+		// var title = prompt('You have saved ' + matches.join(',') 
+		// 	+ '.\nWhich would you like to open?');
 
-			var match = regex.exec(key);
-			if (match) {
-				matches.push(match[1]);
-			}
-		}
-		var title = prompt('You have saved ' + matches.join(',') 
-			+ '.\nWhich would you like to open?');
-
-		if (title) {
-			load(JSON.parse(localStorage[prefix + title]));
-		}
+		// if (title) {
+		// 	load(JSON.parse(localStorage[prefix + title]));
+		// }
 	};
+
 
 	/*
 		Start DOM Stuff (should separate file)
@@ -417,8 +407,6 @@ function Timeliner(target) {
 	};
 
 	dispatcher.on('status', this.setStatus);
-
-
 
 	var button_save = document.createElement('button');
 	style(button_save, button_styles);

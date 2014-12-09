@@ -1,6 +1,7 @@
 var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view'),
-	IconButton = require('./icon_button')
+	IconButton = require('./icon_button'),
+	style = require('./utils').style
 	;
 
 function LayerCabinet(layers, dispatcher) {
@@ -65,13 +66,82 @@ function LayerCabinet(layers, dispatcher) {
 	top.appendChild(stop_button.dom);
 	top.appendChild(range);
 
-
 	top.appendChild(document.createElement('br'));
 	top.appendChild(document.createElement('br'));
 
 	// open _alt
 	var folder_open_alt = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
 	top.appendChild(folder_open_alt.dom);
+
+
+	function populateOpen() {
+		while (dropdown.childrendCount) {
+			dropdown.remove(0);
+		}
+
+		var option;
+		option = document.createElement('option');
+		option.text = 'New';
+		option.value = '*new*';
+		dropdown.add(option);
+
+		option = document.createElement('option');
+		option.text = 'Import JSON';
+		option.value = '*import*';
+		dropdown.add(option);
+
+		option = document.createElement('option');
+		option.text = '==Open==';
+		option.disabled = true;
+		option.selected = true;
+		dropdown.add(option);
+
+		var prefix = 'timeliner-';
+		var regex = new RegExp(prefix + '(.*)');
+		var matches = [];
+		for (var key in localStorage) {
+			// console.log(key);
+
+			var match = regex.exec(key);
+			if (match) {
+				matches.push(match[1]);
+
+				option = document.createElement('option');
+				option.text = match[1];
+
+				dropdown.add(option);
+
+				option = document.createElement('option');
+				option.text = match[1] + '2';
+				dropdown.add(option);
+
+				option = document.createElement('option');
+				option.text = match[1] + '3';
+				dropdown.add(option);
+
+			}
+		}
+
+	}
+
+	var dropdown = document.createElement('select');
+		
+	style(dropdown, {
+		position: 'absolute',
+		// right: 0,
+		// margin: 0,
+		opacity: 0.3,
+		width: '16px',
+		height: '16px'
+	});
+
+	dropdown.addEventListener('change', function(e) {
+		console.log('changed', dropdown.length, dropdown.value);
+	});
+
+	folder_open_alt.dom.insertBefore(dropdown, folder_open_alt.dom.firstChild);
+
+	populateOpen();
 
 	// json import
 	var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
