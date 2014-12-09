@@ -2,7 +2,8 @@ var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view'),
 	IconButton = require('./icon_button'),
 	style = require('./utils').style,
-	Theme = require('./theme')
+	Theme = require('./theme'),
+	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX
 	;
 
 function LayerCabinet(layers, dispatcher) {
@@ -107,8 +108,7 @@ function LayerCabinet(layers, dispatcher) {
 		option.selected = true;
 		dropdown.add(option);
 
-		var prefix = 'timeliner-';
-		var regex = new RegExp(prefix + '(.*)');
+		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
 		for (var key in localStorage) {
 			// console.log(key);
 
@@ -122,6 +122,16 @@ function LayerCabinet(layers, dispatcher) {
 		}
 
 	}
+
+	// listen on other tabs
+	window.addEventListener('storage', function(e) {
+		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
+		if (regex.exec(e.key)) {
+			populateOpen();
+		}
+	});
+
+	dispatcher.on('save:done', populateOpen);
 
 	var dropdown = document.createElement('select');
 		
@@ -172,10 +182,16 @@ function LayerCabinet(layers, dispatcher) {
 	// save
 	var save = new IconButton(16, 'save', 'Save', dispatcher);
 	operations_div.appendChild(save.dom);
+	save.onClick(function() {
+		dispatcher.fire('save');
+	});
 
 	// save as 
 	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
 	operations_div.appendChild(save_as.dom);
+	save_as.onClick(function() {
+		dispatcher.fire('save_as');
+	});
 
 	// download json (export)
 	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);

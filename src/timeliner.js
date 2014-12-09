@@ -14,11 +14,11 @@ var undo = require('./undo'),
 	package_json = require('../package.json'),
 	IconButton = require('./icon_button'),
 	style = utils.style,
-	saveAs = utils.saveAs,
-	openAs = utils.openAs
+	saveToFile = utils.saveToFile,
+	openAs = utils.openAs,
+	STORAGE_PREFIX = utils.STORAGE_PREFIX
 	;
 
-var STORAGE_PREFIX = 'timeliner-';
 var Z_INDEX = 999;
 
 function LayerProp(name) {
@@ -285,7 +285,6 @@ function Timeliner(target) {
 		End Paint Routines
 	*/
 
-
 	function save(name) {
 		if (!name) name = 'autosave';
 
@@ -293,8 +292,27 @@ function Timeliner(target) {
 
 		try {
 			localStorage[STORAGE_PREFIX + name] = json;
+			dispatcher.fire('save:done');
 		} catch (e) {
 			console.log('Cannot save', name, json);
+		}
+	}
+
+	function saveAs(name) {
+		if (!name) name = data.get('name');
+		name = prompt('Pick a name to save to (localStorage)', name);
+		if (name) {
+			data.data.name = name;
+			save(name);
+		}
+	}
+
+	function saveSimply() {
+		var name = data.get('name');
+		if (name) {
+			save(name);
+		} else {
+			saveAs(name);
 		}
 	}
 
@@ -307,7 +325,7 @@ function Timeliner(target) {
 		json = data.getJSONString('\t');
 		var fileName = 'timeliner-test' + '.json';
 
-		saveAs(json, fileName);
+		saveToFile(json, fileName);
 	}
 
 	function loadJSONString(o) {
@@ -326,7 +344,6 @@ function Timeliner(target) {
 
 		layer_panel.repaint();
 		timeline.repaint();
-
 	}
 
 	function updateState() {
@@ -334,9 +351,6 @@ function Timeliner(target) {
 		layer_panel.setState(layers);
 		timeline.setState(layers);
 	}
-
-	this.save = save;
-	this.load = load;
 
 	function promptImport() {
 		var json = prompt('Paste JSON in here to Load');
@@ -373,6 +387,12 @@ function Timeliner(target) {
 	dispatcher.on('open', open);
 	dispatcher.on('export', exportJSON);
 
+	dispatcher.on('save', saveSimply);
+	dispatcher.on('save_as', saveAs);
+
+	// Expose API	
+	this.save = save;
+	this.load = load;
 
 	/*
 		Start DOM Stuff (should separate file)
@@ -457,7 +477,7 @@ function Timeliner(target) {
 		label_status.textContent = text;
 	};
 
-	dispatcher.on('save', function(description) {
+	dispatcher.on('state:save', function(description) {
 		dispatcher.fire('status', description);
 		save('autosave');
 	});

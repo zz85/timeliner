@@ -2,8 +2,10 @@ var
 	Tweens = require('./tween');
 
 module.exports = {
+	STORAGE_PREFIX: 'timeliner-',
+	Z_INDEX: 999,
 	style: style,
-	saveAs: saveAs,
+	saveToFile: saveToFile,
 	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,
@@ -20,7 +22,7 @@ function style(element, styles) {
 	}
 }
 
-function saveAs(string, filename) {
+function saveToFile(string, filename) {
 	var a = document.createElement("a");
 	document.body.appendChild(a);
 	a.style = "display: none";
