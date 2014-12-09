@@ -243,7 +243,9 @@ function LayerCabinet(layers, dispatcher) {
 		dispatcher.fire('update.scale', v);
 	}		
 
-	var layer_uis = [];
+	var layer_uis = [], visible_layers = 0;
+	var unused_layers = [];
+
 	this.layers = layer_uis;
 
 	this.setControlStatus = function(v) {
@@ -266,31 +268,43 @@ function LayerCabinet(layers, dispatcher) {
 			layer = layers[i];
 
 			if (!layer_uis[i]) {
-				// new
-				var layer_ui = new LayerUI(layer, dispatcher);
-				div.appendChild(layer_ui.dom);
+				var layer_ui;
+				if (unused_layers.length) {
+					layer_ui = unused_layers.pop();
+					layer_ui.dom.style.display = 'block';
+				} else {
+					// new
+					layer_ui = new LayerUI(layer, dispatcher);
+					div.appendChild(layer_ui.dom);
+				}
 				layer_uis.push(layer_ui);
 			}
 
-			layer_uis[i].setState(layer);
+			// layer_uis[i].setState(layer);
 		}
-		// TODO if more uis than layers, remove! / hide
+
+		console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
+			layer_uis.length + unused_layers.length);
+
 	};
 
 	function repaint(s) {
 		var i;
 
 		s = s || 0;
-		for (i = 0; i < layer_uis.length; i++) {
+		for (i = layer_uis.length; i-- > 0;) {
 			// quick hack
 			if (i >= layers.length) {
 				layer_uis[i].dom.style.display = 'none';
+				unused_layers.push(layer_uis.pop());
 				continue;
 			}
-
+			
 			layer_uis[i].setState(layers[i]);
 			layer_uis[i].repaint(s);
 		}
+
+		visible_layers = layer_uis.length;
 
 	}
 
