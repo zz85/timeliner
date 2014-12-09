@@ -14,7 +14,7 @@ function UndoManager(dispatcher, max) {
 	this.clear();
 }
 
-UndoManager.prototype.save = function(state) {
+UndoManager.prototype.save = function(state, suppress) {
 	var states = this.states;
 	var next_index = this.index + 1;
 	var to_remove = states.length - next_index;
@@ -27,7 +27,7 @@ UndoManager.prototype.save = function(state) {
 	this.index = states.length - 1;
 
 	// console.log('Undo State Saved: ', state.description);
-	this.dispatcher.fire('status', state.description);
+	if (!suppress) this.dispatcher.fire('save', state.description);
 };
 
 UndoManager.prototype.clear = function() {

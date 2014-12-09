@@ -66,16 +66,19 @@ function LayerCabinet(layers, dispatcher) {
 	top.appendChild(stop_button.dom);
 	top.appendChild(range);
 
-	top.appendChild(document.createElement('br'));
-	top.appendChild(document.createElement('br'));
+	var operations_div = document.createElement('div');
+	style(operations_div, {
+		paddingTop: '4px'
+	});
+	top.appendChild(operations_div);
+	// top.appendChild(document.createElement('br'));
 
 	// open _alt
-	var folder_open_alt = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
-	top.appendChild(folder_open_alt.dom);
-
+	var file_open = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
+	operations_div.appendChild(file_open.dom);
 
 	function populateOpen() {
-		while (dropdown.childrendCount) {
+		while (dropdown.length) {
 			dropdown.remove(0);
 		}
 
@@ -98,27 +101,15 @@ function LayerCabinet(layers, dispatcher) {
 
 		var prefix = 'timeliner-';
 		var regex = new RegExp(prefix + '(.*)');
-		var matches = [];
 		for (var key in localStorage) {
 			// console.log(key);
 
 			var match = regex.exec(key);
 			if (match) {
-				matches.push(match[1]);
-
 				option = document.createElement('option');
 				option.text = match[1];
 
 				dropdown.add(option);
-
-				option = document.createElement('option');
-				option.text = match[1] + '2';
-				dropdown.add(option);
-
-				option = document.createElement('option');
-				option.text = match[1] + '3';
-				dropdown.add(option);
-
 			}
 		}
 
@@ -130,78 +121,100 @@ function LayerCabinet(layers, dispatcher) {
 		position: 'absolute',
 		// right: 0,
 		// margin: 0,
-		opacity: 0.3,
+		opacity: 0,
 		width: '16px',
-		height: '16px'
+		height: '16px',
+		// zIndex: 1,
 	});
 
 	dropdown.addEventListener('change', function(e) {
-		console.log('changed', dropdown.length, dropdown.value);
+		// console.log('changed', dropdown.length, dropdown.value);
+
+		switch (dropdown.value) {
+			case '*new*':
+				dispatcher.fire('new');
+				break;
+			case '*import*':
+				dispatcher.fire('import');
+				break;
+			default:
+				dispatcher.fire('open', dropdown.value);
+				break;
+		}
 	});
 
-	folder_open_alt.dom.insertBefore(dropdown, folder_open_alt.dom.firstChild);
+	file_open.dom.insertBefore(dropdown, file_open.dom.firstChild);
 
 	populateOpen();
 
-	// json import
-	var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
-	top.appendChild(import_json.dom);
-	import_json.onClick(function() {
-		dispatcher.fire('import');
-	});
+	// // json import
+	// var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
+	// operations_div.appendChild(import_json.dom);
+	// import_json.onClick(function() {
+	// 	dispatcher.fire('import');
+	// });
 
-	// new
-	var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
-	top.appendChild(file_alt.dom);
+	// // new
+	// var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
+	// operations_div.appendChild(file_alt.dom);
 
 	// save
 	var save = new IconButton(16, 'save', 'Save', dispatcher);
-	top.appendChild(save.dom);
+	operations_div.appendChild(save.dom);
 
-	// edit pencil 
+	// save as 
 	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
-	top.appendChild(save_as.dom);
+	operations_div.appendChild(save_as.dom);
 
 	// download json (export)
 	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON', dispatcher);
-	top.appendChild(download_alt.dom);
+	operations_div.appendChild(download_alt.dom);
+	download_alt.onClick(function() {
+		dispatcher.fire('export');
+	});
 
-	// Cloud Download / Upload
+	var span = document.createElement('span');
+	span.style.width = '20px';
+	span.style.display = 'inline-block';
+	operations_div.appendChild(span);
+
+	operations_div.appendChild(undo_button.dom);
+	operations_div.appendChild(redo_button.dom);
+	operations_div.appendChild(document.createElement('br'));
+
+	// Cloud Download / Upload edit pencil
 	
-	top.appendChild(undo_button.dom);
-	top.appendChild(redo_button.dom);
-	top.appendChild(document.createElement('br'));
 
 
 
 	/*
 	// // show layer
 	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
-	// top.appendChild(eye_open.dom);
+	// operations_div.appendChild(eye_open.dom);
 
 	// // hide / disable layer
 	// var eye_close = new IconButton(16, 'eye_close', 'eye_close', dispatcher);
-	// top.appendChild(eye_close.dom);
+	// operations_div.appendChild(eye_close.dom);
 
 	// add layer
 	var plus = new IconButton(16, 'plus', 'plus', dispatcher);
-	top.appendChild(plus.dom);
+	operations_div.appendChild(plus.dom);
 
 	// remove layer
 	var minus = new IconButton(16, 'minus', 'minus', dispatcher);
-	top.appendChild(minus.dom);
+	operations_div.appendChild(minus.dom);
 
 	// check
 	var ok = new IconButton(16, 'ok', 'ok', dispatcher);
-	top.appendChild(ok.dom);
+	operations_div.appendChild(ok.dom);
 
 	// cross
 	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
-	top.appendChild(remove.dom);
+	operations_div.appendChild(remove.dom);
 
 	// trash
 	var trash = new IconButton(16, 'trash', 'trash', dispatcher);
-	top.appendChild(trash.dom);
+	operations_div.appendChild(trash.dom);
 	*/
 
 

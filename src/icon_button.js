@@ -38,6 +38,7 @@ function IconButton(size, icon, tooltip, dp) {
 		ctx.fillStyle = Theme.c;
 		me.draw();
 	};
+
 	if (dp) dp.on('resize', this.resize);
 
 	this.setSize = function(s) {

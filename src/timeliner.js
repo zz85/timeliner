@@ -34,6 +34,10 @@ function LayerProp(name) {
 }
 
 function DataStore() {
+	this.blank();
+}
+
+DataStore.prototype.blank = function() {
 	var data = {};
 
 	data.version = package_json.version;
@@ -43,7 +47,7 @@ function DataStore() {
 	data.layers = [];
 
 	this.data = data;
-}
+};
 
 DataStore.prototype.update = function() {
 	var data = this.data;
@@ -56,8 +60,12 @@ DataStore.prototype.setJSONString = function(data) {
 	this.data = JSON.parse(data);
 };
 
-DataStore.prototype.getJSONString = function(data) {
-	return JSON.stringify(this.data);
+DataStore.prototype.setJSON = function(data) {
+	this.data = data;
+};
+
+DataStore.prototype.getJSONString = function(format) {
+	return JSON.stringify(this.data, null, format);
 };
 
 
@@ -83,7 +91,7 @@ function Timeliner(target) {
 
 	setTimeout(function() {
 		// hack!
-		undo_manager.save(new UndoState(data, 'Loaded'));
+		undo_manager.save(new UndoState(data, 'Loaded'), true);
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {
@@ -217,10 +225,8 @@ function Timeliner(target) {
 	dispatcher.on('controls.undo', function() {
 		var history = undo_manager.undo();
 		data.setJSONString(history.state);
-		layers = data.get('layers');
-
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		
+		updateState();
 
 		var t = timeline.current_frame;
 		layer_panel.repaint(t);
@@ -230,18 +236,16 @@ function Timeliner(target) {
 	dispatcher.on('controls.redo', function() {
 		var history = undo_manager.redo();
 		data.setJSONString(history.state);
-		layers = data.get('layers');
-
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		
+		updateState();
 
 		var t = timeline.current_frame;
 		layer_panel.repaint(t);
 		timeline.repaint();
 	});
 
-	function repaint() {
-		requestAnimationFrame(repaint);
+	function paint() {
+		requestAnimationFrame(paint);
 		
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
@@ -270,7 +274,9 @@ function Timeliner(target) {
 		timeline._paint();
 	}
 
-	repaint();
+	paint();
+
+	var STORAGE_PREFIX = 'timeliner-';
 
 	function save(name) {
 		if (!name) name = 'autosave';
@@ -278,47 +284,107 @@ function Timeliner(target) {
 		var json = data.getJSONString();
 
 		try {
-			localStorage['timeliner-' + name] = json;
+			localStorage[STORAGE_PREFIX + name] = json;
 		} catch (e) {
 			console.log('Cannot save', name, json);
 		}
+	}
 
-		prompt('Saved', json);
+	function exportJSON() {
+		var json = data.getJSONString();
+		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON', json);
+		if (!ret) return;
+
+		/// 
+		var saveData = (function () {
+			var a = document.createElement("a");
+			document.body.appendChild(a);
+			// a.innerHTML = 'yoz';
+			a.style = "display: none";
+			return function (string, fileName) {
+				var blob = new Blob([string], { type: 'octet/stream' }), // octet/stream application/json
+					url = window.URL.createObjectURL(blob);
+				a.href = url;
+				a.download = fileName;
+
+				// a.click();
+				var e = document.createEvent("MouseEvents");
+				e.initMouseEvent(
+					'click', true, false, window, 0, 0, 0, 0, 0,
+					false, false, false, false, 0, null
+				);
+				// var e = document.createEvent('Event');
+				// e.initEvent('click', true, true);
+				a.dispatchEvent(e);
+
+				setTimeout(function() {
+					// revoke
+					window.URL.revokeObjectURL(url);
+					// document.body.removeChild(a);
+					// a.remove();
+				}, 500);
+
+			};
+		}());
+
+		
+		json = data.getJSONString('\t');
+		var fileName = 'timeliner-test' + '.json';
+
+		saveData(json, fileName);
+
+		// TODO Make file for download
 	}
 
 	function load(o) {
-		layers = o;
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		data.setJSON(o);
+
+		undo_manager.clear();
+		undo_manager.save(new UndoState(data, 'Loaded'), true);
+		
+		updateState();
+
 		layer_panel.repaint();
 		timeline.repaint();
 
-		undo_manager.clear();
-		undo_manager.save(new UndoState(data, 'Loaded'));
+	}
+
+	function updateState() {
+		layers = data.get('layers');
+		layer_panel.setState(layers);
+		timeline.setState(layers);
 	}
 
 	this.save = save;
 	this.load = load;
 
 	function promptImport() {
-		var json = prompt('Copy and Paste JSON to Load');
+		var json = prompt('Paste JSON in here to Load');
 		if (!json) return;
 		console.log('Loading.. ', json);
 		load(JSON.parse(json));
+	}
+
+	function open(title) {
+		if (title) {
+			load(JSON.parse(localStorage[STORAGE_PREFIX + title]));
+		}
 	}
 
 	dispatcher.on('import', function() {
 		promptImport();
 	}.bind(this));
 
-	this.promptOpen = function() {
-		// var title = prompt('You have saved ' + matches.join(',') 
-		// 	+ '.\nWhich would you like to open?');
+	dispatcher.on('new', function() {
+		data.blank();
+		updateState();
 
-		// if (title) {
-		// 	load(JSON.parse(localStorage[prefix + title]));
-		// }
-	};
+		layer_panel.repaint();
+		timeline.repaint();
+	});
+
+	dispatcher.on('open', open);
+	dispatcher.on('export', exportJSON);
 
 
 	/*
@@ -406,6 +472,11 @@ function Timeliner(target) {
 		label_status.textContent = text;
 	};
 
+	dispatcher.on('save', function(description) {
+		dispatcher.fire('status', description);
+		save('autosave');
+	});
+
 	dispatcher.on('status', this.setStatus);
 
 	var button_save = document.createElement('button');
@@ -485,18 +556,16 @@ function Timeliner(target) {
 	// 	console.log('kd', e);
 	// });
 
-	// Keyboard Shortcuts
-	// Space - play
-	// Enter - play from last played or beginging
+	// TODO: Keyboard Shortcuts
+	// Esc - Stop and review to last played from / to the start?
+	// Space - play / pause from current position
+	// Enter - play all
 	// k - keyframe
 
 	document.addEventListener('keydown', function(e) {
 		var play = e.keyCode == 32; // space
 		var enter = e.keyCode == 13; // 
 		var undo = e.metaKey && e.keyCode == 91 && !e.shiftKey;
-		// enter
-
-		console.log(e.keyCode);
 
 		var active = document.activeElement;
 		// console.log( active.nodeName );
@@ -509,9 +578,15 @@ function Timeliner(target) {
 			dispatcher.fire('controls.toggle_play');
 		}
 		else if (enter) {
+			// FIXME: Return should play from the start or last played from?
 			dispatcher.fire('controls.restart_play');
 			// dispatcher.fire('controls.undo');
 		}
+		else if (e.keyCode == 27) {
+			// Esc = stop. FIXME: should rewind head to last played from or Last pointed from?
+			dispatcher.fire('controls.pause');
+		}
+		else console.log(e.keyCode);
 	});
 
 	var needsResize = true;
