@@ -42,63 +42,49 @@ function saveAs(string, filename) {
 
 
 
-var input;
+var input, openCallback;
 
-function fileSelectHandler(input, openCallback) {
+function handleFileSelect(evt) {
+	var files = evt.target.files; // FileList object
 
-	var handleFileSelect = function(evt) {
-		var files = evt.target.files; // FileList object
+	console.log('handle file select', files.length);
 
-		console.log('handle file select', files.length);
+	var f = files[0];
+	if (!f) return;
+	// Can try to do MINE match
+	// if (!f.type.match('application/json')) {
+	//   return;
+	// }
+	console.log('match', f.type);
 
-		var f = files[0];
-		if (!f) return;
-		// Can try to do MINE match
-		// if (!f.type.match('application/json')) {
-		//   return;
-		// }
-		console.log('match', f.type);
+	var reader = new FileReader();
 
-		var reader = new FileReader();
-
-		// Closure to capture the file information.
-		reader.onload = function(e) {
-			var data = e.target.result;
-			openCallback(data);
-		};
-		
-		reader.readAsText(f);
-
-		input.value = '';
-		input.removeEventListener('change', handleFileSelect);
-		
-		input = null;	
+	// Closure to capture the file information.
+	reader.onload = function(e) {
+		var data = e.target.result;
+		openCallback(data);
 	};
+	
+	reader.readAsText(f);
 
-	return handleFileSelect;
+	input.value = '';
 }
 
 
-function openAs(callback) {
+function openAs(callback, target) {
 	console.log('openfile...');
-	// input.style.display = 'none';
+	openCallback = callback;
 
-	if (input) {
-		document.body.removeChild(input);
+	if (!input) {
+		input = document.createElement('input');
+		input.style.display = 'none';
+		input.type = 'file';
+		input.addEventListener('change', handleFileSelect);
+		target = target || document.body;
+		target.appendChild(input);
 	}
-
-	input = document.createElement('input');
-	input.type = 'file';
-	document.body.appendChild(input);
-
-	input.addEventListener('change', fileSelectHandler(input, callback));
-
-	window.ff = input;
-	
-
 	
 	fakeClick(input);
-	
 }
 
 function fakeClick(target) {

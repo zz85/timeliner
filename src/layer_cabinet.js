@@ -1,7 +1,8 @@
 var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view'),
 	IconButton = require('./icon_button'),
-	style = require('./utils').style
+	style = require('./utils').style,
+	Theme = require('./theme')
 	;
 
 function LayerCabinet(layers, dispatcher) {
@@ -68,7 +69,8 @@ function LayerCabinet(layers, dispatcher) {
 
 	var operations_div = document.createElement('div');
 	style(operations_div, {
-		paddingTop: '4px'
+		marginTop: '4px',
+		// borderBottom: '1px solid ' + Theme.b
 	});
 	top.appendChild(operations_div);
 	// top.appendChild(document.createElement('br'));
@@ -93,10 +95,11 @@ function LayerCabinet(layers, dispatcher) {
 		option.value = '*import*';
 		dropdown.add(option);
 
-		option = document.createElement('option');
-		option.text = 'Select File';
-		option.value = '*select*';
-		dropdown.add(option);
+		// Doesn't work
+		// option = document.createElement('option');
+		// option.text = 'Select File';
+		// option.value = '*select*';
+		// dropdown.add(option);
 
 		option = document.createElement('option');
 		option.text = '==Open==';
@@ -175,13 +178,13 @@ function LayerCabinet(layers, dispatcher) {
 	operations_div.appendChild(save_as.dom);
 
 	// download json (export)
-	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON', dispatcher);
+	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);
 	operations_div.appendChild(download_alt.dom);
 	download_alt.onClick(function() {
 		dispatcher.fire('export');
 	});
 
-	var upload_alt = new IconButton(16, 'upload_alt', 'Download / Export JSON', dispatcher);
+	var upload_alt = new IconButton(16, 'upload_alt', 'Load from file', dispatcher);
 	operations_div.appendChild(upload_alt.dom);
 	upload_alt.onClick(function() {
 		dispatcher.fire('openfile');
@@ -279,6 +282,12 @@ function LayerCabinet(layers, dispatcher) {
 
 		s = s || 0;
 		for (i = 0; i < layer_uis.length; i++) {
+			// quick hack
+			if (i >= layers.length) {
+				layer_uis[i].dom.style.display = 'none';
+				continue;
+			}
+
 			layer_uis[i].setState(layers[i]);
 			layer_uis[i].repaint(s);
 		}

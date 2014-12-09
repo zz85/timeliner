@@ -310,6 +310,12 @@ function Timeliner(target) {
 		saveAs(json, fileName);
 	}
 
+	function loadJSONString(o) {
+		// should catch and check errors here
+		var json = JSON.parse(o);
+		load(json);
+	}
+
 	function load(o) {
 		data.setJSON(o);
 
@@ -336,12 +342,12 @@ function Timeliner(target) {
 		var json = prompt('Paste JSON in here to Load');
 		if (!json) return;
 		console.log('Loading.. ', json);
-		load(JSON.parse(json));
+		loadJSONString(json);
 	}
 
 	function open(title) {
 		if (title) {
-			load(JSON.parse(localStorage[STORAGE_PREFIX + title]));
+			loadJSONString(localStorage[STORAGE_PREFIX + title]);
 		}
 	}
 
@@ -360,7 +366,8 @@ function Timeliner(target) {
 	dispatcher.on('openfile', function() {
 		openAs(function(data) {
 			// console.log('loaded ' + data);
-		});
+			loadJSONString(data);
+		}, div);
 	});
 
 	dispatcher.on('open', open);
