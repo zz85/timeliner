@@ -21,13 +21,6 @@ function IconButton(size, icon, tooltip, dp) {
 	this.size = size;
 
 	this.resize = function() {
-		me.setIcon(me.icon);
-	};
-	if (dp) dp.on('resize', this.resize);
-
-	this.setIcon = function(icon) {
-		me.icon = icon;
-
 		var dpr = window.devicePixelRatio;
 		var height = size;
 
@@ -45,10 +38,50 @@ function IconButton(size, icon, tooltip, dp) {
 		ctx.fillStyle = Theme.c;
 		me.draw();
 	};
+	if (dp) dp.on('resize', this.resize);
+
+	this.setSize = function(s) {
+		size = s;
+		this.resize();
+	};
+
+	this.setIcon = function(icon) {
+		me.icon = icon;
+
+		if (!font.fonts[icon]) console.warn('Font icon not found!');
+		this.resize();
+	};
 
 	this.onClick = function(e) {
 		button.addEventListener('click', e);
 	};
+
+	var LONG_HOLD_DURATION = 500;
+	var longHoldTimer;
+
+	this.onLongHold = function(e) {
+		
+	};
+
+
+	button.addEventListener('mousedown', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		longHoldTimer = setTimeout(function() {
+			if (longHoldTimer) {
+				console.log('LONG HOLD-ED!');
+				clearTimeout(longHoldTimer);
+			}
+		}, LONG_HOLD_DURATION);
+	});
+
+	function clearLongHoldTimer() {
+		clearTimeout(longHoldTimer);
+	}
+	
+	button.addEventListener('mouseup', clearLongHoldTimer);
+	button.addEventListener('mouseout', clearLongHoldTimer);
+
 
 	this.setTip = function(tip) {
 		tooltip = tip;

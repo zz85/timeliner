@@ -366,8 +366,8 @@ function Timeliner(target) {
 	pane_title.appendChild(top_right_bar);
 
 	// resize minimize
-	var resize_small = new IconButton(10, 'resize_small', 'minimize', dispatcher);
-	top_right_bar.appendChild(resize_small.dom);
+	// var resize_small = new IconButton(10, 'resize_small', 'minimize', dispatcher);
+	// top_right_bar.appendChild(resize_small.dom);
 
 	// resize full
 	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
@@ -596,6 +596,17 @@ function Timeliner(target) {
 
 		pane_title.addEventListener('mouseout', function() {
 			mouseOnTitle = false;
+		});
+
+		resize_full.onClick(function() {
+			// TOOD toggle back to restored size
+			if (!preSnapped) preSnapped = {
+				width: b.width,
+				height: b.height
+			};
+
+			snapType = 'full-screen';
+			resizeEdges();
 		});
 
 		// pane_status.addEventListener('mouseover', function() {
@@ -882,14 +893,12 @@ function Timeliner(target) {
 
 			if (clicked && clicked.isMoving) {
 				// Snap
-				var snapped = {
-					width: b.width,
-					height: b.height
-				};
-
 				snapType = checks();
 				if (snapType) {
-					preSnapped = snapped;
+					preSnapped = {
+						width: b.width,
+						height: b.height
+					};
 					resizeEdges();
 				} else {
 					preSnapped = null;
