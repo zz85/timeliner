@@ -1,6 +1,6 @@
 # Timeliner
 
-Timeliner is a graphical javascript library that can prototype and create animations quickly that works across different javascript / webgl frameworks. You may find timeline familiar if you have used adobe flash, after effects, edge animate or other animation software. Except this in its really early (prototyping) stage with no testers/users but myself, so expect breakages and use at your own risk.
+Timeliner is a graphical javascript library that helps create and prototype animations quickly. It's works with different javascript / webgl frameworks. You may find timeline familiar if you have used adobe flash, after effects, edge animate or other animation software. Except this in its really early (prototyping) stage with no testers/users but myself, so expect breakages and use at your own risk.
 
 Follow [blurspline](https://twitter.com/blurspline) on twitter for updates.
 
@@ -21,18 +21,20 @@ There are currently already couple of timeline libraries which are pretty good (
 (Side note: mrdoob's [talk on this](http://2013.jsconf.asia/blog/2013/11/8/jsconfasia-2013-mrdoob-ricardo-cabello-framejs) also showcase interesting editors used by the demoscene)
 4. [TweenTime](https://github.com/idflood/TweenTime/) by idflood.
 
-I initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
+I had initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
 
 ## Philosophy
-Timeliner should be lightweight and can be added into any webpages with ease. It could work as an included script, bookmarklet, or part of a bigger project with capabilities to work with other controls like dat.gui or gui.js.
+Timeliner should be lightweight and can be added into any webpages with ease. It could work as an included script, bookmarklet, or part of a bigger project with capabilities to work with other controls like dat.gui or gui.js. Styles, HTML, Icons are all embed in the Javascript code.
 
 ## Usage
 
-include the timeliner.js file.
+Include the timeliner.js file.
 
 ```js
 <script src="timeliner.js"></script>
 ```
+
+Load data by code, file upload or loading from saved localStorage.
 
 ```js
 // target is a "pojo" which gets updated when values change.
@@ -63,6 +65,12 @@ or
 2. Select easing type from the dropdown
 
 ## Curent Features
+1.3.0
+- autosave
+- load (localstorage, new, autosave, filesystem)
+- save (export, localstorage, download)
+- ui tweaks
+
 1.2.0
 - icons using extracted fontawesome data
 - slightly npm-ify
@@ -70,8 +78,10 @@ or
 - basic keyboard shortcuts
 - basic hdpi
 - basic touch support
+
 1.1.0
 - undo / redo (basic)
+
 1.0.0
 - slider time scale (basic)
 - fix positioning mouse events
@@ -92,14 +102,13 @@ or
 - adjust values (basic)
 
 ## TODO
-- save / load
+- scrolling
 - attempt virtual-dom / v.rendering
 - curve editor
+- graph editor
 - support audio
-- scrolling
 - support guestures
 - remote control
 - insert keyframes should interpolate
-- tweened values
-- ghosting / onioning skinning
+- ghosting / onioning skinning tweened values
 - a whole ton more

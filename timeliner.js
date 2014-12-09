@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports={
   "name": "timeliner",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "description": "simple js animation timeline library",
   "main": "timeliner.js",
   "scripts": {
@@ -77,9 +77,57 @@ module.exports={
 	"ascender": 1536,
 	"descender": -256,
 	"fonts": {
+		"plus": {
+			"advanceWidth": 1408,
+			"commands": "M,1408,800 C,1408,853,1365,896,1312,896 L,896,896 L,896,1312 C,896,1365,853,1408,800,1408 L,608,1408 C,555,1408,512,1365,512,1312 L,512,896 L,96,896 C,43,896,0,853,0,800 L,0,608 C,0,555,43,512,96,512 L,512,512 L,512,96 C,512,43,555,0,608,0 L,800,0 C,853,0,896,43,896,96 L,896,512 L,1312,512 C,1365,512,1408,555,1408,608 Z"
+		},
+		"minus": {
+			"advanceWidth": 1408,
+			"commands": "M,1408,800 C,1408,853,1365,896,1312,896 L,96,896 C,43,896,0,853,0,800 L,0,608 C,0,555,43,512,96,512 L,1312,512 C,1365,512,1408,555,1408,608 Z"
+		},
+		"ok": {
+			"advanceWidth": 1792,
+			"commands": "M,1671,970 C,1671,995,1661,1020,1643,1038 L,1507,1174 C,1489,1192,1464,1202,1439,1202 C,1414,1202,1389,1192,1371,1174 L,715,517 L,421,812 C,403,830,378,840,353,840 C,328,840,303,830,285,812 L,149,676 C,131,658,121,633,121,608 C,121,583,131,558,149,540 L,511,178 L,647,42 C,665,24,690,14,715,14 C,740,14,765,24,783,42 L,919,178 L,1643,902 C,1661,920,1671,945,1671,970 Z"
+		},
+		"remove": {
+			"advanceWidth": 1408,
+			"commands": "M,1298,214 C,1298,239,1288,264,1270,282 L,976,576 L,1270,870 C,1288,888,1298,913,1298,938 C,1298,963,1288,988,1270,1006 L,1134,1142 C,1116,1160,1091,1170,1066,1170 C,1041,1170,1016,1160,998,1142 L,704,848 L,410,1142 C,392,1160,367,1170,342,1170 C,317,1170,292,1160,274,1142 L,138,1006 C,120,988,110,963,110,938 C,110,913,120,888,138,870 L,432,576 L,138,282 C,120,264,110,239,110,214 C,110,189,120,164,138,146 L,274,10 C,292,-8,317,-18,342,-18 C,367,-18,392,-8,410,10 L,704,304 L,998,10 C,1016,-8,1041,-18,1066,-18 C,1091,-18,1116,-8,1134,10 L,1270,146 C,1288,164,1298,189,1298,214 Z"
+		},
+		"zoom_in": {
+			"advanceWidth": 1664,
+			"commands": "M,1024,736 C,1024,753,1009,768,992,768 L,768,768 L,768,992 C,768,1009,753,1024,736,1024 L,672,1024 C,655,1024,640,1009,640,992 L,640,768 L,416,768 C,399,768,384,753,384,736 L,384,672 C,384,655,399,640,416,640 L,640,640 L,640,416 C,640,399,655,384,672,384 L,736,384 C,753,384,768,399,768,416 L,768,640 L,992,640 C,1009,640,1024,655,1024,672 M,1152,704 C,1152,457,951,256,704,256 C,457,256,256,457,256,704 C,256,951,457,1152,704,1152 C,951,1152,1152,951,1152,704 M,1664,-128 C,1664,-94,1650,-61,1627,-38 L,1284,305 C,1365,422,1408,562,1408,704 C,1408,1093,1093,1408,704,1408 C,315,1408,0,1093,0,704 C,0,315,315,0,704,0 C,846,0,986,43,1103,124 L,1446,-218 C,1469,-242,1502,-256,1536,-256 C,1607,-256,1664,-199,1664,-128 Z"
+		},
+		"zoom_out": {
+			"advanceWidth": 1664,
+			"commands": "M,1024,736 C,1024,753,1009,768,992,768 L,416,768 C,399,768,384,753,384,736 L,384,672 C,384,655,399,640,416,640 L,992,640 C,1009,640,1024,655,1024,672 M,1152,704 C,1152,457,951,256,704,256 C,457,256,256,457,256,704 C,256,951,457,1152,704,1152 C,951,1152,1152,951,1152,704 M,1664,-128 C,1664,-94,1650,-61,1627,-38 L,1284,305 C,1365,422,1408,562,1408,704 C,1408,1093,1093,1408,704,1408 C,315,1408,0,1093,0,704 C,0,315,315,0,704,0 C,846,0,986,43,1103,124 L,1446,-218 C,1469,-242,1502,-256,1536,-256 C,1607,-256,1664,-199,1664,-128 Z"
+		},
+		"cog": {
+			"advanceWidth": 1536,
+			"commands": "M,1024,640 C,1024,499,909,384,768,384 C,627,384,512,499,512,640 C,512,781,627,896,768,896 C,909,896,1024,781,1024,640 M,1536,749 C,1536,766,1524,782,1507,785 L,1324,813 C,1314,846,1300,879,1283,911 C,1317,958,1354,1002,1388,1048 C,1393,1055,1396,1062,1396,1071 C,1396,1079,1394,1087,1389,1093 C,1347,1152,1277,1214,1224,1263 C,1217,1269,1208,1273,1199,1273 C,1190,1273,1181,1270,1175,1264 L,1033,1157 C,1004,1172,974,1184,943,1194 L,915,1378 C,913,1395,897,1408,879,1408 L,657,1408 C,639,1408,625,1396,621,1380 C,605,1320,599,1255,592,1194 C,561,1184,530,1171,501,1156 L,363,1263 C,355,1269,346,1273,337,1273 C,303,1273,168,1127,144,1094 C,139,1087,135,1080,135,1071 C,135,1062,139,1054,145,1047 C,182,1002,218,957,252,909 C,236,879,223,849,213,817 L,27,789 C,12,786,0,768,0,753 L,0,531 C,0,514,12,498,29,495 L,212,468 C,222,434,236,401,253,369 C,219,322,182,278,148,232 C,143,225,140,218,140,209 C,140,201,142,193,147,186 C,189,128,259,66,312,18 C,319,11,328,7,337,7 C,346,7,355,10,362,16 L,503,123 C,532,108,562,96,593,86 L,621,-98 C,623,-115,639,-128,657,-128 L,879,-128 C,897,-128,911,-116,915,-100 C,931,-40,937,25,944,86 C,975,96,1006,109,1035,124 L,1173,16 C,1181,11,1190,7,1199,7 C,1233,7,1368,154,1392,186 C,1398,193,1401,200,1401,209 C,1401,218,1397,227,1391,234 C,1354,279,1318,323,1284,372 C,1300,401,1312,431,1323,463 L,1508,491 C,1524,494,1536,512,1536,527 Z"
+		},
+		"trash": {
+			"advanceWidth": 1408,
+			"commands": "M,512,800 C,512,818,498,832,480,832 L,416,832 C,398,832,384,818,384,800 L,384,224 C,384,206,398,192,416,192 L,480,192 C,498,192,512,206,512,224 M,768,800 C,768,818,754,832,736,832 L,672,832 C,654,832,640,818,640,800 L,640,224 C,640,206,654,192,672,192 L,736,192 C,754,192,768,206,768,224 M,1024,800 C,1024,818,1010,832,992,832 L,928,832 C,910,832,896,818,896,800 L,896,224 C,896,206,910,192,928,192 L,992,192 C,1010,192,1024,206,1024,224 M,1152,76 C,1152,28,1125,0,1120,0 L,288,0 C,283,0,256,28,256,76 L,256,1024 L,1152,1024 L,1152,76 M,480,1152 L,529,1269 C,532,1273,540,1279,546,1280 L,863,1280 C,868,1279,877,1273,880,1269 L,928,1152 M,1408,1120 C,1408,1138,1394,1152,1376,1152 L,1067,1152 L,997,1319 C,977,1368,917,1408,864,1408 L,544,1408 C,491,1408,431,1368,411,1319 L,341,1152 L,32,1152 C,14,1152,0,1138,0,1120 L,0,1056 C,0,1038,14,1024,32,1024 L,128,1024 L,128,72 C,128,-38,200,-128,288,-128 L,1120,-128 C,1208,-128,1280,-34,1280,76 L,1280,1024 L,1376,1024 C,1394,1024,1408,1038,1408,1056 Z"
+		},
+		"file_alt": {
+			"advanceWidth": 1536,
+			"commands": "M,1468,1156 L,1156,1468 C,1119,1505,1045,1536,992,1536 L,96,1536 C,43,1536,0,1493,0,1440 L,0,-160 C,0,-213,43,-256,96,-256 L,1440,-256 C,1493,-256,1536,-213,1536,-160 L,1536,992 C,1536,1045,1505,1119,1468,1156 M,1024,1400 C,1041,1394,1058,1385,1065,1378 L,1378,1065 C,1385,1058,1394,1041,1400,1024 L,1024,1024 M,1408,-128 L,128,-128 L,128,1408 L,896,1408 L,896,992 C,896,939,939,896,992,896 L,1408,896 Z"
+		},
+		"download_alt": {
+			"advanceWidth": 1664,
+			"commands": "M,1280,192 C,1280,157,1251,128,1216,128 C,1181,128,1152,157,1152,192 C,1152,227,1181,256,1216,256 C,1251,256,1280,227,1280,192 M,1536,192 C,1536,157,1507,128,1472,128 C,1437,128,1408,157,1408,192 C,1408,227,1437,256,1472,256 C,1507,256,1536,227,1536,192 M,1664,416 C,1664,469,1621,512,1568,512 L,1104,512 L,968,376 C,931,340,883,320,832,320 C,781,320,733,340,696,376 L,561,512 L,96,512 C,43,512,0,469,0,416 L,0,96 C,0,43,43,0,96,0 L,1568,0 C,1621,0,1664,43,1664,96 M,1339,985 C,1329,1008,1306,1024,1280,1024 L,1024,1024 L,1024,1472 C,1024,1507,995,1536,960,1536 L,704,1536 C,669,1536,640,1507,640,1472 L,640,1024 L,384,1024 C,358,1024,335,1008,325,985 C,315,961,320,933,339,915 L,787,467 C,799,454,816,448,832,448 C,848,448,865,454,877,467 L,1325,915 C,1344,933,1349,961,1339,985 Z"
+		},
 		"repeat": {
 			"advanceWidth": 1536,
 			"commands": "M,1536,1280 C,1536,1306,1520,1329,1497,1339 C,1473,1349,1445,1344,1427,1325 L,1297,1196 C,1156,1329,965,1408,768,1408 C,345,1408,0,1063,0,640 C,0,217,345,-128,768,-128 C,997,-128,1213,-27,1359,149 C,1369,162,1369,181,1357,192 L,1220,330 C,1213,336,1204,339,1195,339 C,1186,338,1177,334,1172,327 C,1074,200,927,128,768,128 C,486,128,256,358,256,640 C,256,922,486,1152,768,1152 C,899,1152,1023,1102,1117,1015 L,979,877 C,960,859,955,831,965,808 C,975,784,998,768,1024,768 L,1472,768 C,1507,768,1536,797,1536,832 Z"
+		},
+		"pencil": {
+			"advanceWidth": 1536,
+			"commands": "M,363,0 L,256,0 L,256,128 L,128,128 L,128,235 L,219,326 L,454,91 M,886,928 C,886,922,884,916,879,911 L,337,369 C,332,364,326,362,320,362 C,307,362,298,371,298,384 C,298,390,300,396,305,401 L,847,943 C,852,948,858,950,864,950 C,877,950,886,941,886,928 M,832,1120 L,0,288 L,0,-128 L,416,-128 L,1248,704 M,1515,1024 C,1515,1058,1501,1091,1478,1115 L,1243,1349 C,1219,1373,1186,1387,1152,1387 C,1118,1387,1085,1373,1062,1349 L,896,1184 L,1312,768 L,1478,934 C,1501,957,1515,990,1515,1024 Z"
+		},
+		"edit": {
+			"advanceWidth": 1792,
+			"commands": "M,888,352 L,832,352 L,832,448 L,736,448 L,736,504 L,852,620 L,1004,468 M,1328,1072 C,1337,1063,1336,1048,1327,1039 L,977,689 C,968,680,953,679,944,688 C,935,697,936,712,945,721 L,1295,1071 C,1304,1080,1319,1081,1328,1072 M,1408,478 C,1408,491,1400,502,1388,507 C,1376,512,1363,510,1353,500 L,1289,436 C,1283,430,1280,422,1280,414 L,1280,288 C,1280,200,1208,128,1120,128 L,288,128 C,200,128,128,200,128,288 L,128,1120 C,128,1208,200,1280,288,1280 L,1120,1280 C,1135,1280,1150,1278,1165,1274 C,1176,1270,1188,1273,1197,1282 L,1246,1331 C,1254,1339,1257,1349,1255,1360 C,1253,1370,1246,1379,1237,1383 C,1200,1400,1160,1408,1120,1408 L,288,1408 C,129,1408,0,1279,0,1120 L,0,288 C,0,129,129,0,288,0 L,1120,0 C,1279,0,1408,129,1408,288 M,1312,1216 L,640,544 L,640,256 L,928,256 L,1600,928 M,1756,1084 C,1793,1121,1793,1183,1756,1220 L,1604,1372 C,1567,1409,1505,1409,1468,1372 L,1376,1280 L,1664,992 L,1756,1084 Z"
 		},
 		"play": {
 			"advanceWidth": 1408,
@@ -93,23 +141,60 @@ module.exports={
 			"advanceWidth": 1536,
 			"commands": "M,1536,1344 C,1536,1379,1507,1408,1472,1408 L,64,1408 C,29,1408,0,1379,0,1344 L,0,-64 C,0,-99,29,-128,64,-128 L,1472,-128 C,1507,-128,1536,-99,1536,-64 Z"
 		},
+		"resize_full": {
+			"advanceWidth": 1536,
+			"commands": "M,755,480 C,755,488,751,497,745,503 L,631,617 C,625,623,616,627,608,627 C,600,627,591,623,585,617 L,253,285 L,109,429 C,97,441,81,448,64,448 C,29,448,0,419,0,384 L,0,-64 C,0,-99,29,-128,64,-128 L,512,-128 C,547,-128,576,-99,576,-64 C,576,-47,569,-31,557,-19 L,413,125 L,745,457 C,751,463,755,472,755,480 M,1536,1344 C,1536,1379,1507,1408,1472,1408 L,1024,1408 C,989,1408,960,1379,960,1344 C,960,1327,967,1311,979,1299 L,1123,1155 L,791,823 C,785,817,781,808,781,800 C,781,792,785,783,791,777 L,905,663 C,911,657,920,653,928,653 C,936,653,945,657,951,663 L,1283,995 L,1427,851 C,1439,839,1455,832,1472,832 C,1507,832,1536,861,1536,896 Z"
+		},
+		"resize_small": {
+			"advanceWidth": 1536,
+			"commands": "M,768,576 C,768,611,739,640,704,640 L,256,640 C,221,640,192,611,192,576 C,192,559,199,543,211,531 L,355,387 L,23,55 C,17,49,13,40,13,32 C,13,24,17,15,23,9 L,137,-105 C,143,-111,152,-115,160,-115 C,168,-115,177,-111,183,-105 L,515,227 L,659,83 C,671,71,687,64,704,64 C,739,64,768,93,768,128 M,1523,1248 C,1523,1256,1519,1265,1513,1271 L,1399,1385 C,1393,1391,1384,1395,1376,1395 C,1368,1395,1359,1391,1353,1385 L,1021,1053 L,877,1197 C,865,1209,849,1216,832,1216 C,797,1216,768,1187,768,1152 L,768,704 C,768,669,797,640,832,640 L,1280,640 C,1315,640,1344,669,1344,704 C,1344,721,1337,737,1325,749 L,1181,893 L,1513,1225 C,1519,1231,1523,1240,1523,1248 Z"
+		},
+		"eye_open": {
+			"advanceWidth": 1792,
+			"commands": "M,1664,576 C,1493,312,1217,128,896,128 C,575,128,299,312,128,576 C,223,723,353,849,509,929 C,469,861,448,783,448,704 C,448,457,649,256,896,256 C,1143,256,1344,457,1344,704 C,1344,783,1323,861,1283,929 C,1439,849,1569,723,1664,576 M,944,960 C,944,934,922,912,896,912 C,782,912,688,818,688,704 C,688,678,666,656,640,656 C,614,656,592,678,592,704 C,592,871,729,1008,896,1008 C,922,1008,944,986,944,960 M,1792,576 C,1792,601,1784,624,1772,645 C,1588,947,1251,1152,896,1152 C,541,1152,204,947,20,645 C,8,624,0,601,0,576 C,0,551,8,528,20,507 C,204,205,541,0,896,0 C,1251,0,1588,204,1772,507 C,1784,528,1792,551,1792,576 Z"
+		},
+		"eye_close": {
+			"advanceWidth": 1792,
+			"commands": "M,555,201 C,379,280,232,415,128,576 C,223,723,353,849,509,929 C,469,861,448,783,448,704 C,448,561,517,426,633,342 M,944,960 C,944,934,922,912,896,912 C,782,912,688,819,688,704 C,688,678,666,656,640,656 C,614,656,592,678,592,704 C,592,871,729,1008,896,1008 C,922,1008,944,986,944,960 M,1307,1151 C,1307,1162,1301,1172,1291,1178 C,1270,1190,1176,1248,1158,1248 C,1146,1248,1136,1242,1130,1232 L,1076,1135 C,1017,1146,956,1152,896,1152 C,527,1152,218,949,20,645 C,7,625,0,600,0,576 C,0,551,7,527,20,507 C,135,327,298,177,492,89 C,482,72,448,18,448,2 C,448,-10,454,-20,464,-26 C,485,-38,580,-96,598,-96 C,609,-96,620,-90,626,-80 L,675,9 C,886,386,1095,765,1306,1142 C,1307,1144,1307,1149,1307,1151 M,1344,704 C,1344,732,1341,760,1336,788 L,1056,286 C,1229,352,1344,518,1344,704 M,1792,576 C,1792,602,1785,623,1772,645 C,1694,774,1569,899,1445,982 L,1382,870 C,1495,792,1590,691,1664,576 C,1508,334,1261,157,970,132 L,896,0 C,1197,0,1467,137,1663,362 C,1702,407,1741,456,1772,507 C,1785,529,1792,550,1792,576 Z"
+		},
+		"folder_open": {
+			"advanceWidth": 1920,
+			"commands": "M,1879,584 C,1879,629,1828,640,1792,640 L,704,640 C,616,640,498,586,440,518 L,104,122 C,88,104,73,80,73,56 C,73,11,124,0,160,0 L,1248,0 C,1336,0,1454,54,1512,122 L,1848,518 C,1864,536,1879,560,1879,584 M,1536,928 C,1536,1051,1435,1152,1312,1152 L,768,1152 L,768,1184 C,768,1307,667,1408,544,1408 L,224,1408 C,101,1408,0,1307,0,1184 L,0,224 C,0,216,1,207,1,199 L,6,205 L,343,601 C,424,697,579,768,704,768 L,1536,768 Z"
+		},
+		"signin": {
+			"advanceWidth": 1536,
+			"commands": "M,1184,640 C,1184,657,1177,673,1165,685 L,621,1229 C,609,1241,593,1248,576,1248 C,541,1248,512,1219,512,1184 L,512,896 L,64,896 C,29,896,0,867,0,832 L,0,448 C,0,413,29,384,64,384 L,512,384 L,512,96 C,512,61,541,32,576,32 C,593,32,609,39,621,51 L,1165,595 C,1177,607,1184,623,1184,640 M,1536,992 C,1536,1151,1407,1280,1248,1280 L,928,1280 C,883,1280,896,1212,896,1184 C,896,1147,935,1152,960,1152 L,1248,1152 C,1336,1152,1408,1080,1408,992 L,1408,288 C,1408,200,1336,128,1248,128 L,928,128 C,883,128,896,60,896,32 C,896,15,911,0,928,0 L,1248,0 C,1407,0,1536,129,1536,288 Z"
+		},
+		"upload_alt": {
+			"advanceWidth": 1664,
+			"commands": "M,1280,64 C,1280,29,1251,0,1216,0 C,1181,0,1152,29,1152,64 C,1152,99,1181,128,1216,128 C,1251,128,1280,99,1280,64 M,1536,64 C,1536,29,1507,0,1472,0 C,1437,0,1408,29,1408,64 C,1408,99,1437,128,1472,128 C,1507,128,1536,99,1536,64 M,1664,288 C,1664,341,1621,384,1568,384 L,1141,384 C,1114,310,1043,256,960,256 L,704,256 C,621,256,550,310,523,384 L,96,384 C,43,384,0,341,0,288 L,0,-32 C,0,-85,43,-128,96,-128 L,1568,-128 C,1621,-128,1664,-85,1664,-32 M,1339,936 C,1349,959,1344,987,1325,1005 L,877,1453 C,865,1466,848,1472,832,1472 C,816,1472,799,1466,787,1453 L,339,1005 C,320,987,315,959,325,936 C,335,912,358,896,384,896 L,640,896 L,640,448 C,640,413,669,384,704,384 L,960,384 C,995,384,1024,413,1024,448 L,1024,896 L,1280,896 C,1306,896,1329,912,1339,936 Z"
+		},
+		"save": {
+			"advanceWidth": 1536,
+			"commands": "M,384,0 L,384,384 L,1152,384 L,1152,0 M,1280,0 L,1280,416 C,1280,469,1237,512,1184,512 L,352,512 C,299,512,256,469,256,416 L,256,0 L,128,0 L,128,1280 L,256,1280 L,256,864 C,256,811,299,768,352,768 L,928,768 C,981,768,1024,811,1024,864 L,1024,1280 C,1044,1280,1083,1264,1097,1250 L,1378,969 C,1391,956,1408,915,1408,896 L,1408,0 M,896,928 C,896,911,881,896,864,896 L,672,896 C,655,896,640,911,640,928 L,640,1248 C,640,1265,655,1280,672,1280 L,864,1280 C,881,1280,896,1265,896,1248 L,896,928 M,1536,896 C,1536,949,1506,1022,1468,1060 L,1188,1340 C,1150,1378,1077,1408,1024,1408 L,96,1408 C,43,1408,0,1365,0,1312 L,0,-32 C,0,-85,43,-128,96,-128 L,1440,-128 C,1493,-128,1536,-85,1536,-32 Z"
+		},
 		"undo": {
 			"advanceWidth": 1536,
 			"commands": "M,1536,640 C,1536,1063,1191,1408,768,1408 C,571,1408,380,1329,239,1196 L,109,1325 C,91,1344,63,1349,40,1339 C,16,1329,0,1306,0,1280 L,0,832 C,0,797,29,768,64,768 L,512,768 C,538,768,561,784,571,808 C,581,831,576,859,557,877 L,420,1015 C,513,1102,637,1152,768,1152 C,1050,1152,1280,922,1280,640 C,1280,358,1050,128,768,128 C,609,128,462,200,364,327 C,359,334,350,338,341,339 C,332,339,323,336,316,330 L,179,192 C,168,181,167,162,177,149 C,323,-27,539,-128,768,-128 C,1191,-128,1536,217,1536,640 Z"
+		},
+		"paste": {
+			"advanceWidth": 1792,
+			"commands": "M,768,-128 L,768,1024 L,1152,1024 L,1152,608 C,1152,555,1195,512,1248,512 L,1664,512 L,1664,-128 M,1024,1312 C,1024,1295,1009,1280,992,1280 L,288,1280 C,271,1280,256,1295,256,1312 L,256,1376 C,256,1393,271,1408,288,1408 L,992,1408 C,1009,1408,1024,1393,1024,1376 L,1024,1312 M,1280,640 L,1280,939 L,1579,640 M,1792,512 C,1792,565,1762,638,1724,676 L,1316,1084 C,1305,1095,1293,1104,1280,1112 L,1280,1440 C,1280,1493,1237,1536,1184,1536 L,96,1536 C,43,1536,0,1493,0,1440 L,0,96 C,0,43,43,0,96,0 L,640,0 L,640,-160 C,640,-213,683,-256,736,-256 L,1696,-256 C,1749,-256,1792,-213,1792,-160 Z"
+		},
+		"folder_open_alt": {
+			"advanceWidth": 1920,
+			"commands": "M,1781,605 C,1781,590,1772,577,1763,566 L,1469,203 C,1435,161,1365,128,1312,128 L,224,128 C,202,128,171,135,171,163 C,171,178,180,191,189,203 L,483,566 C,517,607,587,640,640,640 L,1728,640 C,1750,640,1781,633,1781,605 M,640,768 C,549,768,442,717,384,646 L,128,331 L,128,1184 C,128,1237,171,1280,224,1280 L,544,1280 C,597,1280,640,1237,640,1184 L,640,1120 C,640,1067,683,1024,736,1024 L,1312,1024 C,1365,1024,1408,981,1408,928 L,1408,768 M,1909,605 C,1909,629,1904,652,1894,673 C,1864,737,1796,768,1728,768 L,1536,768 L,1536,928 C,1536,1051,1435,1152,1312,1152 L,768,1152 L,768,1184 C,768,1307,667,1408,544,1408 L,224,1408 C,101,1408,0,1307,0,1184 L,0,224 C,0,101,101,0,224,0 L,1312,0 C,1402,0,1511,52,1568,122 L,1863,485 C,1890,519,1909,561,1909,605 Z"
 		}
 	}
 }
 },{}],4:[function(require,module,exports){
-var Settings = require('./settings'),
-	LayerUI = require('./ui/layer_view'),
+var font = require('./font.json'),
 	Theme = require('./theme');
-
-var font = require('./font.json');
 
 var FONT_CLASS = 'tfa';
 var dp;
 
-function IconButton(size, icon, tooltip) {
+function IconButton(size, icon, tooltip, dp) {
 	var button = document.createElement('button');
 	button.className = FONT_CLASS;
 
@@ -125,9 +210,7 @@ function IconButton(size, icon, tooltip) {
 	var me = this;
 	this.size = size;
 
-	this.setIcon = function(icon) {
-		me.icon = icon;
-
+	this.resize = function() {
 		var dpr = window.devicePixelRatio;
 		var height = size;
 
@@ -137,7 +220,7 @@ function IconButton(size, icon, tooltip) {
 		canvas.style.height = height + 'px';
 
 		var scale = height / font.unitsPerEm;
-		var width = glyph.advanceWidth * scale;
+		var width = glyph.advanceWidth * scale + 0.5 | 0;
 
 		canvas.width = width * dpr;
 		canvas.style.width = width + 'px';
@@ -146,8 +229,49 @@ function IconButton(size, icon, tooltip) {
 		me.draw();
 	};
 
+	if (dp) dp.on('resize', this.resize);
+
+	this.setSize = function(s) {
+		size = s;
+		this.resize();
+	};
+
+	this.setIcon = function(icon) {
+		me.icon = icon;
+
+		if (!font.fonts[icon]) console.warn('Font icon not found!');
+		this.resize();
+	};
+
 	this.onClick = function(e) {
 		button.addEventListener('click', e);
+	};
+
+	var LONG_HOLD_DURATION = 500;
+	var longHoldTimer;
+
+	this.onLongHold = function(f) {
+		// not most elagent but oh wells.
+		function startHold(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			longHoldTimer = setTimeout(function() {
+				if (longHoldTimer) {
+					console.log('LONG HOLD-ED!');
+					f();
+				}
+			}, LONG_HOLD_DURATION);
+		}
+
+		function clearLongHoldTimer() {
+			clearTimeout(longHoldTimer);
+		}
+		
+		button.addEventListener('mousedown', startHold);
+		button.addEventListener('touchstart', startHold);
+		button.addEventListener('mouseup', clearLongHoldTimer);
+		button.addEventListener('mouseout', clearLongHoldTimer);
+		button.addEventListener('touchend', clearLongHoldTimer);
 	};
 
 	this.setTip = function(tip) {
@@ -158,7 +282,7 @@ function IconButton(size, icon, tooltip) {
 		ctx.fillStyle = Theme.d;
 		me.draw();
 
-		if (tooltip) dp.fire('status', 'button: ' + tooltip);
+		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {
@@ -215,6 +339,16 @@ IconButton.prototype.draw = function() {
 	ctx.restore();
 };
 
+module.exports = IconButton;
+},{"./font.json":3,"./theme":8}],5:[function(require,module,exports){
+var Settings = require('./settings'),
+	LayerUI = require('./ui/layer_view'),
+	IconButton = require('./icon_button'),
+	style = require('./utils').style,
+	Theme = require('./theme'),
+	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX
+	;
+
 function LayerCabinet(layers, dispatcher) {
 	dp = dispatcher;
 	var div = document.createElement('div');
@@ -225,107 +359,26 @@ function LayerCabinet(layers, dispatcher) {
 
 	var playing = false;
 
-	var play_button = new IconButton(16, 'play', 'play');
+	var play_button = new IconButton(16, 'play', 'play', dispatcher);
 	play_button.onClick(function(e) {
 		e.preventDefault();
 		dispatcher.fire('controls.toggle_play');
 	});
 
-	var stop_button = new IconButton(16, 'stop', 'stop');
+	var stop_button = new IconButton(16, 'stop', 'stop', dispatcher);
 	stop_button.onClick(function(e) {
 		dispatcher.fire('controls.stop');
 	});
 
-	var undo_button = new IconButton(16, 'undo', 'undo');
+	var undo_button = new IconButton(16, 'undo', 'undo', dispatcher);
 	undo_button.onClick(function() {
 		dispatcher.fire('controls.undo');
 	});
 
-	var redo_button = new IconButton(16, 'repeat', 'redo');
+	var redo_button = new IconButton(16, 'repeat', 'redo', dispatcher);
 	redo_button.onClick(function() {
 		dispatcher.fire('controls.redo');
 	});
-
-	/*
-	// Hide or show
-	var hide_button = document.createElement('button');
-	hide_button.className = FONT + 'eye';
-	hide_button.className = FONT + 'eye-slash';
-	top.appendChild(hide_button);
-	
-	// New
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'file';
-	top.appendChild(tmp_button);
-
-	// Open
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'folder-open';
-	top.appendChild(tmp_button);
-
-	// Save
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'save';
-	top.appendChild(tmp_button);
-
-	// Download JSON
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'download';
-	top.appendChild(tmp_button);
-
-	// upload json?
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'upload';
-	top.appendChild(tmp_button);
-
-	// Add
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'plus';
-	top.appendChild(tmp_button);
-
-	// Remove
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'minus';
-	top.appendChild(tmp_button);
-
-	// Load from remote server?
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'cloud-download';
-	top.appendChild(tmp_button);
-
-	// Save to remote server
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'cloud-upload';
-	top.appendChild(tmp_button);
-
-	// Set animation properties
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'edit';
-	top.appendChild(tmp_button);
-
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'inbox';
-	top.appendChild(tmp_button);
-
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'gear';
-	top.appendChild(tmp_button);
-
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'trash';
-	top.appendChild(tmp_button);
-
-	// Show List
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'list';
-	top.appendChild(tmp_button);
-
-	// Remove
-	var tmp_button = document.createElement('button');
-	tmp_button.className = FONT + 'remove';
-	top.appendChild(tmp_button);
-
-	*/
 
 	var range = document.createElement('input');
 	range.type = "range";
@@ -352,15 +405,193 @@ function LayerCabinet(layers, dispatcher) {
 	});
 
 	div.appendChild(top);
-	
-	top.appendChild(undo_button.dom);
-	top.appendChild(redo_button.dom);
-	top.appendChild(document.createElement('br'));
 
-	
+	// Play Controls
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
 	top.appendChild(range);
+
+	var operations_div = document.createElement('div');
+	style(operations_div, {
+		marginTop: '4px',
+		// borderBottom: '1px solid ' + Theme.b
+	});
+	top.appendChild(operations_div);
+	// top.appendChild(document.createElement('br'));
+
+	// open _alt
+	var file_open = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
+	operations_div.appendChild(file_open.dom);
+
+	function populateOpen() {
+		while (dropdown.length) {
+			dropdown.remove(0);
+		}
+
+		var option;
+		option = document.createElement('option');
+		option.text = 'New';
+		option.value = '*new*';
+		dropdown.add(option);
+
+		option = document.createElement('option');
+		option.text = 'Import JSON';
+		option.value = '*import*';
+		dropdown.add(option);
+
+		// Doesn't work
+		// option = document.createElement('option');
+		// option.text = 'Select File';
+		// option.value = '*select*';
+		// dropdown.add(option);
+
+		option = document.createElement('option');
+		option.text = '==Open==';
+		option.disabled = true;
+		option.selected = true;
+		dropdown.add(option);
+
+		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
+		for (var key in localStorage) {
+			// console.log(key);
+
+			var match = regex.exec(key);
+			if (match) {
+				option = document.createElement('option');
+				option.text = match[1];
+
+				dropdown.add(option);
+			}
+		}
+
+	}
+
+	// listen on other tabs
+	window.addEventListener('storage', function(e) {
+		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
+		if (regex.exec(e.key)) {
+			populateOpen();
+		}
+	});
+
+	dispatcher.on('save:done', populateOpen);
+
+	var dropdown = document.createElement('select');
+		
+	style(dropdown, {
+		position: 'absolute',
+		// right: 0,
+		// margin: 0,
+		opacity: 0,
+		width: '16px',
+		height: '16px',
+		// zIndex: 1,
+	});
+
+	dropdown.addEventListener('change', function(e) {
+		// console.log('changed', dropdown.length, dropdown.value);
+
+		switch (dropdown.value) {
+			case '*new*':
+				dispatcher.fire('new');
+				break;
+			case '*import*':
+				dispatcher.fire('import');
+				break;
+			case '*select*':
+				dispatcher.fire('openfile');
+				break;
+			default:
+				dispatcher.fire('open', dropdown.value);
+				break;
+		}
+	});
+
+	file_open.dom.insertBefore(dropdown, file_open.dom.firstChild);
+
+	populateOpen();
+
+	// // json import
+	// var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
+	// operations_div.appendChild(import_json.dom);
+	// import_json.onClick(function() {
+	// 	dispatcher.fire('import');
+	// });
+
+	// // new
+	// var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
+	// operations_div.appendChild(file_alt.dom);
+
+	// save
+	var save = new IconButton(16, 'save', 'Save', dispatcher);
+	operations_div.appendChild(save.dom);
+	save.onClick(function() {
+		dispatcher.fire('save');
+	});
+
+	// save as 
+	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
+	operations_div.appendChild(save_as.dom);
+	save_as.onClick(function() {
+		dispatcher.fire('save_as');
+	});
+
+	// download json (export)
+	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);
+	operations_div.appendChild(download_alt.dom);
+	download_alt.onClick(function() {
+		dispatcher.fire('export');
+	});
+
+	var upload_alt = new IconButton(16, 'upload_alt', 'Load from file', dispatcher);
+	operations_div.appendChild(upload_alt.dom);
+	upload_alt.onClick(function() {
+		dispatcher.fire('openfile');
+	});
+
+	var span = document.createElement('span');
+	span.style.width = '20px';
+	span.style.display = 'inline-block';
+	operations_div.appendChild(span);
+
+	operations_div.appendChild(undo_button.dom);
+	operations_div.appendChild(redo_button.dom);
+	operations_div.appendChild(document.createElement('br'));
+
+	// Cloud Download / Upload edit pencil
+	
+
+
+
+	/*
+	// // show layer
+	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
+	// operations_div.appendChild(eye_open.dom);
+
+	// // hide / disable layer
+	// var eye_close = new IconButton(16, 'eye_close', 'eye_close', dispatcher);
+	// operations_div.appendChild(eye_close.dom);
+
+	// add layer
+	var plus = new IconButton(16, 'plus', 'plus', dispatcher);
+	operations_div.appendChild(plus.dom);
+
+	// remove layer
+	var minus = new IconButton(16, 'minus', 'minus', dispatcher);
+	operations_div.appendChild(minus.dom);
+
+	// check
+	var ok = new IconButton(16, 'ok', 'ok', dispatcher);
+	operations_div.appendChild(ok.dom);
+
+	// cross
+	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
+	operations_div.appendChild(remove.dom);
+
+	// trash
+	var trash = new IconButton(16, 'trash', 'trash', dispatcher);
+	operations_div.appendChild(trash.dom);
+	*/
 
 
 	// range.addEventListener('change', changeRange);
@@ -371,7 +602,9 @@ function LayerCabinet(layers, dispatcher) {
 		dispatcher.fire('update.scale', v);
 	}		
 
-	var layer_uis = [];
+	var layer_uis = [], visible_layers = 0;
+	var unused_layers = [];
+
 	this.layers = layer_uis;
 
 	this.setControlStatus = function(v) {
@@ -394,25 +627,43 @@ function LayerCabinet(layers, dispatcher) {
 			layer = layers[i];
 
 			if (!layer_uis[i]) {
-				// new
-				var layer_ui = new LayerUI(layer, dispatcher);
-				div.appendChild(layer_ui.dom);
+				var layer_ui;
+				if (unused_layers.length) {
+					layer_ui = unused_layers.pop();
+					layer_ui.dom.style.display = 'block';
+				} else {
+					// new
+					layer_ui = new LayerUI(layer, dispatcher);
+					div.appendChild(layer_ui.dom);
+				}
 				layer_uis.push(layer_ui);
 			}
 
-			layer_uis[i].setState(layer);
+			// layer_uis[i].setState(layer);
 		}
-		// TODO if more uis than layers, remove! / hide
+
+		console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
+			layer_uis.length + unused_layers.length);
+
 	};
 
 	function repaint(s) {
 		var i;
 
 		s = s || 0;
-		for (i = 0; i < layer_uis.length; i++) {
+		for (i = layer_uis.length; i-- > 0;) {
+			// quick hack
+			if (i >= layers.length) {
+				layer_uis[i].dom.style.display = 'none';
+				unused_layers.push(layer_uis.pop());
+				continue;
+			}
+			
 			layer_uis[i].setState(layers[i]);
 			layer_uis[i].repaint(s);
 		}
+
+		visible_layers = layer_uis.length;
 
 	}
 
@@ -423,10 +674,10 @@ function LayerCabinet(layers, dispatcher) {
 }
 
 module.exports = LayerCabinet;
-},{"./font.json":3,"./settings":6,"./theme":7,"./ui/layer_view":11}],5:[function(require,module,exports){
+},{"./icon_button":4,"./settings":7,"./theme":8,"./ui/layer_view":12,"./utils":15}],6:[function(require,module,exports){
 /* Layer Schema */
 /*
-[
+var layer_1 = [
 	{
 		name: 'abc',
 		props: {
@@ -460,14 +711,16 @@ module.exports = LayerCabinet;
 /* Timeline Data Schema */
 
 var sample = {
-	version: 1.1,
+	version: '1.2.0',
 	modified: new Date,
 
 	name: 'sample',
-
 	title: 'Sample Title',
 
 	ui: {
+		current_time: 1,
+		duration: 100,
+
 		position: '0:0:0',
 		bounds: '10 10 100 100',
 		snap: 'full | left-half | top-half | right-half | bottom-half'
@@ -476,8 +729,8 @@ var sample = {
 	layers: [{
 
 	}]
-}
-},{}],6:[function(require,module,exports){
+};
+},{}],7:[function(require,module,exports){
 
 var DEFAULT_TIME_SCALE = 60;
 module.exports = {
@@ -489,7 +742,7 @@ module.exports = {
 	LEFT_PANE_WIDTH: 250,
 	time_scale: DEFAULT_TIME_SCALE // number of pixels to 1 secon,
 };
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = {
 	// photoshop colors
 	a: '#343434',
@@ -497,7 +750,7 @@ module.exports = {
 	c: '#b8b8b8',
 	d: '#d6d6d6',
 };
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
@@ -958,7 +1211,7 @@ function TimelinePanel(layers, dispatcher) {
 }
 
 module.exports = TimelinePanel;
-},{"./settings":6,"./theme":7,"./tween":10,"./utils":14}],9:[function(require,module,exports){
+},{"./settings":7,"./theme":8,"./tween":11,"./utils":15}],10:[function(require,module,exports){
 /*
  * @author Joshua Koo http://joshuakoo.com
  */
@@ -972,7 +1225,12 @@ var undo = require('./undo'),
 	utils = require('./utils'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel'),
-	package_json = require('../package.json')
+	package_json = require('../package.json'),
+	IconButton = require('./icon_button'),
+	style = utils.style,
+	saveToFile = utils.saveToFile,
+	openAs = utils.openAs,
+	STORAGE_PREFIX = utils.STORAGE_PREFIX
 	;
 
 var Z_INDEX = 999;
@@ -991,20 +1249,54 @@ function LayerProp(name) {
 	*/
 }
 
-function Data() {
-	this.version = 1.1;
-	this.modified = new Date().toString();
-	this.title = 'Untitled';
-
-	this.layers = [];
+function DataStore() {
+	this.blank();
 }
+
+DataStore.prototype.blank = function() {
+	var data = {};
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+	data.title = 'Untitled';
+
+	data.layers = [];
+
+	this.data = data;
+};
+
+DataStore.prototype.update = function() {
+	var data = this.data;
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+};
+
+DataStore.prototype.setJSONString = function(data) {
+	this.data = JSON.parse(data);
+};
+
+DataStore.prototype.setJSON = function(data) {
+	this.data = data;
+};
+
+DataStore.prototype.getJSONString = function(format) {
+	return JSON.stringify(this.data, null, format);
+};
+
+
+DataStore.prototype.get = function(path) {
+	return this.data[path];
+};
 
 function Timeliner(target) {
 	// Aka Layer Manager / Controller
 
 	// Should persist current time too.
-	var layers = [];
-	window.l2 = layers;
+	var data = new DataStore();
+	var layers = data.get('layers');
+
+	window._data = data;
 
 	var dispatcher = new Dispatcher();
 
@@ -1015,7 +1307,7 @@ function Timeliner(target) {
 
 	setTimeout(function() {
 		// hack!
-		undo_manager.save(new UndoState(layers, 'Loaded'));
+		undo_manager.save(new UndoState(data, 'Loaded'), true);
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {
@@ -1035,12 +1327,12 @@ function Timeliner(target) {
 				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 			});
 
-			undo_manager.save(new UndoState(layers, 'Add Keyframe'));
+			undo_manager.save(new UndoState(data, 'Add Keyframe'));
 		} else {
 			console.log('remove from index', v);
 			layer.values.splice(v.index, 1);
 
-			undo_manager.save(new UndoState(layers, 'Remove Keyframe'));
+			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
 		}
 
 		layer_panel.repaint(t);
@@ -1049,7 +1341,7 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('keyframe.move', function(layer, value) {
-		undo_manager.save(new UndoState(layers, 'Move Keyframe'));
+		undo_manager.save(new UndoState(data, 'Move Keyframe'));
 	});
 
 	// dispatcher.fire('value.change', layer, me.value);
@@ -1065,10 +1357,10 @@ function Timeliner(target) {
 				value: value,
 				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 			});
-			undo_manager.save(new UndoState(layers, 'Add value'));
+			undo_manager.save(new UndoState(data, 'Add value'));
 		} else {
 			v.object.value = value;
-			undo_manager.save(new UndoState(layers, 'Update value'));
+			undo_manager.save(new UndoState(data, 'Update value'));
 		}
 
 		layer_panel.repaint(t);
@@ -1083,7 +1375,7 @@ function Timeliner(target) {
 			v.entry.tween  = ease_type;
 		}
 
-		undo_manager.save(new UndoState(layers, 'Add Ease'));
+		undo_manager.save(new UndoState(data, 'Add Ease'));
 
 		layer_panel.repaint(t);
 		timeline.repaint();
@@ -1148,9 +1440,10 @@ function Timeliner(target) {
 	// handle undo / redo
 	dispatcher.on('controls.undo', function() {
 		var history = undo_manager.undo();
-		layers = JSON.parse(history.state);
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		data.setJSONString(history.state);
+		
+		updateState();
+
 		var t = timeline.current_frame;
 		layer_panel.repaint(t);
 		timeline.repaint();
@@ -1158,18 +1451,21 @@ function Timeliner(target) {
 
 	dispatcher.on('controls.redo', function() {
 		var history = undo_manager.redo();
-		layers = JSON.parse(history.state);
-
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		data.setJSONString(history.state);
+		
+		updateState();
 
 		var t = timeline.current_frame;
 		layer_panel.repaint(t);
 		timeline.repaint();
 	});
 
-	function repaint() {
-		requestAnimationFrame(repaint);
+	/*
+		Paint Routines
+	*/
+
+	function paint() {
+		requestAnimationFrame(paint);
 		
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
@@ -1190,75 +1486,131 @@ function Timeliner(target) {
 			timeline.resize();
 			timeline.repaint();
 			needsResize = false;
-		}
 
+			dispatcher.fire('resize');
+		}
 
 		timeline._paint();
 	}
 
-	repaint();
+	paint();
+
+	/*
+		End Paint Routines
+	*/
 
 	function save(name) {
 		if (!name) name = 'autosave';
 
-		var json = JSON.stringify(layers);
+		var json = data.getJSONString();
 
 		try {
-			localStorage['timeliner-' + name] = json;
+			localStorage[STORAGE_PREFIX + name] = json;
+			dispatcher.fire('save:done');
 		} catch (e) {
 			console.log('Cannot save', name, json);
 		}
+	}
 
-		prompt('Saved', json);
+	function saveAs(name) {
+		if (!name) name = data.get('name');
+		name = prompt('Pick a name to save to (localStorage)', name);
+		if (name) {
+			data.data.name = name;
+			save(name);
+		}
+	}
+
+	function saveSimply() {
+		var name = data.get('name');
+		if (name) {
+			save(name);
+		} else {
+			saveAs(name);
+		}
+	}
+
+	function exportJSON() {
+		var json = data.getJSONString();
+		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON', json);
+		if (!ret) return;
+
+		// make json downloadable
+		json = data.getJSONString('\t');
+		var fileName = 'timeliner-test' + '.json';
+
+		saveToFile(json, fileName);
+	}
+
+	function loadJSONString(o) {
+		// should catch and check errors here
+		var json = JSON.parse(o);
+		load(json);
 	}
 
 	function load(o) {
-		layers = o;
-		layer_panel.setState(layers);
-		timeline.setState(layers);
-		layer_panel.repaint();
-		timeline.repaint();
+		data.setJSON(o);
 
 		undo_manager.clear();
-		undo_manager.save(new UndoState(layers, 'Loaded'));
+		undo_manager.save(new UndoState(data, 'Loaded'), true);
+		
+		updateState();
+
+		layer_panel.repaint();
+		timeline.repaint();
 	}
 
+	function updateState() {
+		layers = data.get('layers');
+		layer_panel.setState(layers);
+		timeline.setState(layers);
+	}
+
+	function promptImport() {
+		var json = prompt('Paste JSON in here to Load');
+		if (!json) return;
+		console.log('Loading.. ', json);
+		loadJSONString(json);
+	}
+
+	function open(title) {
+		if (title) {
+			loadJSONString(localStorage[STORAGE_PREFIX + title]);
+		}
+	}
+
+	dispatcher.on('import', function() {
+		promptImport();
+	}.bind(this));
+
+	dispatcher.on('new', function() {
+		data.blank();
+		updateState();
+
+		layer_panel.repaint();
+		timeline.repaint();
+	});
+	
+	dispatcher.on('openfile', function() {
+		openAs(function(data) {
+			// console.log('loaded ' + data);
+			loadJSONString(data);
+		}, div);
+	});
+
+	dispatcher.on('open', open);
+	dispatcher.on('export', exportJSON);
+
+	dispatcher.on('save', saveSimply);
+	dispatcher.on('save_as', saveAs);
+
+	// Expose API	
 	this.save = save;
 	this.load = load;
 
-	this.promptLoad = function() {
-		var json = prompt('Copy and Paste JSON to Load');
-		if (!json) return;
-		console.log('Loading.. ', json);
-		load(JSON.parse(json));
-	};
-
-	this.promptOpen = function() {
-		var prefix = 'timeliner-';
-		var regex = new RegExp(prefix + '(.*)');
-		var matches = [];
-		for (var key in localStorage) {
-			console.log(key);
-
-			var match = regex.exec(key);
-			if (match) {
-				matches.push(match[1]);
-			}
-		}
-		var title = prompt('You have saved ' + matches.join(',') 
-			+ '.\nWhich would you like to open?');
-
-		if (title) {
-			load(JSON.parse(localStorage[prefix + title]));
-		}
-	};
-
-	// utils
-	function style(element, styles) {
-		for (var s in styles) {
-			element.style[s] = styles[s];
-		}
-	}
+	/*
+		Start DOM Stuff (should separate file)
+	*/
 
 	var div = document.createElement('div');
 	div.style.cssText = 'position: absolute;';
@@ -1281,6 +1633,22 @@ function Timeliner(target) {
 	pane.style.backgroundColor = Theme.a;
 
 	var pane_title = document.createElement('div');
+
+	var title_bar = document.createElement('span');
+	pane_title.appendChild(title_bar);
+
+
+	var top_right_bar = document.createElement('span');
+	top_right_bar.style.float = 'right';
+	pane_title.appendChild(top_right_bar);
+
+	// resize minimize
+	// var resize_small = new IconButton(10, 'resize_small', 'minimize', dispatcher);
+	// top_right_bar.appendChild(resize_small.dom);
+
+	// resize full
+	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
+	top_right_bar.appendChild(resize_full.dom);
 	
 	style(pane_title, {
 		position: 'absolute',
@@ -1292,7 +1660,7 @@ function Timeliner(target) {
 		overflow: 'hidden'
 	});
 
-	pane_title.innerHTML = 'Timeliner ' + package_json.version;
+	title_bar.innerHTML = 'Timeliner ' + package_json.version;
 
 	var pane_status = document.createElement('div');
 
@@ -1317,40 +1685,63 @@ function Timeliner(target) {
 
 	var label_status = document.createElement('span');
 	label_status.textContent = 'hello!';
+	label_status.style.marginLeft = '10px';
 
 	this.setStatus = function(text) {
 		label_status.textContent = text;
 	};
 
+	dispatcher.on('state:save', function(description) {
+		dispatcher.fire('status', description);
+		save('autosave');
+	});
+
 	dispatcher.on('status', this.setStatus);
 
+	// var button_save = document.createElement('button');
+	// style(button_save, button_styles);
+	// button_save.textContent = 'Save';
+	// button_save.onclick = function() {
+	// 	save();
+	// };
 
-	var button_save = document.createElement('button');
-	style(button_save, button_styles);
-	button_save.textContent = 'Save';
-	button_save.onclick = function() {
-		save();
-	};
+	// var button_load = document.createElement('button');
+	// style(button_load, button_styles);
+	// button_load.textContent = 'Import';
+	// button_load.onclick = this.promptLoad;
 
-	var button_load = document.createElement('button');
-	style(button_load, button_styles);
-	button_load.textContent = 'Import';
-	button_load.onclick = this.promptLoad;
+	// var button_open = document.createElement('button');
+	// style(button_open, button_styles);
+	// button_open.textContent = 'Open';
+	// button_open.onclick = this.promptOpen;
 
-	var button_open = document.createElement('button');
-	style(button_open, button_styles);
-	button_open.textContent = 'Open';
-	button_open.onclick = this.promptOpen;
+	// bottom_right.appendChild(button_load);
+	// bottom_right.appendChild(button_save);
+	// bottom_right.appendChild(button_open);
+
+	var bottom_right = document.createElement('span');
+	bottom_right.style.float = 'right';
 
 	pane_status.appendChild(label_status);
+	pane_status.appendChild(bottom_right);
 
-	pane_status.appendChild(document.createTextNode(' | '));
+	/**/
+	// zoom in
+	var zoom_in = new IconButton(12, 'zoom_in', 'zoom in', dispatcher);
+	// zoom out
+	var zoom_out = new IconButton(12, 'zoom_out', 'zoom out', dispatcher);
+	// settings
+	var cog = new IconButton(12, 'cog', 'settings', dispatcher);	
 
-	pane_status.appendChild(button_open);
-	pane_status.appendChild(button_save);
-	pane_status.appendChild(button_load);
-	
-	pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
+	// bottom_right.appendChild(zoom_in.dom);
+	// bottom_right.appendChild(zoom_out.dom);
+	// bottom_right.appendChild(cog.dom);
+
+	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
+
+	/*
+			End DOM Stuff
+	*/
 
 	var ghostpane = document.createElement('div');
 	ghostpane.id = 'ghostpane';
@@ -1382,18 +1773,16 @@ function Timeliner(target) {
 	// 	console.log('kd', e);
 	// });
 
-	// Keyboard Shortcuts
-	// Space - play
-	// Enter - play from last played or beginging
+	// TODO: Keyboard Shortcuts
+	// Esc - Stop and review to last played from / to the start?
+	// Space - play / pause from current position
+	// Enter - play all
 	// k - keyframe
 
 	document.addEventListener('keydown', function(e) {
 		var play = e.keyCode == 32; // space
 		var enter = e.keyCode == 13; // 
 		var undo = e.metaKey && e.keyCode == 91 && !e.shiftKey;
-		// enter
-
-		console.log(e.keyCode);
 
 		var active = document.activeElement;
 		// console.log( active.nodeName );
@@ -1406,9 +1795,15 @@ function Timeliner(target) {
 			dispatcher.fire('controls.toggle_play');
 		}
 		else if (enter) {
+			// FIXME: Return should play from the start or last played from?
 			dispatcher.fire('controls.restart_play');
 			// dispatcher.fire('controls.undo');
 		}
+		else if (e.keyCode == 27) {
+			// Esc = stop. FIXME: should rewind head to last played from or Last pointed from?
+			dispatcher.fire('controls.pause');
+		}
+		else console.log(e.keyCode);
 	});
 
 	var needsResize = true;
@@ -1481,6 +1876,17 @@ function Timeliner(target) {
 
 		pane_title.addEventListener('mouseout', function() {
 			mouseOnTitle = false;
+		});
+
+		resize_full.onClick(function() {
+			// TOOD toggle back to restored size
+			if (!preSnapped) preSnapped = {
+				width: b.width,
+				height: b.height
+			};
+
+			snapType = 'full-screen';
+			resizeEdges();
 		});
 
 		// pane_status.addEventListener('mouseover', function() {
@@ -1638,7 +2044,7 @@ function Timeliner(target) {
 			if (clicked && clicked.isMoving) {
 
 				switch(checks()) {
-					case 'edge-over-bounds':
+					case 'full-screen':
 						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
 						ghostpane.style.opacity = 0.2;
 						break;
@@ -1707,7 +2113,7 @@ function Timeliner(target) {
 			// Edge Checkings
 			// hintFull();
 			if (b.top < FULLSCREEN_MARGINS || b.left < FULLSCREEN_MARGINS || b.right > window.innerWidth - FULLSCREEN_MARGINS || b.bottom > window.innerHeight - FULLSCREEN_MARGINS)
-				return 'edge-over-bounds';
+				return 'full-screen';
 
 			// hintTop();
 			if (b.top < MARGINS) return 'snap-top-edge';
@@ -1722,7 +2128,7 @@ function Timeliner(target) {
 			if (b.bottom > bottomScreenEdge) return 'snap-bottom-edge';
 			*/
 
-			if (e.clientY < FULLSCREEN_MARGINS) return 'edge-over-bounds';
+			if (e.clientY < FULLSCREEN_MARGINS) return 'full-screen';
 
 			if (e.clientY < MARGINS) return 'snap-top-edge';
 
@@ -1741,7 +2147,7 @@ function Timeliner(target) {
 
 		function resizeEdges() {
 			switch(snapType) {
-				case 'edge-over-bounds':
+				case 'full-screen':
 					// hintFull();
 					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
 					break;
@@ -1767,14 +2173,12 @@ function Timeliner(target) {
 
 			if (clicked && clicked.isMoving) {
 				// Snap
-				var snapped = {
-					width: b.width,
-					height: b.height
-				};
-
 				snapType = checks();
 				if (snapType) {
-					preSnapped = snapped;
+					preSnapped = {
+						width: b.width,
+						height: b.height
+					};
 					resizeEdges();
 				} else {
 					preSnapped = null;
@@ -1792,7 +2196,7 @@ function Timeliner(target) {
 }
 
 window.Timeliner = Timeliner;
-},{"../package.json":1,"./dispatcher":2,"./layer_cabinet":4,"./settings":6,"./theme":7,"./timeline_panel":8,"./undo":13,"./utils":14}],10:[function(require,module,exports){
+},{"../package.json":1,"./dispatcher":2,"./icon_button":4,"./layer_cabinet":5,"./settings":7,"./theme":8,"./timeline_panel":9,"./undo":14,"./utils":15}],11:[function(require,module,exports){
 /**************************/
 // Tweens
 /**************************/
@@ -1817,7 +2221,7 @@ var Tweens = {
 };
 
 module.exports = Tweens;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var
 	Theme = require('../theme'),
 	NumberUI = require('./number'),
@@ -1937,7 +2341,7 @@ function LayerView(layer, dispatcher) {
 
 module.exports = LayerView;
 
-},{"../settings":6,"../theme":7,"../tween":10,"../utils":14,"./number":12}],12:[function(require,module,exports){
+},{"../settings":7,"../theme":8,"../tween":11,"../utils":15,"./number":13}],13:[function(require,module,exports){
 var Theme = require('../theme');
 
 /**************************/
@@ -2039,13 +2443,14 @@ function NumberUI(layer, dispatcher) {
 }
 
 module.exports = NumberUI;
-},{"../theme":7}],13:[function(require,module,exports){
+},{"../theme":8}],14:[function(require,module,exports){
 /**************************/
 // Undo Manager
 /**************************/
 
 function UndoState(state, description) {
-	this.state = JSON.stringify(state);
+	// this.state = JSON.stringify(state);
+	this.state = state.getJSONString();
 	this.description = description;
 }
 
@@ -2055,7 +2460,7 @@ function UndoManager(dispatcher, max) {
 	this.clear();
 }
 
-UndoManager.prototype.save = function(state) {
+UndoManager.prototype.save = function(state, suppress) {
 	var states = this.states;
 	var next_index = this.index + 1;
 	var to_remove = states.length - next_index;
@@ -2068,7 +2473,7 @@ UndoManager.prototype.save = function(state) {
 	this.index = states.length - 1;
 
 	// console.log('Undo State Saved: ', state.description);
-	this.dispatcher.fire('status', state.description);
+	if (!suppress) this.dispatcher.fire('state:save', state.description);
 };
 
 UndoManager.prototype.clear = function() {
@@ -2116,11 +2521,16 @@ module.exports = {
 	UndoState: UndoState,
 	UndoManager: UndoManager
 };
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var
 	Tweens = require('./tween');
 
 module.exports = {
+	STORAGE_PREFIX: 'timeliner-',
+	Z_INDEX: 999,
+	style: style,
+	saveToFile: saveToFile,
+	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,
 	timeAtLayer: timeAtLayer
@@ -2130,6 +2540,87 @@ module.exports = {
 // Utils
 /**************************/
 
+function style(element, styles) {
+	for (var s in styles) {
+		element.style[s] = styles[s];
+	}
+}
+
+function saveToFile(string, filename) {
+	var a = document.createElement("a");
+	document.body.appendChild(a);
+	a.style = "display: none";
+
+	var blob = new Blob([string], { type: 'octet/stream' }), // application/json
+		url = window.URL.createObjectURL(blob);
+	
+	a.href = url;
+	a.download = filename;
+
+	fakeClick(a);
+
+	setTimeout(function() {
+		// cleanup and revoke
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+	}, 500);
+}
+
+
+
+var input, openCallback;
+
+function handleFileSelect(evt) {
+	var files = evt.target.files; // FileList object
+
+	console.log('handle file select', files.length);
+
+	var f = files[0];
+	if (!f) return;
+	// Can try to do MINE match
+	// if (!f.type.match('application/json')) {
+	//   return;
+	// }
+	console.log('match', f.type);
+
+	var reader = new FileReader();
+
+	// Closure to capture the file information.
+	reader.onload = function(e) {
+		var data = e.target.result;
+		openCallback(data);
+	};
+	
+	reader.readAsText(f);
+
+	input.value = '';
+}
+
+
+function openAs(callback, target) {
+	console.log('openfile...');
+	openCallback = callback;
+
+	if (!input) {
+		input = document.createElement('input');
+		input.style.display = 'none';
+		input.type = 'file';
+		input.addEventListener('change', handleFileSelect);
+		target = target || document.body;
+		target.appendChild(input);
+	}
+	
+	fakeClick(input);
+}
+
+function fakeClick(target) {
+	var e = document.createEvent("MouseEvents");
+	e.initMouseEvent(
+		'click', true, false, window, 0, 0, 0, 0, 0,
+		false, false, false, false, 0, null
+	);
+	target.dispatchEvent(e);
+}
 
 function format_friendly_seconds(s, type) {
 	// TODO Refactor to 60fps???
@@ -2267,4 +2758,4 @@ function timeAtLayer(layer, t) {
 
 }
 
-},{"./tween":10}]},{},[2,4,5,6,7,8,9,10,13,14])
+},{"./tween":11}]},{},[2,4,5,6,7,8,9,10,11,14,15])
