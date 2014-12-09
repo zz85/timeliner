@@ -12,7 +12,9 @@ var undo = require('./undo'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel'),
 	package_json = require('../package.json'),
-	IconButton = require('./icon_button')
+	IconButton = require('./icon_button'),
+	style = utils.style
+
 	;
 
 var Z_INDEX = 999;
@@ -305,6 +307,10 @@ function Timeliner(target) {
 		load(JSON.parse(json));
 	};
 
+	dispatcher.on('import', function() {
+		this.promptLoad();
+	}.bind(this));
+
 	this.promptOpen = function() {
 		var prefix = 'timeliner-';
 		var regex = new RegExp(prefix + '(.*)');
@@ -324,14 +330,6 @@ function Timeliner(target) {
 			load(JSON.parse(localStorage[prefix + title]));
 		}
 	};
-
-	// utils
-	function style(element, styles) {
-		for (var s in styles) {
-			element.style[s] = styles[s];
-		}
-	}
-
 
 	/*
 		Start DOM Stuff (should separate file)
@@ -421,6 +419,7 @@ function Timeliner(target) {
 	dispatcher.on('status', this.setStatus);
 
 
+
 	var button_save = document.createElement('button');
 	style(button_save, button_styles);
 	button_save.textContent = 'Save';
@@ -437,6 +436,8 @@ function Timeliner(target) {
 	style(button_open, button_styles);
 	button_open.textContent = 'Open';
 	button_open.onclick = this.promptOpen;
+
+
 
 	var bottom_right = document.createElement('span');
 	bottom_right.style.float = 'right';
@@ -456,9 +457,9 @@ function Timeliner(target) {
 	bottom_right.appendChild(zoom_out.dom);
 	bottom_right.appendChild(cog.dom);
 
-	bottom_right.appendChild(button_load);
-	bottom_right.appendChild(button_save);
-	bottom_right.appendChild(button_open);
+	// bottom_right.appendChild(button_load);
+	// bottom_right.appendChild(button_save);
+	// bottom_right.appendChild(button_open);
 
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
 
@@ -752,7 +753,7 @@ function Timeliner(target) {
 			if (clicked && clicked.isMoving) {
 
 				switch(checks()) {
-					case 'edge-over-bounds':
+					case 'full-screen':
 						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
 						ghostpane.style.opacity = 0.2;
 						break;
@@ -821,7 +822,7 @@ function Timeliner(target) {
 			// Edge Checkings
 			// hintFull();
 			if (b.top < FULLSCREEN_MARGINS || b.left < FULLSCREEN_MARGINS || b.right > window.innerWidth - FULLSCREEN_MARGINS || b.bottom > window.innerHeight - FULLSCREEN_MARGINS)
-				return 'edge-over-bounds';
+				return 'full-screen';
 
 			// hintTop();
 			if (b.top < MARGINS) return 'snap-top-edge';
@@ -836,7 +837,7 @@ function Timeliner(target) {
 			if (b.bottom > bottomScreenEdge) return 'snap-bottom-edge';
 			*/
 
-			if (e.clientY < FULLSCREEN_MARGINS) return 'edge-over-bounds';
+			if (e.clientY < FULLSCREEN_MARGINS) return 'full-screen';
 
 			if (e.clientY < MARGINS) return 'snap-top-edge';
 
@@ -855,7 +856,7 @@ function Timeliner(target) {
 
 		function resizeEdges() {
 			switch(snapType) {
-				case 'edge-over-bounds':
+				case 'full-screen':
 					// hintFull();
 					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
 					break;

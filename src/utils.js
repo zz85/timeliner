@@ -2,6 +2,7 @@ var
 	Tweens = require('./tween');
 
 module.exports = {
+	style: style,
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,
 	timeAtLayer: timeAtLayer
@@ -11,6 +12,11 @@ module.exports = {
 // Utils
 /**************************/
 
+function style(element, styles) {
+	for (var s in styles) {
+		element.style[s] = styles[s];
+	}
+}
 
 function format_friendly_seconds(s, type) {
 	// TODO Refactor to 60fps???

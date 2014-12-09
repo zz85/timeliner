@@ -76,6 +76,9 @@ function LayerCabinet(layers, dispatcher) {
 	// json import
 	var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
 	top.appendChild(import_json.dom);
+	import_json.onClick(function() {
+		dispatcher.fire('import');
+	});
 
 	// new
 	var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
@@ -86,7 +89,7 @@ function LayerCabinet(layers, dispatcher) {
 	top.appendChild(save.dom);
 
 	// edit pencil 
-	var save_as = new IconButton(16, 'copy', 'Save as', dispatcher);
+	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
 	top.appendChild(save_as.dom);
 
 	// download json (export)
