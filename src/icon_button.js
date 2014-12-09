@@ -59,29 +59,29 @@ function IconButton(size, icon, tooltip, dp) {
 	var LONG_HOLD_DURATION = 500;
 	var longHoldTimer;
 
-	this.onLongHold = function(e) {
+	this.onLongHold = function(f) {
+		// not most elagent but oh wells.
+		function startHold(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			longHoldTimer = setTimeout(function() {
+				if (longHoldTimer) {
+					console.log('LONG HOLD-ED!');
+					f();
+				}
+			}, LONG_HOLD_DURATION);
+		}
+
+		function clearLongHoldTimer() {
+			clearTimeout(longHoldTimer);
+		}
 		
+		button.addEventListener('mousedown', startHold);
+		button.addEventListener('touchstart', startHold);
+		button.addEventListener('mouseup', clearLongHoldTimer);
+		button.addEventListener('mouseout', clearLongHoldTimer);
+		button.addEventListener('touchend', clearLongHoldTimer);
 	};
-
-
-	button.addEventListener('mousedown', function(e) {
-		e.preventDefault();
-		e.stopPropagation();
-		longHoldTimer = setTimeout(function() {
-			if (longHoldTimer) {
-				console.log('LONG HOLD-ED!');
-				clearTimeout(longHoldTimer);
-			}
-		}, LONG_HOLD_DURATION);
-	});
-
-	function clearLongHoldTimer() {
-		clearTimeout(longHoldTimer);
-	}
-	
-	button.addEventListener('mouseup', clearLongHoldTimer);
-	button.addEventListener('mouseout', clearLongHoldTimer);
-
 
 	this.setTip = function(tip) {
 		tooltip = tip;
