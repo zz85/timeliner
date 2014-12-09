@@ -94,6 +94,11 @@ function LayerCabinet(layers, dispatcher) {
 		dropdown.add(option);
 
 		option = document.createElement('option');
+		option.text = 'Select File';
+		option.value = '*select*';
+		dropdown.add(option);
+
+		option = document.createElement('option');
 		option.text = '==Open==';
 		option.disabled = true;
 		option.selected = true;
@@ -137,6 +142,9 @@ function LayerCabinet(layers, dispatcher) {
 			case '*import*':
 				dispatcher.fire('import');
 				break;
+			case '*select*':
+				dispatcher.fire('openfile');
+				break;
 			default:
 				dispatcher.fire('open', dropdown.value);
 				break;
@@ -171,6 +179,12 @@ function LayerCabinet(layers, dispatcher) {
 	operations_div.appendChild(download_alt.dom);
 	download_alt.onClick(function() {
 		dispatcher.fire('export');
+	});
+
+	var upload_alt = new IconButton(16, 'upload_alt', 'Download / Export JSON', dispatcher);
+	operations_div.appendChild(upload_alt.dom);
+	upload_alt.onClick(function() {
+		dispatcher.fire('openfile');
 	});
 
 	var span = document.createElement('span');

@@ -13,10 +13,12 @@ var undo = require('./undo'),
 	TimelinePanel = require('./timeline_panel'),
 	package_json = require('../package.json'),
 	IconButton = require('./icon_button'),
-	style = utils.style
-
+	style = utils.style,
+	saveAs = utils.saveAs,
+	openAs = utils.openAs
 	;
 
+var STORAGE_PREFIX = 'timeliner-';
 var Z_INDEX = 999;
 
 function LayerProp(name) {
@@ -244,6 +246,10 @@ function Timeliner(target) {
 		timeline.repaint();
 	});
 
+	/*
+		Paint Routines
+	*/
+
 	function paint() {
 		requestAnimationFrame(paint);
 		
@@ -270,13 +276,15 @@ function Timeliner(target) {
 			dispatcher.fire('resize');
 		}
 
-
 		timeline._paint();
 	}
 
 	paint();
 
-	var STORAGE_PREFIX = 'timeliner-';
+	/*
+		End Paint Routines
+	*/
+
 
 	function save(name) {
 		if (!name) name = 'autosave';
@@ -295,45 +303,11 @@ function Timeliner(target) {
 		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON', json);
 		if (!ret) return;
 
-		/// 
-		var saveData = (function () {
-			var a = document.createElement("a");
-			document.body.appendChild(a);
-			// a.innerHTML = 'yoz';
-			a.style = "display: none";
-			return function (string, fileName) {
-				var blob = new Blob([string], { type: 'octet/stream' }), // octet/stream application/json
-					url = window.URL.createObjectURL(blob);
-				a.href = url;
-				a.download = fileName;
-
-				// a.click();
-				var e = document.createEvent("MouseEvents");
-				e.initMouseEvent(
-					'click', true, false, window, 0, 0, 0, 0, 0,
-					false, false, false, false, 0, null
-				);
-				// var e = document.createEvent('Event');
-				// e.initEvent('click', true, true);
-				a.dispatchEvent(e);
-
-				setTimeout(function() {
-					// revoke
-					window.URL.revokeObjectURL(url);
-					// document.body.removeChild(a);
-					// a.remove();
-				}, 500);
-
-			};
-		}());
-
-		
+		// make json downloadable
 		json = data.getJSONString('\t');
 		var fileName = 'timeliner-test' + '.json';
 
-		saveData(json, fileName);
-
-		// TODO Make file for download
+		saveAs(json, fileName);
 	}
 
 	function load(o) {
@@ -382,6 +356,12 @@ function Timeliner(target) {
 		layer_panel.repaint();
 		timeline.repaint();
 	});
+	
+	dispatcher.on('openfile', function() {
+		openAs(function(data) {
+			// console.log('loaded ' + data);
+		});
+	});
 
 	dispatcher.on('open', open);
 	dispatcher.on('export', exportJSON);
@@ -428,8 +408,6 @@ function Timeliner(target) {
 	// resize full
 	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
 	top_right_bar.appendChild(resize_full.dom);
-
-
 	
 	style(pane_title, {
 		position: 'absolute',
@@ -479,24 +457,26 @@ function Timeliner(target) {
 
 	dispatcher.on('status', this.setStatus);
 
-	var button_save = document.createElement('button');
-	style(button_save, button_styles);
-	button_save.textContent = 'Save';
-	button_save.onclick = function() {
-		save();
-	};
+	// var button_save = document.createElement('button');
+	// style(button_save, button_styles);
+	// button_save.textContent = 'Save';
+	// button_save.onclick = function() {
+	// 	save();
+	// };
 
-	var button_load = document.createElement('button');
-	style(button_load, button_styles);
-	button_load.textContent = 'Import';
-	button_load.onclick = this.promptLoad;
+	// var button_load = document.createElement('button');
+	// style(button_load, button_styles);
+	// button_load.textContent = 'Import';
+	// button_load.onclick = this.promptLoad;
 
-	var button_open = document.createElement('button');
-	style(button_open, button_styles);
-	button_open.textContent = 'Open';
-	button_open.onclick = this.promptOpen;
+	// var button_open = document.createElement('button');
+	// style(button_open, button_styles);
+	// button_open.textContent = 'Open';
+	// button_open.onclick = this.promptOpen;
 
-
+	// bottom_right.appendChild(button_load);
+	// bottom_right.appendChild(button_save);
+	// bottom_right.appendChild(button_open);
 
 	var bottom_right = document.createElement('span');
 	bottom_right.style.float = 'right';
@@ -512,13 +492,9 @@ function Timeliner(target) {
 	// settings
 	var cog = new IconButton(12, 'cog', 'settings', dispatcher);	
 
-	bottom_right.appendChild(zoom_in.dom);
-	bottom_right.appendChild(zoom_out.dom);
-	bottom_right.appendChild(cog.dom);
-
-	// bottom_right.appendChild(button_load);
-	// bottom_right.appendChild(button_save);
-	// bottom_right.appendChild(button_open);
+	// bottom_right.appendChild(zoom_in.dom);
+	// bottom_right.appendChild(zoom_out.dom);
+	// bottom_right.appendChild(cog.dom);
 
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
 

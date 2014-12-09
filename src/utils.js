@@ -3,6 +3,8 @@ var
 
 module.exports = {
 	style: style,
+	saveAs: saveAs,
+	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,
 	timeAtLayer: timeAtLayer
@@ -16,6 +18,96 @@ function style(element, styles) {
 	for (var s in styles) {
 		element.style[s] = styles[s];
 	}
+}
+
+function saveAs(string, filename) {
+	var a = document.createElement("a");
+	document.body.appendChild(a);
+	a.style = "display: none";
+
+	var blob = new Blob([string], { type: 'octet/stream' }), // application/json
+		url = window.URL.createObjectURL(blob);
+	
+	a.href = url;
+	a.download = filename;
+
+	fakeClick(a);
+
+	setTimeout(function() {
+		// cleanup and revoke
+		window.URL.revokeObjectURL(url);
+		document.body.removeChild(a);
+	}, 500);
+}
+
+
+
+var input;
+
+function fileSelectHandler(input, openCallback) {
+
+	var handleFileSelect = function(evt) {
+		var files = evt.target.files; // FileList object
+
+		console.log('handle file select', files.length);
+
+		var f = files[0];
+		if (!f) return;
+		// Can try to do MINE match
+		// if (!f.type.match('application/json')) {
+		//   return;
+		// }
+		console.log('match', f.type);
+
+		var reader = new FileReader();
+
+		// Closure to capture the file information.
+		reader.onload = function(e) {
+			var data = e.target.result;
+			openCallback(data);
+		};
+		
+		reader.readAsText(f);
+
+		input.value = '';
+		input.removeEventListener('change', handleFileSelect);
+		
+		input = null;	
+	};
+
+	return handleFileSelect;
+}
+
+
+function openAs(callback) {
+	console.log('openfile...');
+	// input.style.display = 'none';
+
+	if (input) {
+		document.body.removeChild(input);
+	}
+
+	input = document.createElement('input');
+	input.type = 'file';
+	document.body.appendChild(input);
+
+	input.addEventListener('change', fileSelectHandler(input, callback));
+
+	window.ff = input;
+	
+
+	
+	fakeClick(input);
+	
+}
+
+function fakeClick(target) {
+	var e = document.createEvent("MouseEvents");
+	e.initMouseEvent(
+		'click', true, false, window, 0, 0, 0, 0, 0,
+		false, false, false, false, 0, null
+	);
+	target.dispatchEvent(e);
 }
 
 function format_friendly_seconds(s, type) {
