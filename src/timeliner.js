@@ -501,6 +501,7 @@ function Timeliner(target) {
 	// button_open.textContent = 'Open';
 	// button_open.onclick = this.promptOpen;
 
+
 	// bottom_right.appendChild(button_load);
 	// bottom_right.appendChild(button_save);
 	// bottom_right.appendChild(button_open);
@@ -522,6 +523,22 @@ function Timeliner(target) {
 	// bottom_right.appendChild(zoom_in.dom);
 	// bottom_right.appendChild(zoom_out.dom);
 	// bottom_right.appendChild(cog.dom);
+
+	// trash
+	var trash = new IconButton(12, 'trash', 'trash', dispatcher);
+	trash.onClick(function() {
+		var name = data.get('name');
+		if (name && localStorage[STORAGE_PREFIX + name]) {
+			var ok = confirm('Are you sure you wish to delete ' + name + '?');
+			if (ok) {
+				delete localStorage[STORAGE_PREFIX + name];
+				dispatcher.fire('status', name + ' deleted');
+				dispatcher.fire('save:done');
+			}
+		}
+	});
+	bottom_right.appendChild(trash.dom);
+
 
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
 

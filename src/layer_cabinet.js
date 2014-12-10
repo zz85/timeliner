@@ -245,9 +245,6 @@ function LayerCabinet(layers, dispatcher) {
 	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
 	operations_div.appendChild(remove.dom);
 
-	// trash
-	var trash = new IconButton(16, 'trash', 'trash', dispatcher);
-	operations_div.appendChild(trash.dom);
 	*/
 
 
