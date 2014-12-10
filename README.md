@@ -1,11 +1,14 @@
 # Timeliner
 
-Timeliner is a graphical javascript library that helps create and prototype animations quickly. It's works with different javascript / webgl frameworks. You may find timeline familiar if you have used adobe flash, after effects, edge animate or other animation software. Except this in its really early (prototyping) stage with no testers/users but myself, so expect breakages and use at your own risk.
+Timeliner is a graphical graphical tool to help create and prototype animations quickly. It is useful for adjusting variables and checking out how the effects changes over time with keyframing and easing/tweening functions. It may also have some similarities with the timeline component of adobe flash, after effects, edge animate or other animation software.
 
-Follow [blurspline](https://twitter.com/blurspline) on twitter for updates.
+It is written in javascript and meant to work with different javascript libraries or webgl frameworks, in 1d, 2d, or 3d. It is built primary for myself, but feel free to send me suggestions or requests.
+
+Follow [me](https://twitter.com/blurspline) on twitter for updates.
 
 ## Demo
-[Example](http://zz85.github.io/timeliner/test.html)
+
+# [Example](http://zz85.github.io/timeliner/test.html)
 
 [Video](https://plus.google.com/117614030945250277079/posts/BiWe8Z7nHdk?pid=6086039289973564578&oid=117614030945250277079)
 
@@ -13,7 +16,7 @@ Follow [blurspline](https://twitter.com/blurspline) on twitter for updates.
 
 ## Another js timeline library?
 
-There are currently already couple of timeline libraries which are pretty good (which I also gather some inspiration from). I wrote this partly to scratch my itch, partly to challange myself technically. Hopfully I'm able to build something easy to use and makes much sense. For your own good (esp for production use), you should check them out these libraries.
+Below are some existing javascript timeline libraries which I think are pretty good. I decided to write mine partly to scratch my itch and partly to challange myself technically. There are challenges in writing one, but its nice to be in control of your own tools.
 
 1. [Timeline.js](https://github.com/vorg/timeline.js) by Marcin Ignac
 2. [Keytime Editor](https://github.com/mattdesl/keytime-editor/) by Matt DesLauriers
@@ -21,10 +24,11 @@ There are currently already couple of timeline libraries which are pretty good (
 (Side note: mrdoob's [talk on this](http://2013.jsconf.asia/blog/2013/11/8/jsconfasia-2013-mrdoob-ricardo-cabello-framejs) also showcase interesting editors used by the demoscene)
 4. [TweenTime](https://github.com/idflood/TweenTime/) by idflood.
 
-I had initally wanted to polish and improve this to the point I'm satisfied first. However hearing Ben Schwarz say that a cat dies everytime code doesn't get publish during cssconf asia 2014, here it is.
+I think the current version is much a work in progress. However Ben Schwarz says that a cat dies everytime code doesn't get publish during cssconf asia 2014, so I thought it would be a good idea to release this early.
 
 ## Philosophy
-Timeliner should be lightweight and can be added into any webpages with ease. It could work as an included script, bookmarklet, or part of a bigger project with capabilities to work with other controls like dat.gui or gui.js. Styles, HTML, Icons are all embed in the Javascript code.
+
+I wrote Timeliner to be as lightweight and embedable as possible. Styles, HTML, icons are all embeded in a single javascript file. This means it could work as an included script, bookmarklet, or part of a bigger project. I intent to have interoperablility with other controls tools like dat.gui or gui.js.
 
 ## Usage
 
