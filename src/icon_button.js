@@ -6,17 +6,15 @@ var dp;
 
 function IconButton(size, icon, tooltip, dp) {
 	var iconStyle = {
-	
 		padding: '0.2em 0.4em',
 		margin: '0em',
 		background: 'none',
 		outline: 'none',
 		fontSize: '16px',
 		border: 'none',
-		// border: '2px solid #800000',
 		borderRadius: '0.2em',
-
 	};
+	
 	var button = document.createElement('button');
 	style(button, iconStyle);
 
@@ -104,20 +102,18 @@ function IconButton(size, icon, tooltip, dp) {
 	};
 
 	var borders = {
-		// border: '1px solid ' + Theme.a,
-		// boxShadow: Theme.a + ' 1px 1px'
+		border: '1px solid ' + Theme.b,
+		// boxShadow: Theme.b + ' 1px 1px'
 	};
 
 	var no_borders = {
-		// border: '1px solid transparent',
+		border: '1px solid transparent',
 		// boxShadow: 'none'
 	};
 
-
-
 	var normal = 'none'; // Theme.b;
-	var up = Theme.b;
-	var down = Theme.a;
+	var up = Theme.c;
+	var down = Theme.b;
 
 	button.style.background = normal;
 	style(button, no_borders);
@@ -125,7 +121,8 @@ function IconButton(size, icon, tooltip, dp) {
 	button.addEventListener('mouseover', function() {
 		// button.style.background = up;
 		style(button, borders);
-		// ctx.fillStyle = Theme.d;
+		
+		ctx.fillStyle = Theme.d;
 		me.dropshadow = true;
 		me.draw();
 
@@ -152,6 +149,7 @@ function IconButton(size, icon, tooltip, dp) {
 		button.style.background = normal;
 		style(button, no_borders);
 		me.dropshadow = false;
+		ctx.fillStyle = Theme.c;
 		me.draw();
 	});
 
@@ -170,7 +168,6 @@ IconButton.prototype.draw = function() {
 	if (!this.icon) return;
 
 	var ctx = this.ctx;
-	
 
 	var glyph = font.fonts[this.icon];
 
@@ -179,10 +176,12 @@ IconButton.prototype.draw = function() {
 	var scale = height / font.unitsPerEm * dpr;
 	var path_commands =  glyph.commands.split(' ');
 
+	ctx.save();
+	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+
 	if (this.dropshadow) {
 		ctx.save();
-		ctx.fillStyle = Theme.a;
-		ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+		ctx.fillStyle = Theme.b;
 		ctx.translate(1.5 * dpr, 1.5 * dpr);
 		ctx.scale(scale, -scale);
 		ctx.translate(0 , -font.ascender);
@@ -196,42 +195,22 @@ IconButton.prototype.draw = function() {
 		}
 		ctx.fill();
 		ctx.restore();
-
-		ctx.save();
-		ctx.fillStyle = Theme.c;
-		// ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
-		ctx.scale(scale, -scale);
-		ctx.translate(0, -font.ascender);
-		ctx.beginPath();
-
-		for (var i = 0, il = path_commands.length; i < il; i++) {
-			var cmds = path_commands[i].split(',');
-			var params = cmds.slice(1);
-
-			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
-		}
-		ctx.fill();
-		ctx.restore();
-	} else {
-
-		ctx.save();
-		ctx.fillStyle = Theme.a;
-		// ctx.fillStyle = Theme.c;
-		ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
-		ctx.scale(scale, -scale);
-		ctx.translate(0 , -font.ascender);
-		ctx.beginPath();
-
-		for (var i = 0, il = path_commands.length; i < il; i++) {
-			var cmds = path_commands[i].split(',');
-			var params = cmds.slice(1);
-
-			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
-		}
-		ctx.fill();
-		ctx.restore();
-
 	}
+
+	ctx.scale(scale, -scale);
+	ctx.translate(0, -font.ascender);
+	ctx.beginPath();
+
+	for (var i = 0, il = path_commands.length; i < il; i++) {
+		var cmds = path_commands[i].split(',');
+		var params = cmds.slice(1);
+
+		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+	}
+	ctx.fill();
+	ctx.restore();
+
+
 
 	
 };

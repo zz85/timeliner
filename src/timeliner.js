@@ -410,13 +410,13 @@ function Timeliner(target) {
 		padding: 0,
 		fontFamily: 'monospace',
 		zIndex: Z_INDEX,
-		border: '2px solid ' + Theme.b,
+		border: '2px solid ' + Theme.a,
 		fontSize: '12px',
 		color: Theme.d,
 		overflow: 'hidden'
 	});
 
-	pane.style.backgroundColor = Theme.b;
+	pane.style.backgroundColor = Theme.a;
 
 	var pane_title = document.createElement('div');
 
@@ -624,8 +624,10 @@ function Timeliner(target) {
 
 	function restyle(left, right) {
 		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;';
-		// background: ' + Theme.a + ';';
-		left.style.overflow = 'hidden';
+		style(left, {
+			// background: Theme.a,
+			overflow: 'hidden'
+		});
 		left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
 
 		// right.style.cssText = 'position: absolute; top: 0px;';
