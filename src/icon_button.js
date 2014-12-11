@@ -183,7 +183,7 @@ IconButton.prototype.draw = function() {
 		ctx.save();
 		ctx.fillStyle = Theme.a;
 		ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
-		ctx.translate(1 * dpr, 1 * dpr);
+		ctx.translate(1.5 * dpr, 1.5 * dpr);
 		ctx.scale(scale, -scale);
 		ctx.translate(0 , -font.ascender);
 		ctx.beginPath();
@@ -216,6 +216,7 @@ IconButton.prototype.draw = function() {
 
 		ctx.save();
 		ctx.fillStyle = Theme.a;
+		// ctx.fillStyle = Theme.c;
 		ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
 		ctx.scale(scale, -scale);
 		ctx.translate(0 , -font.ascender);
