@@ -1,12 +1,24 @@
 var font = require('./font.json'),
-	Theme = require('./theme');
+	Theme = require('./theme'),
+	style = require('./utils').style;
 
-var FONT_CLASS = 'tfa';
 var dp;
 
 function IconButton(size, icon, tooltip, dp) {
+	var iconStyle = {
+	
+		padding: '0.2em 0.4em',
+		margin: '0em',
+		background: 'none',
+		outline: 'none',
+		fontSize: '16px',
+		border: 'none',
+		// border: '2px solid #800000',
+		borderRadius: '0.2em',
+
+	};
 	var button = document.createElement('button');
-	button.className = FONT_CLASS;
+	style(button, iconStyle);
 
 	var canvas = document.createElement('canvas');
 	var ctx = canvas.getContext('2d');
@@ -32,10 +44,13 @@ function IconButton(size, icon, tooltip, dp) {
 		var scale = height / font.unitsPerEm;
 		var width = glyph.advanceWidth * scale + 0.5 | 0;
 
+		width += 2;
+		height += 2;
+
 		canvas.width = width * dpr;
 		canvas.style.width = width + 'px';
 
-		ctx.fillStyle = Theme.c;
+		ctx.fillStyle = Theme.d; // c
 		me.draw();
 	};
 
@@ -88,25 +103,55 @@ function IconButton(size, icon, tooltip, dp) {
 		tooltip = tip;
 	};
 
+	var borders = {
+		// border: '1px solid ' + Theme.a,
+		// boxShadow: Theme.a + ' 1px 1px'
+	};
+
+	var no_borders = {
+		// border: '1px solid transparent',
+		// boxShadow: 'none'
+	};
+
+
+
+	var normal = 'none'; // Theme.b;
+	var up = Theme.b;
+	var down = Theme.a;
+
+	button.style.background = normal;
+	style(button, no_borders);
+
 	button.addEventListener('mouseover', function() {
-		ctx.fillStyle = Theme.d;
+		// button.style.background = up;
+		style(button, borders);
+		// ctx.fillStyle = Theme.d;
+		me.dropshadow = true;
 		me.draw();
 
 		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {
-		ctx.fillStyle = Theme.b;
-		me.draw();
+		button.style.background = down;
+		// ctx.fillStyle = Theme.b;
+		// me.draw();
 	});
 
 	button.addEventListener('mouseup', function() {
-		ctx.fillStyle = Theme.d;
-		me.draw();
+		// ctx.fillStyle = Theme.d;
+		button.style.background = normal;
+		style(button, borders);
+		// me.draw();
 	});
 
 	button.addEventListener('mouseout', function() {
-		ctx.fillStyle = Theme.c;
+		// ctx.fillStyle = Theme.c;
+		
+
+		button.style.background = normal;
+		style(button, no_borders);
+		me.dropshadow = false;
 		me.draw();
 	});
 
@@ -125,7 +170,7 @@ IconButton.prototype.draw = function() {
 	if (!this.icon) return;
 
 	var ctx = this.ctx;
-	ctx.save();
+	
 
 	var glyph = font.fonts[this.icon];
 
@@ -134,19 +179,60 @@ IconButton.prototype.draw = function() {
 	var scale = height / font.unitsPerEm * dpr;
 	var path_commands =  glyph.commands.split(' ');
 
-	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
-	ctx.scale(scale, -scale);
-	ctx.translate(0, -font.ascender);
-	ctx.beginPath();
+	if (this.dropshadow) {
+		ctx.save();
+		ctx.fillStyle = Theme.a;
+		ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+		ctx.translate(1 * dpr, 1 * dpr);
+		ctx.scale(scale, -scale);
+		ctx.translate(0 , -font.ascender);
+		ctx.beginPath();
 
-	for (var i = 0, il = path_commands.length; i < il; i++) {
-		var cmds = path_commands[i].split(',');
-		var params = cmds.slice(1);
+		for (var i = 0, il = path_commands.length; i < il; i++) {
+			var cmds = path_commands[i].split(',');
+			var params = cmds.slice(1);
 
-		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+		}
+		ctx.fill();
+		ctx.restore();
+
+		ctx.save();
+		ctx.fillStyle = Theme.c;
+		// ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+		ctx.scale(scale, -scale);
+		ctx.translate(0, -font.ascender);
+		ctx.beginPath();
+
+		for (var i = 0, il = path_commands.length; i < il; i++) {
+			var cmds = path_commands[i].split(',');
+			var params = cmds.slice(1);
+
+			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+		}
+		ctx.fill();
+		ctx.restore();
+	} else {
+
+		ctx.save();
+		ctx.fillStyle = Theme.a;
+		ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+		ctx.scale(scale, -scale);
+		ctx.translate(0 , -font.ascender);
+		ctx.beginPath();
+
+		for (var i = 0, il = path_commands.length; i < il; i++) {
+			var cmds = path_commands[i].split(',');
+			var params = cmds.slice(1);
+
+			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+		}
+		ctx.fill();
+		ctx.restore();
+
 	}
-	ctx.fill();
-	ctx.restore();
+
+	
 };
 
 module.exports = IconButton;

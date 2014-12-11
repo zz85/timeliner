@@ -416,7 +416,7 @@ function Timeliner(target) {
 		overflow: 'hidden'
 	});
 
-	pane.style.backgroundColor = Theme.a;
+	pane.style.backgroundColor = Theme.b;
 
 	var pane_title = document.createElement('div');
 
@@ -623,7 +623,8 @@ function Timeliner(target) {
 	}
 
 	function restyle(left, right) {
-		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
+		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;';
+		// background: ' + Theme.a + ';';
 		left.style.overflow = 'hidden';
 		left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
 
