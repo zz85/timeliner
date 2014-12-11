@@ -307,6 +307,7 @@ function TimelinePanel(layers, dispatcher) {
 	}
 
 	function y_to_track(y) {
+		if (y - MARKER_TRACK_HEIGHT < 0) return -1;
 		return (y - MARKER_TRACK_HEIGHT) / LINE_HEIGHT | 0;
 	}
 
