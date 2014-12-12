@@ -165,7 +165,7 @@ function TimelinePanel(layers, dispatcher) {
 
 			var t = i * units / time_scale;
 			t = utils.format_friendly_seconds(t, subd_type);
-			ctx.fillText(t, x, 28);
+			ctx.fillText(t, x, 38);
 		}
 
 		units = time_scale / subd2;

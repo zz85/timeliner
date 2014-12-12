@@ -14,7 +14,7 @@ function IconButton(size, icon, tooltip, dp) {
 		border: 'none',
 		borderRadius: '0.2em',
 	};
-	
+
 	var button = document.createElement('button');
 	style(button, iconStyle);
 
@@ -48,7 +48,7 @@ function IconButton(size, icon, tooltip, dp) {
 		canvas.width = width * dpr;
 		canvas.style.width = width + 'px';
 
-		ctx.fillStyle = Theme.d; // c
+		ctx.fillStyle = Theme.c;
 		me.draw();
 	};
 
@@ -210,9 +210,18 @@ IconButton.prototype.draw = function() {
 	ctx.fill();
 	ctx.restore();
 
-
-
-	
+	/*
+	var triangle = height / 3 * dpr;
+	ctx.save();
+	// ctx.translate(dpr * 2, 0);
+	// ctx.fillRect(this.canvas.width - triangle, this.canvas.height - triangle, triangle, triangle);
+	ctx.beginPath();
+	ctx.moveTo(this.canvas.width - triangle, this.canvas.height - triangle / 2);
+	ctx.lineTo(this.canvas.width, this.canvas.height - triangle / 2);
+	ctx.lineTo(this.canvas.width - triangle / 2, this.canvas.height);
+	ctx.fill();
+	ctx.restore();
+	*/
 };
 
 module.exports = IconButton;

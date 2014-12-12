@@ -648,6 +648,36 @@ function Timeliner(target) {
 
 	this.addLayer = addLayer;
 
+	this.setTarget = function(t) {
+		timeline = t;
+	};
+
+	function getValueRanges(prop) {
+		// not optimized!
+		var t = timeline.current_frame;
+
+		var values = [];
+
+		for (var u = -2; u <= 2; u++) {
+			// if (u == 0) continue;
+			var o = {};
+
+			for (var l = 0; l < layers.length; l++) {
+				var layer = layers[l];		
+				var m = utils.timeAtLayer(layer, t + u * 0.15);
+				// 0.05, 0.1, 0.2
+				o[layer.name] = m.value;
+			}
+
+			values.push(o);
+
+		}
+
+		return values;
+	}
+
+	this.getValues = getValueRanges;
+
 	(function DockingWindow() {
 		"use strict";
 
@@ -657,7 +687,8 @@ function Timeliner(target) {
 
 		// Thresholds
 		var FULLSCREEN_MARGINS = 2;
-		var MARGINS = 8;
+		var SNAP_MARGINS = 8;
+		var MARGINS = 2;
 
 		// End of what's configurable.
 
@@ -936,16 +967,16 @@ function Timeliner(target) {
 
 			if (e.clientY < FULLSCREEN_MARGINS) return 'full-screen';
 
-			if (e.clientY < MARGINS) return 'snap-top-edge';
+			if (e.clientY < SNAP_MARGINS) return 'snap-top-edge';
 
 			// hintLeft();
-			if (e.clientX < MARGINS) return 'snap-left-edge';
+			if (e.clientX < SNAP_MARGINS) return 'snap-left-edge';
 
 			// hintRight();
-			if (window.innerWidth - e.clientX < MARGINS) return 'snap-right-edge';
+			if (window.innerWidth - e.clientX < SNAP_MARGINS) return 'snap-right-edge';
 
 			// hintBottom();
-			if (window.innerHeight- e.clientY < MARGINS) return 'snap-bottom-edge';
+			if (window.innerHeight- e.clientY < SNAP_MARGINS) return 'snap-bottom-edge';
 
 		}
 

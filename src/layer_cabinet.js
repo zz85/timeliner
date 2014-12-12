@@ -43,6 +43,9 @@ function LayerCabinet(layers, dispatcher) {
 	range.value = Settings.time_scale;
 	range.max = 600;
 	range.step = 1;
+	style(range, {
+		width: '80px'
+	});
 	
 
 	var draggingRange = 0;
@@ -66,7 +69,8 @@ function LayerCabinet(layers, dispatcher) {
 	// Play Controls
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
-	top.appendChild(range);
+	// top.appendChild(range);
+	top.appendChild(document.createTextNode('0:00:00 / 0:10:00'));
 
 	var operations_div = document.createElement('div');
 	style(operations_div, {
@@ -217,9 +221,6 @@ function LayerCabinet(layers, dispatcher) {
 
 	// Cloud Download / Upload edit pencil
 	
-
-
-
 	/*
 	// // show layer
 	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
