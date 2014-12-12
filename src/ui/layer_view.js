@@ -34,8 +34,8 @@ function LayerView(layer, dispatcher) {
 	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
 	
 	keyframe_button.addEventListener('click', function(e) {
-		console.log('keyframing...');
-		dispatcher.fire('keyframe', layer, value.value);
+		console.log('clicked:keyframing...', value.getValue());
+		dispatcher.fire('keyframe', layer, value.getValue());
 	});
 
 	/*

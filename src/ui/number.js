@@ -12,7 +12,7 @@ function NumberUI(layer, dispatcher) {
 
 	var me = this;
 
-	me.value = span.value = layer.tmpValue;
+	span.value = layer.tmpValue;
 
 	this.setState = function(l) {
 		layer = l;
@@ -23,15 +23,15 @@ function NumberUI(layer, dispatcher) {
 		fireChange();
 	});
 
-	this.value = layer.tmpValue;
-
-	var startx, starty, moved;
+	var startx, starty, moved, unchanged_value;
 
 	span.addEventListener('mousedown', function(e) {
 		e.preventDefault();
 		startx = e.clientX;
 		starty = e.clientY;
 		moved = false;
+		unchanged_value = me.getValue();
+		console.log(unchanged_value);
 
 		// 
 		document.addEventListener('mousemove', onMouseMove);
@@ -68,9 +68,13 @@ function NumberUI(layer, dispatcher) {
 		// console.log(e.clientX, e.clientY);
 		var dx = e.clientX - startx;
 		var dy = e.clientY - starty;
-		span.value = me.value + dx * 0.000001 + dy * -10 * 0.01;
-		dispatcher.fire('target.notify', layer.name, span.value);
+	
+		var v = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
 
+		dispatcher.fire('target.notify', layer.name, v);
+		dispatcher.fire('value.change', layer, v, true);
+
+		// span.value = v;
 		moved = true;
 	}
 
@@ -86,16 +90,27 @@ function NumberUI(layer, dispatcher) {
 	}
 
 	function fireChange() {
-		layer.tmpValue = me.value = parseFloat(span.value, 10);
-		dispatcher.fire('value.change', layer, me.value);
-		dispatcher.fire('target.notify', layer.name, me.value);
+		var v = parseFloat(span.value, 10);
+		layer.tmpValue = v;
+		dispatcher.fire('value.change', layer, v);
+		dispatcher.fire('target.notify', layer.name, v);
 	}
 
 	this.dom = span;
 
+	// public
 	this.setValue = function(e) {
 		span.value = e;
+		// layer.tmpValue = e;
 	};
+
+	this.getValue = function() {
+		// return me.value;
+		return parseFloat(span.value, 10);
+		// return layer.tmpValue;
+	};
+
 }
+
 
 module.exports = NumberUI;

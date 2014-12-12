@@ -124,7 +124,7 @@ function format_friendly_seconds(s, type) {
 	return str;	
 }
 
-
+// get object at time
 function findTimeinLayer(layer, time) {
 	var values = layer.values;
 	var i, il;

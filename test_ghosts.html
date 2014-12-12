@@ -15,7 +15,7 @@
 	width: 50px;
 	height: 50px;
 	background: red;
-	opacity: 0.2;
+	opacity: 0.1;
 }
 
 body {
@@ -25,13 +25,7 @@ body {
 
 </style>
 
-<!-- <div id="ghost-3" class="ghost"></div> -->
-<div id="ghost_2" class="ghost"></div>
-<div id="ghost_1" class="ghost"></div>
 <div id="box"></div>
-<div id="ghost1" class="ghost"></div>
-<div id="ghost2" class="ghost"></div>
-<!-- <div id="ghost3" class="ghost"></div> -->
 
 
 <script src="timeliner.js"></script>
@@ -63,7 +57,20 @@ function style(element, target) {
 	element.style.transform = 'translateX(' +  (target.x * 100 + w2) + 'px) translateY(' + (target.y * 100 + h2) + 'px) rotate(' + target.rotate * 50 + 'deg)';	
 } 
 
+var GHOSTS = 4;
+var ghosts = [];
 
+function init() {
+	for (var i = -GHOSTS; i <= GHOSTS; i++) {
+		var div = document.createElement('div');
+		div.className = 'ghost';
+		ghosts.push(div);
+		document.body.appendChild(div);
+	}	
+
+}
+
+init();
 
 
 function animate() {
@@ -89,12 +96,11 @@ function animate() {
 	}
 	*/
 
-	var ranges = timeliner.getValues();
-	style(ghost_2, ranges[0]);
-	style(ghost_1, ranges[1]);
-	// 
-	style(ghost1, ranges[3]);
-	style(ghost2, ranges[4]);
+	var ranges = timeliner.getValues(GHOSTS, 0.15);
+
+	for (var i = 0; i < ranges.length; i++) {
+		style(ghosts[i], ranges[i]);
+	}
 
 
 }

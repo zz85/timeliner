@@ -230,9 +230,6 @@ function LayerCabinet(layers, dispatcher) {
 	// var eye_close = new IconButton(16, 'eye_close', 'eye_close', dispatcher);
 	// operations_div.appendChild(eye_close.dom);
 
-	// add layer
-	var plus = new IconButton(16, 'plus', 'plus', dispatcher);
-	operations_div.appendChild(plus.dom);
 
 	// remove layer
 	var minus = new IconButton(16, 'minus', 'minus', dispatcher);

@@ -131,7 +131,7 @@ function Timeliner(target) {
 	});
 
 	// dispatcher.fire('value.change', layer, me.value);
-	dispatcher.on('value.change', function(layer, value) {
+	dispatcher.on('value.change', function(layer, value, dont_save) {
 		var t = timeline.current_frame;
 		
 		var v = utils.findTimeinLayer(layer, t);
@@ -143,12 +143,13 @@ function Timeliner(target) {
 				value: value,
 				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 			});
-			undo_manager.save(new UndoState(data, 'Add value'));
+			if (!dont_save) undo_manager.save(new UndoState(data, 'Add value'));
 		} else {
 			v.object.value = value;
-			undo_manager.save(new UndoState(data, 'Update value'));
+			if (!dont_save) undo_manager.save(new UndoState(data, 'Update value'));
 		}
 
+		// 
 		layer_panel.repaint(t);
 		timeline.repaint();
 	});
@@ -524,6 +525,18 @@ function Timeliner(target) {
 	// bottom_right.appendChild(zoom_out.dom);
 	// bottom_right.appendChild(cog.dom);
 
+	// add layer
+	var plus = new IconButton(12, 'plus', 'plus', dispatcher);
+	plus.onClick(function() {
+		var name = prompt('Layer name?');
+		addLayer(name);
+
+		layer_panel.repaint();
+		timeline.repaint();
+	});
+	bottom_right.appendChild(plus.dom);
+
+
 	// trash
 	var trash = new IconButton(12, 'trash', 'trash', dispatcher);
 	trash.onClick(function() {
@@ -652,20 +665,22 @@ function Timeliner(target) {
 		timeline = t;
 	};
 
-	function getValueRanges(prop) {
+	function getValueRanges(ranges, interval) {
+		interval = interval ? interval : 0.15;
+		ranges = ranges ? ranges : 2;
+
 		// not optimized!
 		var t = timeline.current_frame;
 
 		var values = [];
 
-		for (var u = -2; u <= 2; u++) {
+		for (var u = -ranges; u <= ranges; u++) {
 			// if (u == 0) continue;
 			var o = {};
 
 			for (var l = 0; l < layers.length; l++) {
 				var layer = layers[l];		
-				var m = utils.timeAtLayer(layer, t + u * 0.15);
-				// 0.05, 0.1, 0.2
+				var m = utils.timeAtLayer(layer, t + u * interval);
 				o[layer.name] = m.value;
 			}
 
