@@ -582,7 +582,7 @@ function Timeliner(target) {
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
 
-	var scrollbar = new ScrollBar(200);
+	var scrollbar = new ScrollBar(200, 10);
 	div.appendChild(scrollbar.dom);
 
 	// scrollbar.onScroll.add(function(type, scrollTo) {
@@ -606,7 +606,6 @@ function Timeliner(target) {
 
 	// percentages
 	scrollbar.onScroll.do(function(type, scrollTo) {
-		console.log('scroll', arguments);
 		switch(type) {
 			case 'scrollto':
 				layer_panel.scrollTo(scrollTo);
@@ -670,12 +669,17 @@ function Timeliner(target) {
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
 
-		var scrollable_height = height - Settings.MARKER_TRACK_HEIGHT;
+		Settings.TIMELINE_SCROLL_HEIGHT = height - Settings.MARKER_TRACK_HEIGHT;;
+		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
+
 		var content_height = layers.length * Settings.LINE_HEIGHT;
 		scrollbar.setHeight(scrollable_height);
-		scrollbar.setLength(scrollable_height / content_height);
 		// scrollbar.setThumb
-
+		scrollbar.setLength(scrollable_height / content_height);
+		style(scrollbar.dom, {
+			top: Settings.MARKER_TRACK_HEIGHT + 'px',
+			left: (width - 16) + 'px',
+		});
 
 		needsResize = true;
 	}

@@ -336,9 +336,8 @@ function LayerCabinet(layers, dispatcher) {
 	this.setState(layers);
 
 	this.scrollTo = function(x) {
-		console.log(div.clientHeight);
 		layer_scroll.scrollTop = x * layer_scroll.scrollHeight;
-	}
+	};
 
 	this.dom = div;
 }

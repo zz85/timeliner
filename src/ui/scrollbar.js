@@ -12,12 +12,12 @@ console.log(utils);
 var scrolltrack_style = {
 	// float: 'right',
 	position: 'absolute',
-	right: '0',
+	// right: '0',
 	// top: '0',
-	bottom: '0',
+	// bottom: '0',
 	background: '-webkit-gradient(linear, left top, right top, color-stop(0, rgb(29,29,29)), color-stop(0.6, rgb(50,50,50)) )',
 	border: '1px solid rgb(29, 29, 29)',
-	zIndex: '1000',
+	// zIndex: '1000',
 	textAlign: 'center',
 	cursor: 'pointer'
 };
@@ -25,6 +25,7 @@ var scrolltrack_style = {
 var scrollbar_style = {
 	background: '-webkit-gradient(linear, left top, right top, color-stop(0.2, rgb(88,88,88)), color-stop(0.6, rgb(64,64,64)) )',
 	border: '1px solid rgb(25,25,25)',
+	// position: 'absolute',
 	position: 'relative',
 	borderRadius: '6px'
 };
@@ -41,16 +42,16 @@ function ScrollBar(h, w, dispatcher) {
 
 	var scrolltrackHeight = h - 2;
 	scrolltrack.style.height = scrolltrackHeight + 'px' ;
-	scrolltrack.style.width = SCROLL_WIDTH - 2;
+	scrolltrack.style.width = SCROLL_WIDTH; //SCROLLBAR_WIDTH;
 
 	// var scrollTop = 0;
 	var scrollbar = document.createElement('div');
 	// scrollbar.className = 'scrollbar';
 	utils.style(scrollbar, scrollbar_style);
-	scrollbar.style.width = SCROLLBAR_WIDTH - 2;
+	scrollbar.style.width = SCROLLBAR_WIDTH;
 	scrollbar.style.height = h / 2;
 	scrollbar.style.top = 0;
-	scrollbar.style.left = SCROLLBAR_MARGIN;
+	scrollbar.style.left = SCROLLBAR_MARGIN + 'px'; // 0; //S
 
 	scrolltrack.appendChild(scrollbar);
 
