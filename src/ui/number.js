@@ -12,7 +12,7 @@ function NumberUI(layer, dispatcher) {
 
 	var me = this;
 
-	span.value = layer.tmpValue;
+	span.value = layer._value;
 
 	this.setState = function(l) {
 		layer = l;
@@ -91,7 +91,7 @@ function NumberUI(layer, dispatcher) {
 
 	function fireChange() {
 		var v = parseFloat(span.value, 10);
-		layer.tmpValue = v;
+		layer._value = v;
 		dispatcher.fire('value.change', layer, v);
 		dispatcher.fire('target.notify', layer.name, v);
 	}
@@ -101,13 +101,13 @@ function NumberUI(layer, dispatcher) {
 	// public
 	this.setValue = function(e) {
 		span.value = e;
-		// layer.tmpValue = e;
+		// layer._value = e;
 	};
 
 	this.getValue = function() {
 		// return me.value;
 		return parseFloat(span.value, 10);
-		// return layer.tmpValue;
+		// return layer._value;
 	};
 
 }

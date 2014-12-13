@@ -80,10 +80,11 @@ function LayerCabinet(layers, dispatcher) {
 	div.appendChild(top);
 
 	// Play Controls
+	top.appendChild(document.createTextNode('0:00:00 / 0:10:00'));
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
 	// top.appendChild(range);
-	top.appendChild(document.createTextNode('0:00:00 / 0:10:00'));
+	
 
 	var operations_div = document.createElement('div');
 	style(operations_div, {

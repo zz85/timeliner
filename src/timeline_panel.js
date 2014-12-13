@@ -367,6 +367,9 @@ function TimelinePanel(layers, dispatcher) {
 		
 		if (layers[track]) {
 			var tmp = utils.findTimeinLayer(layers[track], s);
+			var tmp2 = utils.timeAtLayer(layers[track], s);
+
+			console.log('drag start', tmp, tmp2);
 
 		 	if (typeof(tmp) !== 'number') dragObject = tmp;
 		}
