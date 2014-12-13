@@ -14,6 +14,19 @@ function LayerCabinet(layers, dispatcher) {
 	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
 	// top.style.textAlign = 'right';
 
+	var layer_scroll = document.createElement('div');
+	style(layer_scroll, {
+		position: 'absolute',
+		top: Settings.MARKER_TRACK_HEIGHT + 'px',
+		// height: (Settings.height - Settings.MARKER_TRACK_HEIGHT) + 'px'
+		left: 0,
+		right: 0,
+		bottom: 0,
+		overflow: 'hidden'
+	});
+
+	div.appendChild(layer_scroll);
+
 	var playing = false;
 
 	var play_button = new IconButton(16, 'play', 'play', dispatcher);
@@ -286,7 +299,7 @@ function LayerCabinet(layers, dispatcher) {
 				} else {
 					// new
 					layer_ui = new LayerUI(layer, dispatcher);
-					div.appendChild(layer_ui.dom);
+					layer_scroll.appendChild(layer_ui.dom);
 				}
 				layer_uis.push(layer_ui);
 			}
@@ -321,6 +334,11 @@ function LayerCabinet(layers, dispatcher) {
 
 	this.repaint = repaint;
 	this.setState(layers);
+
+	this.scrollTo = function(x) {
+		console.log(div.clientHeight);
+		layer_scroll.scrollTop = x * layer_scroll.scrollHeight;
+	}
 
 	this.dom = div;
 }

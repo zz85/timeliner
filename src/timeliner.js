@@ -16,7 +16,8 @@ var undo = require('./undo'),
 	style = utils.style,
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
-	STORAGE_PREFIX = utils.STORAGE_PREFIX
+	STORAGE_PREFIX = utils.STORAGE_PREFIX,
+	ScrollBar = require('./ui/scrollbar');
 	;
 
 var Z_INDEX = 999;
@@ -526,19 +527,20 @@ function Timeliner(target) {
 	// bottom_right.appendChild(cog.dom);
 
 	// add layer
-	var plus = new IconButton(12, 'plus', 'plus', dispatcher);
+	var plus = new IconButton(12, 'plus', 'New Layer', dispatcher);
 	plus.onClick(function() {
 		var name = prompt('Layer name?');
 		addLayer(name);
 
-		layer_panel.repaint();
-		timeline.repaint();
+		undo_manager.save(new UndoState(data, 'Layer added'));
+		// layer_panel.repaint();
+		// timeline.repaint();
 	});
 	bottom_right.appendChild(plus.dom);
 
 
 	// trash
-	var trash = new IconButton(12, 'trash', 'trash', dispatcher);
+	var trash = new IconButton(12, 'trash', 'Delete save', dispatcher);
 	trash.onClick(function() {
 		var name = data.get('name');
 		if (name && localStorage[STORAGE_PREFIX + name]) {
@@ -579,6 +581,42 @@ function Timeliner(target) {
 
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
+
+	var scrollbar = new ScrollBar(200);
+	div.appendChild(scrollbar.dom);
+
+	// scrollbar.onScroll.add(function(type, scrollTo) {
+	// 	switch (type) {
+	// 		case 'pageup':
+	// 			scrollTop -= pageOffset;
+	// 			me.draw();
+	// 			me.updateScrollbar();
+	// 			break;
+	// 		case 'pagedown':
+	// 			scrollTop += pageOffset;
+	// 			me.draw();
+	// 			me.updateScrollbar();
+	// 			break;
+	// 		case 'scrollto':
+	// 			scrollTop = scrollTo  * (innerHeight - h);
+	// 			me.draw();
+	// 			break;
+	// 	}
+	// });
+
+	// percentages
+	scrollbar.onScroll.do(function(type, scrollTo) {
+		console.log('scroll', arguments);
+		switch(type) {
+			case 'scrollto':
+				layer_panel.scrollTo(scrollTo);
+				break;
+		}
+	});
+
+	window.s = scrollbar;
+
+
 
 	// document.addEventListener('keypress', function(e) {
 	// 	console.log('kp', e);
@@ -631,6 +669,13 @@ function Timeliner(target) {
 
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
+
+		var scrollable_height = height - Settings.MARKER_TRACK_HEIGHT;
+		var content_height = layers.length * Settings.LINE_HEIGHT;
+		scrollbar.setHeight(scrollable_height);
+		scrollbar.setLength(scrollable_height / content_height);
+		// scrollbar.setThumb
+
 
 		needsResize = true;
 	}

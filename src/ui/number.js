@@ -112,5 +112,4 @@ function NumberUI(layer, dispatcher) {
 
 }
 
-
 module.exports = NumberUI;

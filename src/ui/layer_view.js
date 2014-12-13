@@ -12,7 +12,7 @@ function LayerView(layer, dispatcher) {
 	var dom = document.createElement('div');
 
 	var label = document.createElement('span');
-	label.textContent = layer.name;
+	
 	label.style.cssText = 'font-size: 12px; padding: 4px;';
 
 	var dropdown = document.createElement('select');
@@ -79,6 +79,8 @@ function LayerView(layer, dispatcher) {
 	this.setState = function(l) {
 		layer = l;
 		value.setState(l);
+
+		label.textContent = layer.name;
 	};
 
 	function repaint(s) {
