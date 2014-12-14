@@ -93,33 +93,30 @@ function ScrollBar(h, w, dispatcher) {
 		event.preventDefault();
 
 		if (event.target == scrollbar) {
-			mouse_down_grip = event.offsetY;
+			mouse_down_grip = event.clientY;
 			document.addEventListener('mousemove', onMove, false);
 			document.addEventListener('mouseup', onUp, false);
 		} else {
-			if (event.offsetY < bar_y) {
+			if (event.clientY < bar_y) {
 				me.onScroll.fire('pageup');
-			} else if (event.offsetY > (bar_y + bar_length)) {
+			} else if (event.clientY > (bar_y + bar_length)) {
 				me.onScroll.fire('pagedown');
 			}
 			// if want to drag scroller to empty track instead
-			// me.setPosition(event.offsetY / (scrolltrackHeight - 1));
+			// me.setPosition(event.clientY / (scrolltrackHeight - 1));
 		}
 	}
 
 	function onMove(event) {
 		event.preventDefault();
 
-		if (event.target == scrollbar) {
-			var emptyTrack = scrolltrackHeight - bar_length;
-			var scrollto = (bar_y + event.offsetY - mouse_down_grip) / emptyTrack;
-			me.setPosition(scrollto);
-			me.onScroll.fire('scrollto', scrollto);
-			return;
-
-		}
+		// event.target == scrollbar
 		var emptyTrack = scrolltrackHeight - bar_length;
-		var scrollto = (event.offsetY - mouse_down_grip) / emptyTrack;
+		var scrollto = (event.clientY - mouse_down_grip) / emptyTrack;
+
+		// clamp limits to 0..1
+		if (scrollto > 1) scrollto = 1;
+		if (scrollto < 0) scrollto = 0;
 		me.setPosition(scrollto);
 		me.onScroll.fire('scrollto', scrollto);
 	}

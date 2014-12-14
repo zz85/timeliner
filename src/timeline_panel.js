@@ -82,6 +82,12 @@ function TimelinePanel(layers, dispatcher) {
 	canvas.style.width = Settings.width + 'px';
 	canvas.style.height = Settings.height + 'px';
 
+	var scrollTop = 0;
+	this.scrollTo = function(s, y) {
+		scrollTop = s * (layers.length * LINE_HEIGHT - (height - MARKER_TRACK_HEIGHT));
+		repaint();
+	};
+
 	this.resize = function() {
 		dpr = window.devicePixelRatio;
 		canvas.width = Settings.width * dpr;
@@ -112,95 +118,27 @@ function TimelinePanel(layers, dispatcher) {
 		needsRepaint = true;
 	}
 
-	function _paint() {
-		if (!needsRepaint) return;
 
-		/**************************/
-		// background
-
-		ctx.fillStyle = Theme.a;
-		//ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.save();
-		ctx.scale(dpr, dpr);
-
-		// 
-
-		ctx.lineWidth = 1; // .5, 1, 2
-
-		width = Settings.width,
-		height = Settings.height,
-
-		il = layers.length;
-		for (i = 0; i <= il; i++) {
-			// horizontal lines
+	function drawLayerContents() {
+		// horizontal Layer lines
+		for (i = 0, il = layers.length; i <= il; i++) {
 			ctx.strokeStyle = Theme.b;
 			ctx.beginPath();
-			y = i * LINE_HEIGHT + MARKER_TRACK_HEIGHT;
+			y = i * LINE_HEIGHT;
 			y = ~~y - 0.5;
 
 			ctx.moveTo(0, y);
 			ctx.lineTo(width, y);
 			ctx.stroke();
 		}
-
 		
-		var units = time_scale / subd1;
-		var count = (width - LEFT_GUTTER) / units;
-
-		// labels only
-		for (i = 0; i < count; i++) {
-			x = i * units + LEFT_GUTTER;
-
-			// vertical lines
-			ctx.strokeStyle = Theme.b;
-			ctx.beginPath();
-			ctx.moveTo(x, 0);
-			ctx.lineTo(x, height);
-			ctx.stroke();
-
-			ctx.fillStyle = Theme.d;
-			ctx.textAlign = 'center';
-
-			var t = i * units / time_scale;
-			t = utils.format_friendly_seconds(t, subd_type);
-			ctx.fillText(t, x, 38);
-		}
-
-		units = time_scale / subd2;
-		count = (width - LEFT_GUTTER) / units;
-
-		// marker lines - main
-		for (i = 0; i < count; i++) {
-			ctx.strokeStyle = Theme.c;
-			ctx.beginPath();
-			x = i * units + LEFT_GUTTER;
-			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
-			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
-			ctx.stroke();
-		}
-
-		var mul = subd3 / subd2;
-		units = time_scale / subd3;
-		count = (width - LEFT_GUTTER) / units;
-		// small ticks
-		for (i = 0; i < count; i++) {
-			if (i % mul === 0) continue;
-			ctx.strokeStyle = Theme.c;
-			ctx.beginPath();
-			x = i * units + LEFT_GUTTER;
-			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
-			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
-			ctx.stroke();
-		}
-		
-		
+		// Draw Easing Rects
 		for (i = 0; i < il; i++) {
 			// check for keyframes
 			var layer = layers[i];
 			var values = layer.values;
 
-			y = i * LINE_HEIGHT + MARKER_TRACK_HEIGHT;
+			y = i * LINE_HEIGHT;
 
 			for (var j = 0; j < values.length - 1; j++) {
 				var frame = values[j];
@@ -267,9 +205,89 @@ function TimelinePanel(layers, dispatcher) {
 			}
 
 		}
+	}
+
+	function _paint() {
+		if (!needsRepaint) return;
+
+		/**************************/
+		// background
+
+		ctx.fillStyle = Theme.a;
+		//ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.save();
+		ctx.scale(dpr, dpr);
+
+		// 
+
+		ctx.lineWidth = 1; // .5, 1, 2
+
+		width = Settings.width,
+		height = Settings.height;
+		
+		var units = time_scale / subd1;
+		var count = (width - LEFT_GUTTER) / units;
+
+		// labels only
+		for (i = 0; i < count; i++) {
+			x = i * units + LEFT_GUTTER;
+
+			// vertical lines
+			ctx.strokeStyle = Theme.b;
+			ctx.beginPath();
+			ctx.moveTo(x, 0);
+			ctx.lineTo(x, height);
+			ctx.stroke();
+
+			ctx.fillStyle = Theme.d;
+			ctx.textAlign = 'center';
+
+			var t = i * units / time_scale;
+			t = utils.format_friendly_seconds(t, subd_type);
+			ctx.fillText(t, x, 38);
+		}
+
+		units = time_scale / subd2;
+		count = (width - LEFT_GUTTER) / units;
+
+		// marker lines - main
+		for (i = 0; i < count; i++) {
+			ctx.strokeStyle = Theme.c;
+			ctx.beginPath();
+			x = i * units + LEFT_GUTTER;
+			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
+			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
+			ctx.stroke();
+		}
+
+		var mul = subd3 / subd2;
+		units = time_scale / subd3;
+		count = (width - LEFT_GUTTER) / units;
+		
+		// small ticks
+		for (i = 0; i < count; i++) {
+			if (i % mul === 0) continue;
+			ctx.strokeStyle = Theme.c;
+			ctx.beginPath();
+			x = i * units + LEFT_GUTTER;
+			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
+			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
+			ctx.stroke();
+		}
+		
+		// Encapsulate a scroll rect for the layers
+		ctx.save();
+		ctx.translate(0, MARKER_TRACK_HEIGHT);
+		ctx.beginPath();
+		ctx.rect(0, 0, Settings.width, Settings.height - MARKER_TRACK_HEIGHT);
+		console.log(scrollTop);
+		ctx.translate(0, -scrollTop);
+		ctx.clip();
+		drawLayerContents();
+		ctx.restore();
 
 		// Current Marker / Cursor
-
 		ctx.strokeStyle = 'red'; // Theme.c
 		x = (me.current_frame - frame_start) * time_scale + LEFT_GUTTER;
 
@@ -307,7 +325,7 @@ function TimelinePanel(layers, dispatcher) {
 
 	function y_to_track(y) {
 		if (y - MARKER_TRACK_HEIGHT < 0) return -1;
-		return (y - MARKER_TRACK_HEIGHT) / LINE_HEIGHT | 0;
+		return (y - MARKER_TRACK_HEIGHT + scrollTop) / LINE_HEIGHT | 0;
 	}
 
 
@@ -363,7 +381,7 @@ function TimelinePanel(layers, dispatcher) {
 
 		dragObject = null;
 
-		console.log('track', track, 't',s, layers[track]);
+		console.log('track', track, 't', s, layers[track]);
 		
 		if (layers[track]) {
 			var tmp = utils.findTimeinLayer(layers[track], s);

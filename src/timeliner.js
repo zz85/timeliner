@@ -605,10 +605,12 @@ function Timeliner(target) {
 	// });
 
 	// percentages
-	scrollbar.onScroll.do(function(type, scrollTo) {
+	scrollbar.onScroll.do(function(type, scrollTo, y) {
 		switch(type) {
 			case 'scrollto':
 				layer_panel.scrollTo(scrollTo);
+				console.log('scrollTo', scrollTo);
+				timeline.scrollTo(scrollTo, y);
 				break;
 		}
 	});
