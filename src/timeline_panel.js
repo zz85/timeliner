@@ -82,9 +82,9 @@ function TimelinePanel(layers, dispatcher) {
 	canvas.style.width = Settings.width + 'px';
 	canvas.style.height = Settings.height + 'px';
 
-	var scrollTop = 0;
+	var scrollTop = 0, SCROLL_HEIGHT;
 	this.scrollTo = function(s, y) {
-		scrollTop = s * (layers.length * LINE_HEIGHT - (height - MARKER_TRACK_HEIGHT));
+		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
 		repaint();
 	};
 
@@ -94,6 +94,7 @@ function TimelinePanel(layers, dispatcher) {
 		canvas.height = Settings.height * dpr;
 		canvas.style.width = Settings.width + 'px';
 		canvas.style.height = Settings.height + 'px';
+		SCROLL_HEIGHT = Settings.height - MARKER_TRACK_HEIGHT;
 	};
 
 	this.setTimeScale = function(v) {
@@ -280,8 +281,7 @@ function TimelinePanel(layers, dispatcher) {
 		ctx.save();
 		ctx.translate(0, MARKER_TRACK_HEIGHT);
 		ctx.beginPath();
-		ctx.rect(0, 0, Settings.width, Settings.height - MARKER_TRACK_HEIGHT);
-		console.log(scrollTop);
+		ctx.rect(0, 0, Settings.width, SCROLL_HEIGHT);
 		ctx.translate(0, -scrollTop);
 		ctx.clip();
 		drawLayerContents();

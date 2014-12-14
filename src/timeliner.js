@@ -122,8 +122,7 @@ function Timeliner(target) {
 			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
 		}
 
-		layer_panel.repaint(t);
-		timeline.repaint();
+		repaintAll();
 
 	});
 
@@ -150,9 +149,7 @@ function Timeliner(target) {
 			if (!dont_save) undo_manager.save(new UndoState(data, 'Update value'));
 		}
 
-		// 
-		layer_panel.repaint(t);
-		timeline.repaint();
+		repaintAll();
 	});
 
 	dispatcher.on('ease', function(layer, ease_type) {
@@ -165,9 +162,7 @@ function Timeliner(target) {
 
 		undo_manager.save(new UndoState(data, 'Add Ease'));
 
-		layer_panel.repaint(t);
-		timeline.repaint();
-		// save();
+		repaintAll();
 	});
 
 	var start_play = null,
@@ -212,7 +207,8 @@ function Timeliner(target) {
 
 	dispatcher.on('time.update', function(s) {
 		if (start_play) start_play = performance.now() - timeline.current_frame * 1000;
-		layer_panel.repaint(s);
+		repaintAll();
+		// layer_panel.repaint(s);
 	});
 
 	dispatcher.on('target.notify', function(name, value) {
@@ -231,10 +227,6 @@ function Timeliner(target) {
 		data.setJSONString(history.state);
 		
 		updateState();
-
-		var t = timeline.current_frame;
-		layer_panel.repaint(t);
-		timeline.repaint();
 	});
 
 	dispatcher.on('controls.redo', function() {
@@ -242,10 +234,6 @@ function Timeliner(target) {
 		data.setJSONString(history.state);
 		
 		updateState();
-
-		var t = timeline.current_frame;
-		layer_panel.repaint(t);
-		timeline.repaint();
 	});
 
 	/*
@@ -272,7 +260,7 @@ function Timeliner(target) {
 			restyle(layer_panel.dom, timeline.dom);
 
 			timeline.resize();
-			timeline.repaint();
+			repaintAll();
 			needsResize = false;
 
 			dispatcher.fire('resize');
@@ -343,15 +331,23 @@ function Timeliner(target) {
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
 		
 		updateState();
-
-		layer_panel.repaint();
-		timeline.repaint();
 	}
 
 	function updateState() {
 		layers = data.get('layers');
 		layer_panel.setState(layers);
 		timeline.setState(layers);
+
+		repaintAll();
+	}
+
+	function repaintAll() {
+		var content_height = layers.length * Settings.LINE_HEIGHT;
+		scrollbar.setLength(Settings.TIMELINE_SCROLL_HEIGHT / content_height);
+
+		var t = timeline.current_frame;
+		layer_panel.repaint(t);
+		timeline.repaint();
 	}
 
 	function promptImport() {
@@ -374,9 +370,6 @@ function Timeliner(target) {
 	dispatcher.on('new', function() {
 		data.blank();
 		updateState();
-
-		layer_panel.repaint();
-		timeline.repaint();
 	});
 	
 	dispatcher.on('openfile', function() {
@@ -415,7 +408,9 @@ function Timeliner(target) {
 		border: '2px solid ' + Theme.a,
 		fontSize: '12px',
 		color: Theme.d,
-		overflow: 'hidden'
+		overflow: 'hidden',
+		top: '20px',
+		left: '20px'
 	});
 
 	pane.style.backgroundColor = Theme.a;
@@ -533,8 +528,8 @@ function Timeliner(target) {
 		addLayer(name);
 
 		undo_manager.save(new UndoState(data, 'Layer added'));
-		// layer_panel.repaint();
-		// timeline.repaint();
+
+		repaintAll();
 	});
 	bottom_right.appendChild(plus.dom);
 
@@ -605,12 +600,11 @@ function Timeliner(target) {
 	// });
 
 	// percentages
-	scrollbar.onScroll.do(function(type, scrollTo, y) {
+	scrollbar.onScroll.do(function(type, scrollTo) {
 		switch(type) {
 			case 'scrollto':
 				layer_panel.scrollTo(scrollTo);
-				console.log('scrollTo', scrollTo);
-				timeline.scrollTo(scrollTo, y);
+				timeline.scrollTo(scrollTo);
 				break;
 		}
 	});
@@ -671,13 +665,12 @@ function Timeliner(target) {
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
 
-		Settings.TIMELINE_SCROLL_HEIGHT = height - Settings.MARKER_TRACK_HEIGHT;;
+		Settings.TIMELINE_SCROLL_HEIGHT = height - Settings.MARKER_TRACK_HEIGHT;
 		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
 
-		var content_height = layers.length * Settings.LINE_HEIGHT;
 		scrollbar.setHeight(scrollable_height);
 		// scrollbar.setThumb
-		scrollbar.setLength(scrollable_height / content_height);
+		
 		style(scrollbar.dom, {
 			top: Settings.MARKER_TRACK_HEIGHT + 'px',
 			left: (width - 16) + 'px',
@@ -706,8 +699,6 @@ function Timeliner(target) {
 		layers.push(layer);
 
 		layer_panel.setState(layers);
-		layer_panel.repaint();
-		timeline.repaint();
 	}
 
 	this.addLayer = addLayer;
