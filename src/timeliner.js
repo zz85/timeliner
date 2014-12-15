@@ -17,7 +17,8 @@ var undo = require('./undo'),
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
 	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./ui/scrollbar');
+	ScrollBar = require('./ui/scrollbar'),
+	DataStore = require('./datastore')
 	;
 
 var Z_INDEX = 999;
@@ -35,46 +36,6 @@ function LayerProp(name) {
 	this.step
 	*/
 }
-
-function DataStore() {
-	this.blank();
-}
-
-DataStore.prototype.blank = function() {
-	var data = {};
-
-	data.version = package_json.version;
-	data.modified = new Date().toString();
-	data.title = 'Untitled';
-
-	data.layers = [];
-
-	this.data = data;
-};
-
-DataStore.prototype.update = function() {
-	var data = this.data;
-
-	data.version = package_json.version;
-	data.modified = new Date().toString();
-};
-
-DataStore.prototype.setJSONString = function(data) {
-	this.data = JSON.parse(data);
-};
-
-DataStore.prototype.setJSON = function(data) {
-	this.data = data;
-};
-
-DataStore.prototype.getJSONString = function(format) {
-	return JSON.stringify(this.data, null, format);
-};
-
-
-DataStore.prototype.get = function(path) {
-	return this.data[path];
-};
 
 function Timeliner(target) {
 	// Aka Layer Manager / Controller
