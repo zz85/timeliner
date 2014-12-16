@@ -75,12 +75,15 @@ function LayerView(layer, dispatcher) {
 	this.dom = dom;
 
 	this.repaint = repaint;
+	var state;
 
-	this.setState = function(l) {
+	this.setState = function(l, s) {
 		layer = l;
-		value.setState(l);
+		state = s;
+		value.setState(l, s.get('_value', true));
 
-		label.textContent = layer.name;
+		// label.textContent = layer.get('name');
+		label.textContent = s.get('name').value;
 	};
 
 	function repaint(s) {

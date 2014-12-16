@@ -1,4 +1,8 @@
+var package_json = require('../package.json');
+
+// Data Store with a source of truth
 function DataStore() {
+	this.DELIMITER = ':';
 	this.blank();
 }
 
@@ -33,9 +37,48 @@ DataStore.prototype.getJSONString = function(format) {
 	return JSON.stringify(this.data, null, format);
 };
 
+DataStore.prototype.getValue = function(paths) {
+	var descend = paths.split(this.DELIMITER);
+	var reference = this.data;
+	for (var i = 0, il = descend.length; i < il; i++) {
+		var path = descend[i];
+		if (reference[path] === undefined) console.warn('Cant find ' + paths);
+		reference = reference[path];
+	}
+	return reference;
+};
 
-DataStore.prototype.get = function(path) {
-	return this.data[path];
+DataStore.prototype.setValue = function(paths, value) {
+	var descend = paths.split(this.DELIMITER);
+	var reference = this.data;
+	for (var i = 0, il = descend.length - 1; path = descend[i], i < il ; i++) {
+		reference = reference[path];
+	};
+
+	reference[path] = value;
+};
+
+DataStore.prototype.get = function(path, suffix) {
+	if (suffix) path = suffix + this.DELIMITER + path;
+	return new DataProx(this, path);
+};
+
+function DataProx(store, path) {
+	this.path = path;
+	this.store = store;
+}
+
+DataProx.prototype = {
+	get value() {
+		return this.store.getValue(this.path);
+	},
+	set value(val) {
+		this.store.setValue(this.path, val);
+	}
+};
+
+DataProx.prototype.get = function(path) {
+	return this.store.get(path, this.path);
 };
 
 module.exports = DataStore;

@@ -6,8 +6,7 @@ var Settings = require('./settings'),
 	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX
 	;
 
-function LayerCabinet(layers, dispatcher) {
-	dp = dispatcher;
+function LayerCabinet(layers_wrap, dispatcher) {
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
@@ -286,7 +285,9 @@ function LayerCabinet(layers, dispatcher) {
 	};
 
 	this.setState = function(state) {
-		layers = state;
+		layers_wrap = state;
+		layers = layers_wrap.value;
+		// layers = state;
 		console.log(layer_uis.length, layers);
 		var i, layer;
 		for (i = 0; i < layers.length; i++) {
@@ -325,7 +326,9 @@ function LayerCabinet(layers, dispatcher) {
 				continue;
 			}
 			
-			layer_uis[i].setState(layers[i]);
+			// console.log('yoz', states.get(i).value);
+			layer_uis[i].setState(layers[i], layers_wrap.get(i));
+			// layer_uis[i].setState('layers'+':'+i);
 			layer_uis[i].repaint(s);
 		}
 
@@ -334,7 +337,7 @@ function LayerCabinet(layers, dispatcher) {
 	}
 
 	this.repaint = repaint;
-	this.setState(layers);
+	this.setState(layers_wrap);
 
 	this.scrollTo = function(x) {
 		layer_scroll.scrollTop = x * (layer_scroll.scrollHeight - layer_scroll.clientHeight);

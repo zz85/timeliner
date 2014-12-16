@@ -2,7 +2,8 @@ var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
 	utils = require('./utils'),
-	Tweens = require('./tween');
+	Tweens = require('./tween'),
+	NumberUI = require('./ui/number');
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,
@@ -472,7 +473,8 @@ function TimelinePanel(layers, dispatcher) {
 
 	this.setState = function(state) {
 		console.log('undo', state);
-		layers = state;
+		// layers = state;
+		layers = state.value;
 		repaint();
 	};
 

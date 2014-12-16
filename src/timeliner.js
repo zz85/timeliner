@@ -27,7 +27,7 @@ function LayerProp(name) {
 	this.name = name;
 	this.values = [];
 
-	this.tmpValue = 0;
+	this._value = 0;
 
 	this._color = '#' + (Math.random() * 0xffffff | 0).toString(16);
 	/*
@@ -42,14 +42,15 @@ function Timeliner(target) {
 
 	// Should persist current time too.
 	var data = new DataStore();
-	var layers = data.get('layers');
+	var data_layer = data.get('layers');
+	var layers = data_layer.value;
 
 	window._data = data;
 
 	var dispatcher = new Dispatcher();
 
-	var timeline = new TimelinePanel(layers, dispatcher);
-	var layer_panel = new LayerCabinet(layers, dispatcher);
+	var timeline = new TimelinePanel(data_layer, dispatcher);
+	var layer_panel = new LayerCabinet(data_layer, dispatcher);
 
 	var undo_manager = new UndoManager(dispatcher);
 
@@ -250,7 +251,7 @@ function Timeliner(target) {
 	}
 
 	function saveAs(name) {
-		if (!name) name = data.get('name');
+		if (!name) name = data.get('name').value;
 		name = prompt('Pick a name to save to (localStorage)', name);
 		if (name) {
 			data.data.name = name;
@@ -259,7 +260,7 @@ function Timeliner(target) {
 	}
 
 	function saveSimply() {
-		var name = data.get('name');
+		var name = data.get('name').value;
 		if (name) {
 			save(name);
 		} else {
@@ -295,9 +296,9 @@ function Timeliner(target) {
 	}
 
 	function updateState() {
-		layers = data.get('layers');
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		// layers = data_layer.value;
+		layer_panel.setState(data_layer);
+		timeline.setState(data_layer);
 
 		repaintAll();
 	}
@@ -498,7 +499,7 @@ function Timeliner(target) {
 	// trash
 	var trash = new IconButton(12, 'trash', 'Delete save', dispatcher);
 	trash.onClick(function() {
-		var name = data.get('name');
+		var name = data.get('name').value;
 		if (name && localStorage[STORAGE_PREFIX + name]) {
 			var ok = confirm('Are you sure you wish to delete ' + name + '?');
 			if (ok) {
@@ -570,8 +571,6 @@ function Timeliner(target) {
 		}
 	});
 
-	window.s = scrollbar;
-
 
 
 	// document.addEventListener('keypress', function(e) {
@@ -629,7 +628,7 @@ function Timeliner(target) {
 		Settings.TIMELINE_SCROLL_HEIGHT = height - Settings.MARKER_TRACK_HEIGHT;
 		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
 
-		scrollbar.setHeight(scrollable_height);
+		scrollbar.setHeight(scrollable_height - 2);
 		// scrollbar.setThumb
 		
 		style(scrollbar.dom, {
@@ -657,9 +656,10 @@ function Timeliner(target) {
 	function addLayer(name) {
 		var layer = new LayerProp(name);
 
+		layers = data_layer.value;
 		layers.push(layer);
 
-		layer_panel.setState(layers);
+		layer_panel.setState(data_layer);
 	}
 
 	this.addLayer = addLayer;

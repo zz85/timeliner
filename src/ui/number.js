@@ -1,4 +1,6 @@
-var Theme = require('../theme');
+var Theme = require('../theme'),
+	Do = require('do.js'),
+	handleDrag = require('../handle_drag');
 
 /**************************/
 // NumberUI
@@ -11,103 +13,70 @@ function NumberUI(layer, dispatcher) {
 	span.style.cssText = 'text-align: center; font-size: 10px; padding: 1px; cursor: ns-resize; float:right; width:40px; margin: 0;  margin-right: 10px; appearance: none; outline: none; border: 0; background: none; border-bottom: 1px dotted '+ Theme.c+ '; color: ' + Theme.c;
 
 	var me = this;
+	var state, value, unchanged_value;
 
-	span.value = layer._value;
-
-	this.setState = function(l) {
+	this.setState = function(l, s) {
 		layer = l;
+		state = s;
+
+		if (state.value === undefined) {
+			state.value = 0;
+		}
+
+		value = state.value;
+		span.value = value;
 	};
 
 	span.addEventListener('change', function(e) {
 		console.log('input changed', span.value);
+		value = parseFloat(span.value, 10);
+		me.setValue(value);
 		fireChange();
 	});
 
-	var startx, starty, moved, unchanged_value;
+	handleDrag(span, onDown, onMove, onUp);
 
-	span.addEventListener('mousedown', function(e) {
-		e.preventDefault();
-		startx = e.clientX;
-		starty = e.clientY;
-		moved = false;
-		unchanged_value = me.getValue();
-		console.log(unchanged_value);
-
-		// 
-		document.addEventListener('mousemove', onMouseMove);
-		document.addEventListener('mouseup', onMouseUp);
-	});
-
-	span.addEventListener('touchstart', function(e) {
-		e.preventDefault();
-		var e = e.touches[0];
-		startx = e.clientX;
-		starty = e.clientY;
-		console.log(startx);
-		moved = false;
-
-		// 
-		// document.addEventListener('mousemove', onMouseMove);
-		// document.addEventListener('mouseup', onMouseUp);
-	});
-
-	span.addEventListener('touchmove', function(e) {
-		var e = e.touches[0];
-		onMouseMove(e);
-	});
-
-	span.addEventListener('touchend', function(e) {
-		if (moved) fireChange();
+	function onUp(e) {
+		if (e.moved) fireChange();
 		else {
 			// single click
 			span.focus();
 		}
-	});
-
-	function onMouseMove(e) {
-		// console.log(e.clientX, e.clientY);
-		var dx = e.clientX - startx;
-		var dy = e.clientY - starty;
-	
-		var v = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
-
-		dispatcher.fire('target.notify', layer.name, v);
-		dispatcher.fire('value.change', layer, v, true);
-
-		// span.value = v;
-		moved = true;
 	}
 
-	function onMouseUp() {
-		document.removeEventListener('mousemove', onMouseMove);
-		document.removeEventListener('mouseup', onMouseUp);
+	function onMove(e) {
+		var dx = e.dx;
+		var dy = e.dy;
+	
+		value = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
 
-		if (moved) fireChange();
-		else {
-			// single click
-			span.focus();
-		}
+		// 
+		me.setValue(value);
+		dispatcher.fire('value.change', layer, value, true);
+		// dispatcher.fire('target.notify', layer.name, value);
+	}
+
+	function onDown(e) {
+		unchanged_value = me.getValue();
 	}
 
 	function fireChange() {
-		var v = parseFloat(span.value, 10);
-		layer._value = v;
-		dispatcher.fire('value.change', layer, v);
-		dispatcher.fire('target.notify', layer.name, v);
+		dispatcher.fire('value.change', layer, value);
+		// dispatcher.fire('target.notify', layer.name, value);
 	}
 
 	this.dom = span;
 
 	// public
-	this.setValue = function(e) {
-		span.value = e;
-		// layer._value = e;
+	this.setValue = function(v) {
+		value = v;
+		state.value = v;
+		span.value = v;
 	};
 
 	this.getValue = function() {
-		// return me.value;
-		return parseFloat(span.value, 10);
-		// return layer._value;
+		return value;
+		// return state.value;
 	};
 
 }
