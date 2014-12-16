@@ -64,11 +64,16 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(button);
 	*/
 
-	var value = new NumberUI(layer, dispatcher);
+	var number = new NumberUI(layer, dispatcher);
+
+	number.onChange.do(function(value, done) {
+		state.get('_value').value = value;
+		dispatcher.fire('value.change', layer, value, done);
+	});
 
 	dom.appendChild(label);
 	dom.appendChild(keyframe_button);
-	dom.appendChild(value.dom);
+	dom.appendChild(number.dom);
 	dom.appendChild(dropdown);
 	
 	dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (Settings.LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
@@ -80,10 +85,16 @@ function LayerView(layer, dispatcher) {
 	this.setState = function(l, s) {
 		layer = l;
 		state = s;
-		value.setState(l, s.get('_value', true));
 
-		// label.textContent = layer.get('name');
-		label.textContent = s.get('name').value;
+		var tmp_value = state.get('_value');
+		if (tmp_value.value === undefined) {
+			tmp_value.value = 0;
+		}
+
+		number.setValue(tmp_value.value);
+		label.textContent = state.get('name').value;
+
+		repaint();
 	};
 
 	function repaint(s) {
@@ -113,7 +124,8 @@ function LayerView(layer, dispatcher) {
 			// keyframe_button.style.borderStyle = 'inset';
 		}
 
-		value.setValue(o.value);
+		number.setValue(o.value);
+		number.paint();
 
 		dispatcher.fire('target.notify', layer.name, o.value);
 	}

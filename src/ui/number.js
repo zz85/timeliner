@@ -6,7 +6,7 @@ var Theme = require('../theme'),
 // NumberUI
 /**************************/
 
-function NumberUI(layer, dispatcher) {
+function NumberUI() {
 	var span = document.createElement('input');
 	// span.type = 'number'; // spinner
 	
@@ -15,22 +15,12 @@ function NumberUI(layer, dispatcher) {
 	var me = this;
 	var state, value, unchanged_value;
 
-	this.setState = function(l, s) {
-		layer = l;
-		state = s;
-
-		if (state.value === undefined) {
-			state.value = 0;
-		}
-
-		value = state.value;
-		span.value = value;
-	};
+	this.onChange = new Do();
 
 	span.addEventListener('change', function(e) {
 		console.log('input changed', span.value);
 		value = parseFloat(span.value, 10);
-		me.setValue(value);
+
 		fireChange();
 	});
 
@@ -50,19 +40,15 @@ function NumberUI(layer, dispatcher) {
 	
 		value = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
 
-		// 
-		me.setValue(value);
-		dispatcher.fire('value.change', layer, value, true);
-		// dispatcher.fire('target.notify', layer.name, value);
+		me.onChange.fire(value, true);
 	}
 
 	function onDown(e) {
-		unchanged_value = me.getValue();
+		unchanged_value = value;
 	}
 
 	function fireChange() {
-		dispatcher.fire('value.change', layer, value);
-		// dispatcher.fire('target.notify', layer.name, value);
+		me.onChange.fire(value);
 	}
 
 	this.dom = span;
@@ -70,15 +56,11 @@ function NumberUI(layer, dispatcher) {
 	// public
 	this.setValue = function(v) {
 		value = v;
-		state.value = v;
-		span.value = v;
 	};
 
-	this.getValue = function() {
-		return value;
-		// return state.value;
+	this.paint = function() {
+		span.value = value;
 	};
-
 }
 
 module.exports = NumberUI;
