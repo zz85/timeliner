@@ -76,7 +76,7 @@ function TimelinePanel(data, dispatcher) {
 	var dpr = window.devicePixelRatio;
 	var canvas = document.createElement('canvas');
 	
-	var scrollTop = 0, SCROLL_HEIGHT;
+	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
 	var layers = data.get('layers').value;
 
 	this.scrollTo = function(s, y) {
@@ -93,18 +93,13 @@ function TimelinePanel(data, dispatcher) {
 		SCROLL_HEIGHT = Settings.height - MARKER_TRACK_HEIGHT;
 	};
 
-	this.setTimeScale = function(v) {
-		time_scale = v;
-		time_scaled();
-	};
-
 	this.dom = canvas;
 	this.resize();
 
 	var ctx = canvas.getContext('2d');
 
-	// var current_frame = this.current_frame = 0; // currently in seconds
-	var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
+	var current_frame; // currently in seconds
+	// var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
 
 	
 	var LEFT_GUTTER = 20;
@@ -205,8 +200,54 @@ function TimelinePanel(data, dispatcher) {
 		}
 	}
 
+	function drawScroller() {
+		var w = width;
+
+		var totalTime = data.get('ui:totalTime').value;
+		var pixels_per_second = data.get('ui:timeScale').value;
+		var viewTime = w / pixels_per_second;
+
+
+		var k = w / totalTime; // pixels per seconds
+
+		// 800 / 5 = 180
+
+		// var k = Math.min(viewTime / totalTime, 1);
+		// var grip_length = k * w;
+
+		var grip_length = viewTime * k;
+		var h = 14;
+
+		if (Math.random() < 0.01) console.log(grip_length, w, viewTime);
+
+		var left = data.get('ui:scrollTime').value * k;
+
+		ctx.beginPath();
+		ctx.fillStyle = 'cyan';
+		ctx.rect(0, 0, w, h);
+		ctx.fill();
+
+		ctx.fillStyle = 'yellow';
+
+		ctx.beginPath();
+		ctx.rect(left, 0, grip_length, h); // 14
+		ctx.fill();
+
+	}
+
+
+	function setTimeScale() {
+		var v = data.get('ui:timeScale').value;
+		if (time_scale !== v) {
+			time_scale = v;
+			time_scaled();
+		}
+	}
+
 	function _paint() {
 		if (!needsRepaint) return;
+
+		setTimeScale();
 
 		current_frame = data.get('ui:currentTime').value;
 
@@ -225,6 +266,9 @@ function TimelinePanel(data, dispatcher) {
 
 		width = Settings.width,
 		height = Settings.height;
+
+
+		drawScroller();
 		
 		var units = time_scale / subd1;
 		var count = (width - LEFT_GUTTER) / units;
@@ -281,7 +325,7 @@ function TimelinePanel(data, dispatcher) {
 		ctx.translate(0, MARKER_TRACK_HEIGHT);
 		ctx.beginPath();
 		ctx.rect(0, 0, Settings.width, SCROLL_HEIGHT);
-		ctx.translate(0, -scrollTop);
+		ctx.translate(-scrollLeft, -scrollTop);
 		ctx.clip();
 		drawLayerContents();
 		ctx.restore();
@@ -454,20 +498,11 @@ function TimelinePanel(data, dispatcher) {
 			
 		}
 
-		setCurrentTime(s);
+		// Move the cursor;
+		dispatcher.fire('time.update', s);
 		
 		// console.log(s, format_friendly_seconds(s), this);
 	}
-
-	function setCurrentTime(s) { // currentFrame / currentTime / currentPlaying / currentAt / gotoTime()
-		// Move the cursor;
-		current_frame = s;
-		dispatcher.fire('time.update', s);
-
-		repaint();
-	}
-
-	this.setCurrentTime = setCurrentTime;
 
 	this.setState = function(state) {
 		console.log('undo', state);

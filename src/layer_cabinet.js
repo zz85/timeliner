@@ -59,7 +59,7 @@ function LayerCabinet(data, dispatcher) {
 	range.max = 600;
 	range.step = 1;
 	style(range, {
-		width: '80px'
+		width: '70px'
 	});
 	
 
@@ -113,11 +113,11 @@ function LayerCabinet(data, dispatcher) {
 
 	// Play Controls
 	top.appendChild(currentTime.dom);
-	top.appendChild(document.createTextNode(' / ')); // 0:00:00 / 0:10:00
+	top.appendChild(document.createTextNode('/')); // 0:00:00 / 0:10:00
 	top.appendChild(totalTime.dom)
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
-	// top.appendChild(range);
+	top.appendChild(range);
 	
 
 	var operations_div = document.createElement('div');

@@ -143,7 +143,7 @@ function Timeliner(target) {
 			startPlaying();
 		}
 
-		timeline.setCurrentTime(played_from);
+		setCurrentTime(played_from);
 	});
 
 	dispatcher.on('controls.play', startPlaying);
@@ -164,17 +164,19 @@ function Timeliner(target) {
 
 	dispatcher.on('controls.stop', function() {
 		if (start_play !== null) pausePlaying();
-		timeline.setCurrentTime(0);
+		setCurrentTime(0);
 	});
 
 	var currentTimeStore = data.get('ui:currentTime');
-	dispatcher.on('time.update', function(value) {
+	dispatcher.on('time.update', setCurrentTime);
+
+	function setCurrentTime(value) {
 		currentTimeStore.value = value;
 
 		if (start_play) start_play = performance.now() - value * 1000;
 		repaintAll();
 		// layer_panel.repaint(s);
-	});
+	}
 
 	dispatcher.on('target.notify', function(name, value) {
 		if (target) target[name] = value;
@@ -182,7 +184,8 @@ function Timeliner(target) {
 
 	dispatcher.on('update.scale', function(v) {
 		console.log('range', v);
-		timeline.setTimeScale(v);
+		data.get('ui:timeScale').value = v;
+		// timeline.setTimeScale(v);
 		timeline.repaint();
 	});
 
@@ -210,7 +213,7 @@ function Timeliner(target) {
 		
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
-			timeline.setCurrentTime(t);
+			setCurrentTime(t);
 
 
 			if (t > data.get('ui:totalTime').value) {
@@ -296,7 +299,9 @@ function Timeliner(target) {
 		if (data.getValue('ui') === undefined) {
 			data.setValue('ui', {
 				currentTime: 0,
-				totalTime: 5,
+				totalTime: 20,
+				scrollTime: 0,
+				timeScale: 40
 			});
 		}
 
