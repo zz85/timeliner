@@ -2,8 +2,7 @@ var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
 	utils = require('./utils'),
-	Tweens = require('./tween'),
-	NumberUI = require('./ui/number');
+	Tweens = require('./tween');
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,
@@ -72,18 +71,14 @@ time_scaled();
 // Timeline Panel
 /**************************/
 
-function TimelinePanel(layers, dispatcher) {
+function TimelinePanel(data, dispatcher) {
 
 	var dpr = window.devicePixelRatio;
-
 	var canvas = document.createElement('canvas');
-	canvas.width = Settings.width * dpr;
-	canvas.height = Settings.height * dpr;
-
-	canvas.style.width = Settings.width + 'px';
-	canvas.style.height = Settings.height + 'px';
-
+	
 	var scrollTop = 0, SCROLL_HEIGHT;
+	var layers = data.get('layers').value;
+
 	this.scrollTo = function(s, y) {
 		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
 		repaint();
@@ -104,11 +99,12 @@ function TimelinePanel(layers, dispatcher) {
 	};
 
 	this.dom = canvas;
+	this.resize();
 
 	var ctx = canvas.getContext('2d');
 
-	var current_frame = this.current_frame = 0; // currently in seconds
-	// var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
+	// var current_frame = this.current_frame = 0; // currently in seconds
+	var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
 
 	
 	var LEFT_GUTTER = 20;
@@ -212,6 +208,8 @@ function TimelinePanel(layers, dispatcher) {
 	function _paint() {
 		if (!needsRepaint) return;
 
+		current_frame = data.get('ui:currentTime').value;
+
 		/**************************/
 		// background
 
@@ -290,9 +288,9 @@ function TimelinePanel(layers, dispatcher) {
 
 		// Current Marker / Cursor
 		ctx.strokeStyle = 'red'; // Theme.c
-		x = (me.current_frame - frame_start) * time_scale + LEFT_GUTTER;
+		x = (current_frame - frame_start) * time_scale + LEFT_GUTTER;
 
-		var txt = utils.format_friendly_seconds(me.current_frame);
+		var txt = utils.format_friendly_seconds(current_frame);
 		var textWidth = ctx.measureText(txt).width;
 
 		var base_line = MARKER_TRACK_HEIGHT- 5, half_rect = textWidth / 2 + 4;
@@ -456,20 +454,20 @@ function TimelinePanel(layers, dispatcher) {
 			
 		}
 
-		updateCursor(s);
+		setCurrentTime(s);
 		
 		// console.log(s, format_friendly_seconds(s), this);
 	}
 
-	function updateCursor(s) { // currentFrame / currentTime / currentPlaying / currentAt / gotoTime()
+	function setCurrentTime(s) { // currentFrame / currentTime / currentPlaying / currentAt / gotoTime()
 		// Move the cursor;
-		me.current_frame = s;
+		current_frame = s;
 		dispatcher.fire('time.update', s);
 
 		repaint();
 	}
 
-	this.updateTime = updateCursor;
+	this.setCurrentTime = setCurrentTime;
 
 	this.setState = function(state) {
 		console.log('undo', state);

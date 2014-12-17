@@ -71,6 +71,10 @@ function LayerView(layer, dispatcher) {
 		dispatcher.fire('value.change', layer, value, done);
 	});
 
+	utils.style(number.dom, {
+		float: 'right'
+	});
+
 	dom.appendChild(label);
 	dom.appendChild(keyframe_button);
 	dom.appendChild(number.dom);

@@ -1,9 +1,12 @@
-var package_json = require('../package.json');
+var package_json = require('../package.json'),
+Do = require('do.js');
 
 // Data Store with a source of truth
 function DataStore() {
 	this.DELIMITER = ':';
 	this.blank();
+	this.onOpen = new Do();
+	this.onSave = new Do();
 }
 
 DataStore.prototype.blank = function() {
@@ -42,7 +45,10 @@ DataStore.prototype.getValue = function(paths) {
 	var reference = this.data;
 	for (var i = 0, il = descend.length; i < il; i++) {
 		var path = descend[i];
-		if (reference[path] === undefined) console.warn('Cant find ' + paths);
+		if (reference[path] === undefined) {
+			console.warn('Cant find ' + paths);
+			return;
+		}
 		reference = reference[path];
 	}
 	return reference;
@@ -53,7 +59,7 @@ DataStore.prototype.setValue = function(paths, value) {
 	var reference = this.data;
 	for (var i = 0, il = descend.length - 1; path = descend[i], i < il ; i++) {
 		reference = reference[path];
-	};
+	}
 
 	reference[path] = value;
 };

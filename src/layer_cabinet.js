@@ -3,10 +3,13 @@ var Settings = require('./settings'),
 	IconButton = require('./icon_button'),
 	style = require('./utils').style,
 	Theme = require('./theme'),
-	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX
+	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
+	NumberUI = require('./ui/number')
 	;
 
-function LayerCabinet(layers_wrap, dispatcher) {
+function LayerCabinet(data, dispatcher) {
+	var layer_store = data.get('layers');
+	
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
@@ -78,8 +81,40 @@ function LayerCabinet(layers_wrap, dispatcher) {
 
 	div.appendChild(top);
 
+	var time_options = {
+		min: 0,
+		step: 0.01
+	};
+	var currentTime = new NumberUI(time_options);
+	var totalTime = new NumberUI(time_options);
+
+	var currentTimeStore = data.get('ui:currentTime');
+	var totalTimeStore = data.get('ui:totalTime');
+
+	// UI2StoreBind(view, datastore) {
+	// 	view.onChange.do(function(v) {
+	// 		datastore.value = view;
+	// 	})
+
+	// 	datastore.onChange.do(function(v) {
+	// 		view.setValue = v;
+	// 	})
+	// }
+
+	currentTime.onChange.do(function(value, done) {
+		dispatcher.fire('time.update', value);
+		// repaint();
+	});
+
+	totalTime.onChange.do(function(value, done) {
+		totalTimeStore.value = value;
+		// repaint();
+	});
+
 	// Play Controls
-	top.appendChild(document.createTextNode('0:00:00 / 0:10:00'));
+	top.appendChild(currentTime.dom);
+	top.appendChild(document.createTextNode(' / ')); // 0:00:00 / 0:10:00
+	top.appendChild(totalTime.dom)
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
 	// top.appendChild(range);
@@ -285,8 +320,9 @@ function LayerCabinet(layers_wrap, dispatcher) {
 	};
 
 	this.setState = function(state) {
-		layers_wrap = state;
-		layers = layers_wrap.value;
+
+		layer_store = state;
+		layers = layer_store.value;
 		// layers = state;
 		console.log(layer_uis.length, layers);
 		var i, layer;
@@ -315,6 +351,13 @@ function LayerCabinet(layers_wrap, dispatcher) {
 	};
 
 	function repaint(s) {
+
+		s = currentTimeStore.value;
+		currentTime.setValue(s);
+		totalTime.setValue(totalTimeStore.value);
+		currentTime.paint();
+		totalTime.paint();
+
 		var i;
 
 		s = s || 0;
@@ -327,7 +370,7 @@ function LayerCabinet(layers_wrap, dispatcher) {
 			}
 			
 			// console.log('yoz', states.get(i).value);
-			layer_uis[i].setState(layers[i], layers_wrap.get(i));
+			layer_uis[i].setState(layers[i], layer_store.get(i));
 			// layer_uis[i].setState('layers'+':'+i);
 			layer_uis[i].repaint(s);
 		}
@@ -337,13 +380,15 @@ function LayerCabinet(layers_wrap, dispatcher) {
 	}
 
 	this.repaint = repaint;
-	this.setState(layers_wrap);
+	this.setState(layer_store);
 
 	this.scrollTo = function(x) {
 		layer_scroll.scrollTop = x * (layer_scroll.scrollHeight - layer_scroll.clientHeight);
 	};
 
 	this.dom = div;
+
+	repaint();
 }
 
 module.exports = LayerCabinet;

@@ -42,15 +42,15 @@ function Timeliner(target) {
 
 	// Should persist current time too.
 	var data = new DataStore();
-	var data_layer = data.get('layers');
-	var layers = data_layer.value;
+	var layer_store = data.get('layers');
+	var layers = layer_store.value;
 
 	window._data = data;
 
 	var dispatcher = new Dispatcher();
 
-	var timeline = new TimelinePanel(data_layer, dispatcher);
-	var layer_panel = new LayerCabinet(data_layer, dispatcher);
+	var timeline = new TimelinePanel(data, dispatcher);
+	var layer_panel = new LayerCabinet(data, dispatcher);
 
 	var undo_manager = new UndoManager(dispatcher);
 
@@ -64,7 +64,7 @@ function Timeliner(target) {
 		var index = layers.indexOf(layer);
 		
 		// layer.values.push
-		var t = timeline.current_frame;
+		var t = data.get('ui:currentTime').value;
 		
 		var v = utils.findTimeinLayer(layer, t);
 
@@ -94,7 +94,7 @@ function Timeliner(target) {
 
 	// dispatcher.fire('value.change', layer, me.value);
 	dispatcher.on('value.change', function(layer, value, dont_save) {
-		var t = timeline.current_frame;
+		var t = data.get('ui:currentTime').value;
 		
 		var v = utils.findTimeinLayer(layer, t);
 
@@ -115,7 +115,7 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('ease', function(layer, ease_type) {
-		var t = timeline.current_frame;
+		var t = data.get('ui:currentTime').value;
 		var v = utils.timeAtLayer(layer, t);
 		// console.log('Ease Change > ', layer, value, v);
 		if (v && v.entry) {
@@ -143,7 +143,7 @@ function Timeliner(target) {
 			startPlaying();
 		}
 
-		timeline.updateTime(played_from);
+		timeline.setCurrentTime(played_from);
 	});
 
 	dispatcher.on('controls.play', startPlaying);
@@ -151,7 +151,7 @@ function Timeliner(target) {
 
 	function startPlaying() {
 		// played_from = timeline.current_frame;
-		start_play = performance.now() - timeline.current_frame * 1000;
+		start_play = performance.now() - data.get('ui:currentTime').value * 1000;
 		layer_panel.setControlStatus(true);
 		// dispatcher.fire('controls.status', true);
 	}
@@ -164,11 +164,14 @@ function Timeliner(target) {
 
 	dispatcher.on('controls.stop', function() {
 		if (start_play !== null) pausePlaying();
-		timeline.updateTime(0);
+		timeline.setCurrentTime(0);
 	});
 
-	dispatcher.on('time.update', function(s) {
-		if (start_play) start_play = performance.now() - timeline.current_frame * 1000;
+	var currentTimeStore = data.get('ui:currentTime');
+	dispatcher.on('time.update', function(value) {
+		currentTimeStore.value = value;
+
+		if (start_play) start_play = performance.now() - value * 1000;
 		repaintAll();
 		// layer_panel.repaint(s);
 	});
@@ -207,9 +210,10 @@ function Timeliner(target) {
 		
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
-			timeline.updateTime(t);
+			timeline.setCurrentTime(t);
 
-			if (t > 10) {
+
+			if (t > data.get('ui:totalTime').value) {
 				// simple loop
 				start_play = performance.now();
 			}
@@ -288,6 +292,13 @@ function Timeliner(target) {
 
 	function load(o) {
 		data.setJSON(o);
+		// 
+		if (data.getValue('ui') === undefined) {
+			data.setValue('ui', {
+				currentTime: 0,
+				totalTime: 5,
+			});
+		}
 
 		undo_manager.clear();
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
@@ -296,9 +307,9 @@ function Timeliner(target) {
 	}
 
 	function updateState() {
-		// layers = data_layer.value;
-		layer_panel.setState(data_layer);
-		timeline.setState(data_layer);
+		// layers = layer_store.value;
+		layer_panel.setState(layer_store);
+		timeline.setState(layer_store);
 
 		repaintAll();
 	}
@@ -307,8 +318,7 @@ function Timeliner(target) {
 		var content_height = layers.length * Settings.LINE_HEIGHT;
 		scrollbar.setLength(Settings.TIMELINE_SCROLL_HEIGHT / content_height);
 
-		var t = timeline.current_frame;
-		layer_panel.repaint(t);
+		layer_panel.repaint();
 		timeline.repaint();
 	}
 
@@ -542,9 +552,14 @@ function Timeliner(target) {
 	var scrollbar = new ScrollBar(200, 10);
 	div.appendChild(scrollbar.dom);
 
-	// scrollbar.onScroll.add(function(type, scrollTo) {
-	// 	switch (type) {
-	// 		case 'pageup':
+	// percentages
+	scrollbar.onScroll.do(function(type, scrollTo) {
+		switch(type) {
+			case 'scrollto':
+				layer_panel.scrollTo(scrollTo);
+				timeline.scrollTo(scrollTo);
+				break;
+	//		case 'pageup':
 	// 			scrollTop -= pageOffset;
 	// 			me.draw();
 	// 			me.updateScrollbar();
@@ -554,20 +569,6 @@ function Timeliner(target) {
 	// 			me.draw();
 	// 			me.updateScrollbar();
 	// 			break;
-	// 		case 'scrollto':
-	// 			scrollTop = scrollTo  * (innerHeight - h);
-	// 			me.draw();
-	// 			break;
-	// 	}
-	// });
-
-	// percentages
-	scrollbar.onScroll.do(function(type, scrollTo) {
-		switch(type) {
-			case 'scrollto':
-				layer_panel.scrollTo(scrollTo);
-				timeline.scrollTo(scrollTo);
-				break;
 		}
 	});
 
@@ -618,6 +619,10 @@ function Timeliner(target) {
 	var needsResize = true;
 
 	function resize(width, height) {
+		// data.get('ui:bounds').value = {
+		// 	width: width,
+		// 	height: height
+		// };
 		// TODO: remove ugly hardcodes
 		width -= 4;
 		height -= 32;
@@ -656,10 +661,10 @@ function Timeliner(target) {
 	function addLayer(name) {
 		var layer = new LayerProp(name);
 
-		layers = data_layer.value;
+		layers = layer_store.value;
 		layers.push(layer);
 
-		layer_panel.setState(data_layer);
+		layer_panel.setState(layer_store);
 	}
 
 	this.addLayer = addLayer;
@@ -673,7 +678,7 @@ function Timeliner(target) {
 		ranges = ranges ? ranges : 2;
 
 		// not optimized!
-		var t = timeline.current_frame;
+		var t = data.get('ui:currentTime').value;
 
 		var values = [];
 
