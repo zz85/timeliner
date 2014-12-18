@@ -2,7 +2,8 @@ var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
 	utils = require('./utils'),
-	Tweens = require('./tween');
+	Tweens = require('./tween'),
+	handleDrag = require('./handle_drag');
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,
@@ -200,6 +201,14 @@ function TimelinePanel(data, dispatcher) {
 		}
 	}
 
+	var TOP_SCROLL_TRACK = 14;
+	var scroller = {
+		left: 0,
+		grip_length: 0,
+		k: 1
+	};
+	var left;
+
 	function drawScroller() {
 		var w = width;
 
@@ -209,18 +218,18 @@ function TimelinePanel(data, dispatcher) {
 
 
 		var k = w / totalTime; // pixels per seconds
+		scroller.k = k;
 
 		// 800 / 5 = 180
 
 		// var k = Math.min(viewTime / totalTime, 1);
 		// var grip_length = k * w;
 
-		var grip_length = viewTime * k;
-		var h = 14;
+		scroller.grip_length = viewTime * k;
+		var h = TOP_SCROLL_TRACK;
 
-		if (Math.random() < 0.01) console.log(grip_length, w, viewTime);
-
-		var left = data.get('ui:scrollTime').value * k;
+		scroller.left = data.get('ui:scrollTime').value * k;
+		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
 
 		ctx.beginPath();
 		ctx.fillStyle = 'cyan';
@@ -230,7 +239,7 @@ function TimelinePanel(data, dispatcher) {
 		ctx.fillStyle = 'yellow';
 
 		ctx.beginPath();
-		ctx.rect(left, 0, grip_length, h); // 14
+		ctx.rect(scroller.left, 0, scroller.grip_length, h); // 14
 		ctx.fill();
 
 	}
@@ -250,6 +259,7 @@ function TimelinePanel(data, dispatcher) {
 		setTimeScale();
 
 		current_frame = data.get('ui:currentTime').value;
+		frame_start =  data.get('ui:scrollTime').value;
 
 		/**************************/
 		// background
@@ -267,15 +277,20 @@ function TimelinePanel(data, dispatcher) {
 		width = Settings.width,
 		height = Settings.height;
 
-
-		drawScroller();
-		
 		var units = time_scale / subd1;
-		var count = (width - LEFT_GUTTER) / units;
+		var offsetUnits = (frame_start * time_scale) % units;
 
+		var count = (width - LEFT_GUTTER + offsetUnits) / units;
+
+		// console.log('time_scale', time_scale, 'subd1', subd1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
+		
+		// time_scale = pixels to 1 second (40)
+		// subd1 = marks per second (marks / s)
+		// units = pixels to every mark (40)
+	
 		// labels only
 		for (i = 0; i < count; i++) {
-			x = i * units + LEFT_GUTTER;
+			x = i * units + LEFT_GUTTER - offsetUnits;
 
 			// vertical lines
 			ctx.strokeStyle = Theme.b;
@@ -287,19 +302,19 @@ function TimelinePanel(data, dispatcher) {
 			ctx.fillStyle = Theme.d;
 			ctx.textAlign = 'center';
 
-			var t = i * units / time_scale;
+			var t = (i * units - offsetUnits) / time_scale + frame_start;
 			t = utils.format_friendly_seconds(t, subd_type);
 			ctx.fillText(t, x, 38);
 		}
 
 		units = time_scale / subd2;
-		count = (width - LEFT_GUTTER) / units;
+		count = (width - LEFT_GUTTER + offsetUnits) / units;
 
 		// marker lines - main
 		for (i = 0; i < count; i++) {
 			ctx.strokeStyle = Theme.c;
 			ctx.beginPath();
-			x = i * units + LEFT_GUTTER;
+			x = i * units + LEFT_GUTTER - offsetUnits;
 			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
 			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
 			ctx.stroke();
@@ -307,14 +322,14 @@ function TimelinePanel(data, dispatcher) {
 
 		var mul = subd3 / subd2;
 		units = time_scale / subd3;
-		count = (width - LEFT_GUTTER) / units;
+		count = (width - LEFT_GUTTER + offsetUnits) / units;
 		
 		// small ticks
 		for (i = 0; i < count; i++) {
 			if (i % mul === 0) continue;
 			ctx.strokeStyle = Theme.c;
 			ctx.beginPath();
-			x = i * units + LEFT_GUTTER;
+			x = i * units + LEFT_GUTTER - offsetUnits;
 			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
 			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
 			ctx.stroke();
@@ -329,6 +344,9 @@ function TimelinePanel(data, dispatcher) {
 		ctx.clip();
 		drawLayerContents();
 		ctx.restore();
+
+
+		drawScroller();
 
 		// Current Marker / Cursor
 		ctx.strokeStyle = 'red'; // Theme.c
@@ -413,11 +431,13 @@ function TimelinePanel(data, dispatcher) {
 	});
 
 	function pointerStart(e) {
-		mousedown = true;
-
 		canvasBounds = canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 		console.log(canvas.offsetTop, canvasBounds);
+
+		if (my <= TOP_SCROLL_TRACK) return false;
+
+		mousedown = true;
 
 		var track = y_to_track(my);
 		var s = x_to_time(mx);
@@ -436,10 +456,14 @@ function TimelinePanel(data, dispatcher) {
 		}
 
 		onPointerDrag(mx, my);
+		return true;
 	}
 
 	canvas.addEventListener('mousedown', function(e) {
-		pointerStart(e);
+
+		var hit = pointerStart(e);
+		if (!hit) return;
+		
 
 		e.preventDefault();
 
@@ -460,6 +484,25 @@ function TimelinePanel(data, dispatcher) {
 		dispatcher.fire('keyframe', layers[track], current_frame);
 		
 	});
+
+
+	var draggingx;
+	handleDrag(canvas, function down(e) {
+			draggingx = scroller.left;
+			console.log('ssssss on');
+		}, function move(e) {
+			// scroller.left = draggingx + e.dx;
+			data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
+			console.log('ssssss move', scroller.left);
+			repaint();
+		}, function up() {
+			console.log('ssssss upppp');
+		}, function(e) {
+
+			var bar = e.offsetx >= scroller.left && e.offsetx <= scroller.left + scroller.grip_length;
+			return e.offsety <= TOP_SCROLL_TRACK && bar;
+		}
+	);
 
 	function onMouseUp(e) {		
 		// canvasBounds = canvas.getBoundingClientRect();
@@ -487,6 +530,7 @@ function TimelinePanel(data, dispatcher) {
 	}
 
 	function onPointerDrag(x, y) {
+
 		if (x < LEFT_GUTTER) x = LEFT_GUTTER;
 		if (x > width) return;
 		current = x; // <---- ??!??!!
@@ -505,8 +549,6 @@ function TimelinePanel(data, dispatcher) {
 	}
 
 	this.setState = function(state) {
-		console.log('undo', state);
-		// layers = state;
 		layers = state.value;
 		repaint();
 	};

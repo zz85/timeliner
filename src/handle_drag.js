@@ -5,15 +5,20 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	element.addEventListener('mousedown', onMouseDown);
 
 	function onMouseDown(e) {
-		if (down_criteria && !down_criteria(e)) return;
-		
-		e.preventDefault();
 		handleStart(e);
+
+		if (down_criteria && !down_criteria(pointer)) {
+			pointer = null;
+			return;
+		}
+
 		
 		document.addEventListener('mousemove', onMouseMove);
 		document.addEventListener('mouseup', onMouseUp);
 		
 		ondown(pointer);
+
+		e.preventDefault();
 	}
 	
 	function onMouseMove(e) {
