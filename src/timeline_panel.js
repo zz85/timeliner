@@ -201,7 +201,7 @@ function TimelinePanel(data, dispatcher) {
 		}
 	}
 
-	var TOP_SCROLL_TRACK = 14;
+	var TOP_SCROLL_TRACK = 20;
 	var scroller = {
 		left: 0,
 		grip_length: 0,
@@ -214,6 +214,7 @@ function TimelinePanel(data, dispatcher) {
 
 		var totalTime = data.get('ui:totalTime').value;
 		var pixels_per_second = data.get('ui:timeScale').value;
+
 		var viewTime = w / pixels_per_second;
 
 
@@ -232,15 +233,23 @@ function TimelinePanel(data, dispatcher) {
 		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
 
 		ctx.beginPath();
-		ctx.fillStyle = 'cyan';
-		ctx.rect(0, 0, w, h);
+		ctx.fillStyle = Theme.b; // 'cyan';
+		ctx.rect(0, 5, w, h);
 		ctx.fill();
 
-		ctx.fillStyle = 'yellow';
+		ctx.fillStyle = Theme.c; // 'yellow';
 
 		ctx.beginPath();
-		ctx.rect(scroller.left, 0, scroller.grip_length, h); // 14
+		ctx.rect(scroller.left, 5, scroller.grip_length, h); // 14
 		ctx.fill();
+
+		var r = current_frame * k;
+		ctx.beginPath();
+		ctx.moveTo(r, 5);
+		ctx.lineTo(r, TOP_SCROLL_TRACK);
+		ctx.strokeStyle = 'red';
+		ctx.lineWidth = 2;
+		ctx.stroke();
 
 	}
 
