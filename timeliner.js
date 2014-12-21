@@ -1,12 +1,30 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js":[function(require,module,exports){
+function Do(parent) {
+	var listeners = [];
+	this.do = function(callback) {
+		listeners.push(callback);
+	};
+	this.undo = function(callback) {
+		listeners.splice(listeners.indexOf(callback), 1);
+	};
+	this.fire = function() {
+		for (var v = 0; v < listeners.length; v++) {
+			listeners[v].apply(parent, arguments);
+		}
+	};
+}
+
+if (typeof(module) === 'object') module.exports = Do;
+
+},{}],"/Users/joshua/dev/gits/timeliner/package.json":[function(require,module,exports){
 module.exports={
   "name": "timeliner",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "simple js animation timeline library",
   "main": "timeliner.js",
   "scripts": {
     "build": "browserify src/*.js --full-path=false -o timeliner.js",
-    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.js",
+    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.min.js",
     "watch": "watchify src/*.js -o timeliner.js -v",
     "start": "npm run watch",
     "test": "echo \"Error: no tests :(\" && exit 1"
@@ -35,7 +53,98 @@ module.exports={
   }
 }
 
-},{}],2:[function(require,module,exports){
+},{}],"/Users/joshua/dev/gits/timeliner/src/datastore.js":[function(require,module,exports){
+var package_json = require('../package.json'),
+Do = require('do.js');
+
+// Data Store with a source of truth
+function DataStore() {
+	this.DELIMITER = ':';
+	this.blank();
+	this.onOpen = new Do();
+	this.onSave = new Do();
+}
+
+DataStore.prototype.blank = function() {
+	var data = {};
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+	data.title = 'Untitled';
+
+	data.layers = [];
+
+	this.data = data;
+};
+
+DataStore.prototype.update = function() {
+	var data = this.data;
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+};
+
+DataStore.prototype.setJSONString = function(data) {
+	this.data = JSON.parse(data);
+};
+
+DataStore.prototype.setJSON = function(data) {
+	this.data = data;
+};
+
+DataStore.prototype.getJSONString = function(format) {
+	return JSON.stringify(this.data, null, format);
+};
+
+DataStore.prototype.getValue = function(paths) {
+	var descend = paths.split(this.DELIMITER);
+	var reference = this.data;
+	for (var i = 0, il = descend.length; i < il; i++) {
+		var path = descend[i];
+		if (reference[path] === undefined) {
+			console.warn('Cant find ' + paths);
+			return;
+		}
+		reference = reference[path];
+	}
+	return reference;
+};
+
+DataStore.prototype.setValue = function(paths, value) {
+	var descend = paths.split(this.DELIMITER);
+	var reference = this.data;
+	for (var i = 0, il = descend.length - 1; path = descend[i], i < il ; i++) {
+		reference = reference[path];
+	}
+
+	reference[path] = value;
+};
+
+DataStore.prototype.get = function(path, suffix) {
+	if (suffix) path = suffix + this.DELIMITER + path;
+	return new DataProx(this, path);
+};
+
+function DataProx(store, path) {
+	this.path = path;
+	this.store = store;
+}
+
+DataProx.prototype = {
+	get value() {
+		return this.store.getValue(this.path);
+	},
+	set value(val) {
+		this.store.setValue(this.path, val);
+	}
+};
+
+DataProx.prototype.get = function(path) {
+	return this.store.get(path, this.path);
+};
+
+module.exports = DataStore;
+},{"../package.json":"/Users/joshua/dev/gits/timeliner/package.json","do.js":"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js"}],"/Users/joshua/dev/gits/timeliner/src/dispatcher.js":[function(require,module,exports){
 /**************************/
 // Dispatcher
 /**************************/
@@ -71,8 +180,8 @@ function Dispatcher() {
 }
 
 module.exports = Dispatcher;
-},{}],3:[function(require,module,exports){
-module.exports={
+},{}],"/Users/joshua/dev/gits/timeliner/src/font.json":[function(require,module,exports){
+module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
 	"unitsPerEm": 1792,
 	"ascender": 1536,
 	"descender": -256,
@@ -187,16 +296,132 @@ module.exports={
 		}
 	}
 }
-},{}],4:[function(require,module,exports){
-var font = require('./font.json'),
-	Theme = require('./theme');
+},{}],"/Users/joshua/dev/gits/timeliner/src/handle_drag.js":[function(require,module,exports){
+function handleDrag(element, ondown, onmove, onup, down_criteria) {
+	var pointer = null;
+	var bounds = element.getBoundingClientRect();
+	
+	element.addEventListener('mousedown', onMouseDown);
 
-var FONT_CLASS = 'tfa';
+	function onMouseDown(e) {
+		handleStart(e);
+
+		if (down_criteria && !down_criteria(pointer)) {
+			pointer = null;
+			return;
+		}
+
+		
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+		
+		ondown(pointer);
+
+		e.preventDefault();
+	}
+	
+	function onMouseMove(e) {
+		handleMove(e);
+		pointer.moved = true;
+		onmove(pointer);
+	}
+
+	function handleStart(e) {
+		bounds = element.getBoundingClientRect();
+		var currentx = e.clientX, currenty = e.clientY;
+		pointer = {
+			startx: currentx,
+			starty: currenty,
+			x: currentx,
+			y: currenty,
+			dx: 0,
+			dy: 0,
+			offsetx: currentx - bounds.left,
+			offsety: currenty - bounds.top,
+			moved: false
+		};
+	}
+	
+	function handleMove(e) {
+		bounds = element.getBoundingClientRect();
+		var currentx = e.clientX,
+		currenty = e.clientY,
+		offsetx = currentx - bounds.left,
+		offsety = currenty - bounds.top;
+		pointer.x = currentx;
+		pointer.y = currenty;
+		pointer.dx = e.clientX - pointer.startx;
+		pointer.dy = e.clientY - pointer.starty;
+		pointer.offsetx = offsetx;
+		pointer.offsety = offsety;
+	}
+	
+	function onMouseUp(e) {
+		handleMove(e);
+		onup(pointer);
+		pointer = null;
+		
+		document.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
+	}
+
+	element.addEventListener('touchstart', onTouchStart);
+
+	function onTouchStart(te) {
+		
+		if (te.touches.length == 1) {
+			
+			var e = te.touches[0];
+			if (down_criteria && !down_criteria(e)) return;
+			te.preventDefault();
+			handleStart(e);
+			ondown(pointer);
+		}
+		
+		element.addEventListener('touchmove', onTouchMove);
+		element.addEventListener('touchend', onTouchEnd);
+	}
+	
+	function onTouchMove(te) {
+		var e = te.touches[0];
+		onMouseMove(e);
+	}
+
+	function onTouchEnd(e) {
+		// var e = e.touches[0];
+		onMouseUp(e);
+		element.removeEventListener('touchmove', onTouchMove);
+		element.removeEventListener('touchend', onTouchEnd);
+	}
+
+
+	this.release = function() {
+		element.removeEventListener('mousedown', onMouseDown);
+		element.removeEventListener('touchstart', onTouchStart);
+	};
+}
+
+module.exports = handleDrag;
+},{}],"/Users/joshua/dev/gits/timeliner/src/icon_button.js":[function(require,module,exports){
+var font = require('./font.json'),
+	Theme = require('./theme'),
+	style = require('./utils').style;
+
 var dp;
 
 function IconButton(size, icon, tooltip, dp) {
+	var iconStyle = {
+		padding: '0.2em 0.4em',
+		margin: '0em',
+		background: 'none',
+		outline: 'none',
+		fontSize: '16px',
+		border: 'none',
+		borderRadius: '0.2em',
+	};
+
 	var button = document.createElement('button');
-	button.className = FONT_CLASS;
+	style(button, iconStyle);
 
 	var canvas = document.createElement('canvas');
 	var ctx = canvas.getContext('2d');
@@ -221,6 +446,9 @@ function IconButton(size, icon, tooltip, dp) {
 
 		var scale = height / font.unitsPerEm;
 		var width = glyph.advanceWidth * scale + 0.5 | 0;
+
+		width += 2;
+		height += 2;
 
 		canvas.width = width * dpr;
 		canvas.style.width = width + 'px';
@@ -278,24 +506,54 @@ function IconButton(size, icon, tooltip, dp) {
 		tooltip = tip;
 	};
 
+	var borders = {
+		border: '1px solid ' + Theme.b,
+		// boxShadow: Theme.b + ' 1px 1px'
+	};
+
+	var no_borders = {
+		border: '1px solid transparent',
+		// boxShadow: 'none'
+	};
+
+	var normal = 'none'; // Theme.b;
+	var up = Theme.c;
+	var down = Theme.b;
+
+	button.style.background = normal;
+	style(button, no_borders);
+
 	button.addEventListener('mouseover', function() {
+		// button.style.background = up;
+		style(button, borders);
+		
 		ctx.fillStyle = Theme.d;
+		me.dropshadow = true;
 		me.draw();
 
 		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {
-		ctx.fillStyle = Theme.b;
-		me.draw();
+		button.style.background = down;
+		// ctx.fillStyle = Theme.b;
+		// me.draw();
 	});
 
 	button.addEventListener('mouseup', function() {
-		ctx.fillStyle = Theme.d;
-		me.draw();
+		// ctx.fillStyle = Theme.d;
+		button.style.background = normal;
+		style(button, borders);
+		// me.draw();
 	});
 
 	button.addEventListener('mouseout', function() {
+		// ctx.fillStyle = Theme.c;
+		
+
+		button.style.background = normal;
+		style(button, no_borders);
+		me.dropshadow = false;
 		ctx.fillStyle = Theme.c;
 		me.draw();
 	});
@@ -315,7 +573,6 @@ IconButton.prototype.draw = function() {
 	if (!this.icon) return;
 
 	var ctx = this.ctx;
-	ctx.save();
 
 	var glyph = font.fonts[this.icon];
 
@@ -324,7 +581,27 @@ IconButton.prototype.draw = function() {
 	var scale = height / font.unitsPerEm * dpr;
 	var path_commands =  glyph.commands.split(' ');
 
+	ctx.save();
 	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+
+	if (this.dropshadow) {
+		ctx.save();
+		ctx.fillStyle = Theme.b;
+		ctx.translate(1.5 * dpr, 1.5 * dpr);
+		ctx.scale(scale, -scale);
+		ctx.translate(0 , -font.ascender);
+		ctx.beginPath();
+
+		for (var i = 0, il = path_commands.length; i < il; i++) {
+			var cmds = path_commands[i].split(',');
+			var params = cmds.slice(1);
+
+			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+		}
+		ctx.fill();
+		ctx.restore();
+	}
+
 	ctx.scale(scale, -scale);
 	ctx.translate(0, -font.ascender);
 	ctx.beginPath();
@@ -337,25 +614,53 @@ IconButton.prototype.draw = function() {
 	}
 	ctx.fill();
 	ctx.restore();
+
+	/*
+	var triangle = height / 3 * dpr;
+	ctx.save();
+	// ctx.translate(dpr * 2, 0);
+	// ctx.fillRect(this.canvas.width - triangle, this.canvas.height - triangle, triangle, triangle);
+	ctx.beginPath();
+	ctx.moveTo(this.canvas.width - triangle, this.canvas.height - triangle / 2);
+	ctx.lineTo(this.canvas.width, this.canvas.height - triangle / 2);
+	ctx.lineTo(this.canvas.width - triangle / 2, this.canvas.height);
+	ctx.fill();
+	ctx.restore();
+	*/
 };
 
 module.exports = IconButton;
-},{"./font.json":3,"./theme":8}],5:[function(require,module,exports){
+},{"./font.json":"/Users/joshua/dev/gits/timeliner/src/font.json","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/layer_cabinet.js":[function(require,module,exports){
 var Settings = require('./settings'),
 	LayerUI = require('./ui/layer_view'),
 	IconButton = require('./icon_button'),
 	style = require('./utils').style,
 	Theme = require('./theme'),
-	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX
+	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
+	NumberUI = require('./ui/number')
 	;
 
-function LayerCabinet(layers, dispatcher) {
-	dp = dispatcher;
+function LayerCabinet(data, dispatcher) {
+	var layer_store = data.get('layers');
+	
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
 	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
 	// top.style.textAlign = 'right';
+
+	var layer_scroll = document.createElement('div');
+	style(layer_scroll, {
+		position: 'absolute',
+		top: Settings.MARKER_TRACK_HEIGHT + 'px',
+		// height: (Settings.height - Settings.MARKER_TRACK_HEIGHT) + 'px'
+		left: 0,
+		right: 0,
+		bottom: 0,
+		overflow: 'hidden'
+	});
+
+	div.appendChild(layer_scroll);
 
 	var playing = false;
 
@@ -386,6 +691,9 @@ function LayerCabinet(layers, dispatcher) {
 	range.value = Settings.time_scale;
 	range.max = 600;
 	range.step = 1;
+	style(range, {
+		width: '70px'
+	});
 	
 
 	var draggingRange = 0;
@@ -406,10 +714,44 @@ function LayerCabinet(layers, dispatcher) {
 
 	div.appendChild(top);
 
+	var time_options = {
+		min: 0,
+		step: 0.01
+	};
+	var currentTime = new NumberUI(time_options);
+	var totalTime = new NumberUI(time_options);
+
+	var currentTimeStore = data.get('ui:currentTime');
+	var totalTimeStore = data.get('ui:totalTime');
+
+	// UI2StoreBind(view, datastore) {
+	// 	view.onChange.do(function(v) {
+	// 		datastore.value = view;
+	// 	})
+
+	// 	datastore.onChange.do(function(v) {
+	// 		view.setValue = v;
+	// 	})
+	// }
+
+	currentTime.onChange.do(function(value, done) {
+		dispatcher.fire('time.update', value);
+		// repaint();
+	});
+
+	totalTime.onChange.do(function(value, done) {
+		totalTimeStore.value = value;
+		// repaint();
+	});
+
 	// Play Controls
+	top.appendChild(currentTime.dom);
+	top.appendChild(document.createTextNode('/')); // 0:00:00 / 0:10:00
+	top.appendChild(totalTime.dom)
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
 	top.appendChild(range);
+	
 
 	var operations_div = document.createElement('div');
 	style(operations_div, {
@@ -560,9 +902,6 @@ function LayerCabinet(layers, dispatcher) {
 
 	// Cloud Download / Upload edit pencil
 	
-
-
-
 	/*
 	// // show layer
 	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
@@ -572,9 +911,6 @@ function LayerCabinet(layers, dispatcher) {
 	// var eye_close = new IconButton(16, 'eye_close', 'eye_close', dispatcher);
 	// operations_div.appendChild(eye_close.dom);
 
-	// add layer
-	var plus = new IconButton(16, 'plus', 'plus', dispatcher);
-	operations_div.appendChild(plus.dom);
 
 	// remove layer
 	var minus = new IconButton(16, 'minus', 'minus', dispatcher);
@@ -588,9 +924,6 @@ function LayerCabinet(layers, dispatcher) {
 	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
 	operations_div.appendChild(remove.dom);
 
-	// trash
-	var trash = new IconButton(16, 'trash', 'trash', dispatcher);
-	operations_div.appendChild(trash.dom);
 	*/
 
 
@@ -620,7 +953,10 @@ function LayerCabinet(layers, dispatcher) {
 	};
 
 	this.setState = function(state) {
-		layers = state;
+
+		layer_store = state;
+		layers = layer_store.value;
+		// layers = state;
 		console.log(layer_uis.length, layers);
 		var i, layer;
 		for (i = 0; i < layers.length; i++) {
@@ -634,7 +970,7 @@ function LayerCabinet(layers, dispatcher) {
 				} else {
 					// new
 					layer_ui = new LayerUI(layer, dispatcher);
-					div.appendChild(layer_ui.dom);
+					layer_scroll.appendChild(layer_ui.dom);
 				}
 				layer_uis.push(layer_ui);
 			}
@@ -648,6 +984,13 @@ function LayerCabinet(layers, dispatcher) {
 	};
 
 	function repaint(s) {
+
+		s = currentTimeStore.value;
+		currentTime.setValue(s);
+		totalTime.setValue(totalTimeStore.value);
+		currentTime.paint();
+		totalTime.paint();
+
 		var i;
 
 		s = s || 0;
@@ -659,7 +1002,9 @@ function LayerCabinet(layers, dispatcher) {
 				continue;
 			}
 			
-			layer_uis[i].setState(layers[i]);
+			// console.log('yoz', states.get(i).value);
+			layer_uis[i].setState(layers[i], layer_store.get(i));
+			// layer_uis[i].setState('layers'+':'+i);
 			layer_uis[i].repaint(s);
 		}
 
@@ -668,13 +1013,19 @@ function LayerCabinet(layers, dispatcher) {
 	}
 
 	this.repaint = repaint;
-	this.setState(layers);
+	this.setState(layer_store);
+
+	this.scrollTo = function(x) {
+		layer_scroll.scrollTop = x * (layer_scroll.scrollHeight - layer_scroll.clientHeight);
+	};
 
 	this.dom = div;
+
+	repaint();
 }
 
 module.exports = LayerCabinet;
-},{"./icon_button":4,"./settings":7,"./theme":8,"./ui/layer_view":12,"./utils":15}],6:[function(require,module,exports){
+},{"./icon_button":"/Users/joshua/dev/gits/timeliner/src/icon_button.js","./settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./ui/layer_view":"/Users/joshua/dev/gits/timeliner/src/ui/layer_view.js","./ui/number":"/Users/joshua/dev/gits/timeliner/src/ui/number.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/save_format.js":[function(require,module,exports){
 /* Layer Schema */
 /*
 var layer_1 = [
@@ -730,19 +1081,22 @@ var sample = {
 
 	}]
 };
-},{}],7:[function(require,module,exports){
+},{}],"/Users/joshua/dev/gits/timeliner/src/settings.js":[function(require,module,exports){
 
 var DEFAULT_TIME_SCALE = 60;
+
+// Dimensions
 module.exports = {
 	LINE_HEIGHT: 26,
 	DIAMOND_SIZE: 12,
 	MARKER_TRACK_HEIGHT: 60,
 	width: 600,
 	height: 200,
+	TIMELINE_SCROLL_HEIGHT: 0,
 	LEFT_PANE_WIDTH: 250,
 	time_scale: DEFAULT_TIME_SCALE // number of pixels to 1 secon,
 };
-},{}],8:[function(require,module,exports){
+},{}],"/Users/joshua/dev/gits/timeliner/src/theme.js":[function(require,module,exports){
 module.exports = {
 	// photoshop colors
 	a: '#343434',
@@ -750,12 +1104,13 @@ module.exports = {
 	c: '#b8b8b8',
 	d: '#d6d6d6',
 };
-},{}],9:[function(require,module,exports){
+},{}],"/Users/joshua/dev/gits/timeliner/src/timeline_panel.js":[function(require,module,exports){
 var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
 	utils = require('./utils'),
-	Tweens = require('./tween');
+	Tweens = require('./tween'),
+	handleDrag = require('./handle_drag');
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,
@@ -824,16 +1179,18 @@ time_scaled();
 // Timeline Panel
 /**************************/
 
-function TimelinePanel(layers, dispatcher) {
+function TimelinePanel(data, dispatcher) {
 
 	var dpr = window.devicePixelRatio;
-
 	var canvas = document.createElement('canvas');
-	canvas.width = Settings.width * dpr;
-	canvas.height = Settings.height * dpr;
+	
+	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
+	var layers = data.get('layers').value;
 
-	canvas.style.width = Settings.width + 'px';
-	canvas.style.height = Settings.height + 'px';
+	this.scrollTo = function(s, y) {
+		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
+		repaint();
+	};
 
 	this.resize = function() {
 		dpr = window.devicePixelRatio;
@@ -841,19 +1198,15 @@ function TimelinePanel(layers, dispatcher) {
 		canvas.height = Settings.height * dpr;
 		canvas.style.width = Settings.width + 'px';
 		canvas.style.height = Settings.height + 'px';
-		console.log(canvas.width, canvas.height, dpr);
-	};
-
-	this.setTimeScale = function(v) {
-		time_scale = v;
-		time_scaled();
+		SCROLL_HEIGHT = Settings.height - MARKER_TRACK_HEIGHT;
 	};
 
 	this.dom = canvas;
+	this.resize();
 
 	var ctx = canvas.getContext('2d');
 
-	var current_frame = this.current_frame = 0; // currently in seconds
+	var current_frame; // currently in seconds
 	// var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
 
 	
@@ -866,95 +1219,27 @@ function TimelinePanel(layers, dispatcher) {
 		needsRepaint = true;
 	}
 
-	function _paint() {
-		if (!needsRepaint) return;
 
-		/**************************/
-		// background
-
-		ctx.fillStyle = Theme.a;
-		//ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.save();
-		ctx.scale(dpr, dpr);
-
-		// 
-
-		ctx.lineWidth = 1; // .5, 1, 2
-
-		width = Settings.width,
-		height = Settings.height,
-
-		il = layers.length;
-		for (i = 0; i <= il; i++) {
-			// horizontal lines
+	function drawLayerContents() {
+		// horizontal Layer lines
+		for (i = 0, il = layers.length; i <= il; i++) {
 			ctx.strokeStyle = Theme.b;
 			ctx.beginPath();
-			y = i * LINE_HEIGHT + MARKER_TRACK_HEIGHT;
+			y = i * LINE_HEIGHT;
 			y = ~~y - 0.5;
 
 			ctx.moveTo(0, y);
 			ctx.lineTo(width, y);
 			ctx.stroke();
 		}
-
 		
-		var units = time_scale / subd1;
-		var count = (width - LEFT_GUTTER) / units;
-
-		// labels only
-		for (i = 0; i < count; i++) {
-			x = i * units + LEFT_GUTTER;
-
-			// vertical lines
-			ctx.strokeStyle = Theme.b;
-			ctx.beginPath();
-			ctx.moveTo(x, 0);
-			ctx.lineTo(x, height);
-			ctx.stroke();
-
-			ctx.fillStyle = Theme.d;
-			ctx.textAlign = 'center';
-
-			var t = i * units / time_scale;
-			t = utils.format_friendly_seconds(t, subd_type);
-			ctx.fillText(t, x, 28);
-		}
-
-		units = time_scale / subd2;
-		count = (width - LEFT_GUTTER) / units;
-
-		// marker lines - main
-		for (i = 0; i < count; i++) {
-			ctx.strokeStyle = Theme.c;
-			ctx.beginPath();
-			x = i * units + LEFT_GUTTER;
-			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
-			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
-			ctx.stroke();
-		}
-
-		var mul = subd3 / subd2;
-		units = time_scale / subd3;
-		count = (width - LEFT_GUTTER) / units;
-		// small ticks
-		for (i = 0; i < count; i++) {
-			if (i % mul === 0) continue;
-			ctx.strokeStyle = Theme.c;
-			ctx.beginPath();
-			x = i * units + LEFT_GUTTER;
-			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
-			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
-			ctx.stroke();
-		}
-		
-		
+		// Draw Easing Rects
 		for (i = 0; i < il; i++) {
 			// check for keyframes
 			var layer = layers[i];
 			var values = layer.values;
 
-			y = i * LINE_HEIGHT + MARKER_TRACK_HEIGHT;
+			y = i * LINE_HEIGHT;
 
 			for (var j = 0; j < values.length - 1; j++) {
 				var frame = values[j];
@@ -1021,13 +1306,176 @@ function TimelinePanel(layers, dispatcher) {
 			}
 
 		}
+	}
+
+	var TOP_SCROLL_TRACK = 20;
+	var scroller = {
+		left: 0,
+		grip_length: 0,
+		k: 1
+	};
+	var left;
+
+	function drawScroller() {
+		var w = width;
+
+		var totalTime = data.get('ui:totalTime').value;
+		var pixels_per_second = data.get('ui:timeScale').value;
+
+		var viewTime = w / pixels_per_second;
+
+
+		var k = w / totalTime; // pixels per seconds
+		scroller.k = k;
+
+		// 800 / 5 = 180
+
+		// var k = Math.min(viewTime / totalTime, 1);
+		// var grip_length = k * w;
+
+		scroller.grip_length = viewTime * k;
+		var h = TOP_SCROLL_TRACK;
+
+		scroller.left = data.get('ui:scrollTime').value * k;
+		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
+
+		ctx.beginPath();
+		ctx.fillStyle = Theme.b; // 'cyan';
+		ctx.rect(0, 5, w, h);
+		ctx.fill();
+
+		ctx.fillStyle = Theme.c; // 'yellow';
+
+		ctx.beginPath();
+		ctx.rect(scroller.left, 5, scroller.grip_length, h);
+		ctx.fill();
+
+		var r = current_frame * k;		
+
+		// ctx.fillStyle = Theme.a; // 'yellow';
+		// ctx.fillRect(0, 5, w, 2);
+
+		ctx.fillStyle = 'red';
+		ctx.fillRect(0, 5, r, 2);
+
+		// ctx.strokeStyle = 'red';
+		// ctx.lineWidth = 2;
+		// ctx.beginPath();
+		// ctx.moveTo(r, 5);
+		// ctx.lineTo(r, 15);
+		// ctx.stroke();
+
+	}
+
+
+	function setTimeScale() {
+		var v = data.get('ui:timeScale').value;
+		if (time_scale !== v) {
+			time_scale = v;
+			time_scaled();
+		}
+	}
+
+	function _paint() {
+		if (!needsRepaint) return;
+
+		setTimeScale();
+
+		current_frame = data.get('ui:currentTime').value;
+		frame_start =  data.get('ui:scrollTime').value;
+
+		/**************************/
+		// background
+
+		ctx.fillStyle = Theme.a;
+		//ctx.fillRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.save();
+		ctx.scale(dpr, dpr);
+
+		// 
+
+		ctx.lineWidth = 1; // .5, 1, 2
+
+		width = Settings.width,
+		height = Settings.height;
+
+		var units = time_scale / subd1;
+		var offsetUnits = (frame_start * time_scale) % units;
+
+		var count = (width - LEFT_GUTTER + offsetUnits) / units;
+
+		// console.log('time_scale', time_scale, 'subd1', subd1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
+		
+		// time_scale = pixels to 1 second (40)
+		// subd1 = marks per second (marks / s)
+		// units = pixels to every mark (40)
+	
+		// labels only
+		for (i = 0; i < count; i++) {
+			x = i * units + LEFT_GUTTER - offsetUnits;
+
+			// vertical lines
+			ctx.strokeStyle = Theme.b;
+			ctx.beginPath();
+			ctx.moveTo(x, 0);
+			ctx.lineTo(x, height);
+			ctx.stroke();
+
+			ctx.fillStyle = Theme.d;
+			ctx.textAlign = 'center';
+
+			var t = (i * units - offsetUnits) / time_scale + frame_start;
+			t = utils.format_friendly_seconds(t, subd_type);
+			ctx.fillText(t, x, 38);
+		}
+
+		units = time_scale / subd2;
+		count = (width - LEFT_GUTTER + offsetUnits) / units;
+
+		// marker lines - main
+		for (i = 0; i < count; i++) {
+			ctx.strokeStyle = Theme.c;
+			ctx.beginPath();
+			x = i * units + LEFT_GUTTER - offsetUnits;
+			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
+			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
+			ctx.stroke();
+		}
+
+		var mul = subd3 / subd2;
+		units = time_scale / subd3;
+		count = (width - LEFT_GUTTER + offsetUnits) / units;
+		
+		// small ticks
+		for (i = 0; i < count; i++) {
+			if (i % mul === 0) continue;
+			ctx.strokeStyle = Theme.c;
+			ctx.beginPath();
+			x = i * units + LEFT_GUTTER - offsetUnits;
+			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
+			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
+			ctx.stroke();
+		}
+		
+		// Encapsulate a scroll rect for the layers
+		ctx.save();
+		ctx.translate(0, MARKER_TRACK_HEIGHT);
+		ctx.beginPath();
+		ctx.rect(0, 0, Settings.width, SCROLL_HEIGHT);
+		ctx.translate(-scrollLeft, -scrollTop);
+		ctx.clip();
+		drawLayerContents();
+		ctx.restore();
+
+
+		drawScroller();
 
 		// Current Marker / Cursor
-
 		ctx.strokeStyle = 'red'; // Theme.c
-		x = (me.current_frame - frame_start) * time_scale + LEFT_GUTTER;
+		x = (current_frame - frame_start) * time_scale + LEFT_GUTTER;
 
-		var txt = utils.format_friendly_seconds(me.current_frame);
+		var txt = utils.format_friendly_seconds(current_frame);
 		var textWidth = ctx.measureText(txt).width;
 
 		var base_line = MARKER_TRACK_HEIGHT- 5, half_rect = textWidth / 2 + 4;
@@ -1060,7 +1508,8 @@ function TimelinePanel(layers, dispatcher) {
 	}
 
 	function y_to_track(y) {
-		return (y - MARKER_TRACK_HEIGHT) / LINE_HEIGHT | 0;
+		if (y - MARKER_TRACK_HEIGHT < 0) return -1;
+		return (y - MARKER_TRACK_HEIGHT + scrollTop) / LINE_HEIGHT | 0;
 	}
 
 
@@ -1105,30 +1554,38 @@ function TimelinePanel(layers, dispatcher) {
 	});
 
 	function pointerStart(e) {
-		mousedown = true;
-
 		canvasBounds = canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-		console.log(canvas.offsetTop, canvasBounds);
+
+		if (my <= TOP_SCROLL_TRACK) return false;
+
+		mousedown = true;
 
 		var track = y_to_track(my);
 		var s = x_to_time(mx);
 
 		dragObject = null;
 
-		console.log('track', track, 't',s, layers[track]);
+		console.log('track', track, 't', s, layers[track]);
 		
 		if (layers[track]) {
 			var tmp = utils.findTimeinLayer(layers[track], s);
+			var tmp2 = utils.timeAtLayer(layers[track], s);
+
+			console.log('drag start', tmp, tmp2);
 
 		 	if (typeof(tmp) !== 'number') dragObject = tmp;
 		}
 
 		onPointerDrag(mx, my);
+		return true;
 	}
 
 	canvas.addEventListener('mousedown', function(e) {
-		pointerStart(e);
+
+		var hit = pointerStart(e);
+		if (!hit) return;
+		
 
 		e.preventDefault();
 
@@ -1149,6 +1606,20 @@ function TimelinePanel(layers, dispatcher) {
 		dispatcher.fire('keyframe', layers[track], current_frame);
 		
 	});
+
+
+	var draggingx;
+	handleDrag(canvas, function down(e) {
+			draggingx = scroller.left;
+		}, function move(e) {
+			data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
+			repaint();
+		}, function up() {
+		}, function(e) {
+			var bar = e.offsetx >= scroller.left && e.offsetx <= scroller.left + scroller.grip_length;
+			return e.offsety <= TOP_SCROLL_TRACK && bar;
+		}
+	);
 
 	function onMouseUp(e) {		
 		// canvasBounds = canvas.getBoundingClientRect();
@@ -1176,6 +1647,7 @@ function TimelinePanel(layers, dispatcher) {
 	}
 
 	function onPointerDrag(x, y) {
+
 		if (x < LEFT_GUTTER) x = LEFT_GUTTER;
 		if (x > width) return;
 		current = x; // <---- ??!??!!
@@ -1187,31 +1659,21 @@ function TimelinePanel(layers, dispatcher) {
 			
 		}
 
-		updateCursor(s);
+		// Move the cursor;
+		dispatcher.fire('time.update', s);
 		
 		// console.log(s, format_friendly_seconds(s), this);
 	}
 
-	function updateCursor(s) { // currentFrame / currentTime / currentPlaying / currentAt / gotoTime()
-		// Move the cursor;
-		me.current_frame = s;
-		dispatcher.fire('time.update', s);
-
-		repaint();
-	}
-
-	this.updateTime = updateCursor;
-
 	this.setState = function(state) {
-		console.log('undo', state);
-		layers = state;
+		layers = state.value;
 		repaint();
 	};
 
 }
 
 module.exports = TimelinePanel;
-},{"./settings":7,"./theme":8,"./tween":11,"./utils":15}],10:[function(require,module,exports){
+},{"./handle_drag":"/Users/joshua/dev/gits/timeliner/src/handle_drag.js","./settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./tween":"/Users/joshua/dev/gits/timeliner/src/tween.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/timeliner.js":[function(require,module,exports){
 /*
  * @author Joshua Koo http://joshuakoo.com
  */
@@ -1230,7 +1692,9 @@ var undo = require('./undo'),
 	style = utils.style,
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
-	STORAGE_PREFIX = utils.STORAGE_PREFIX
+	STORAGE_PREFIX = utils.STORAGE_PREFIX,
+	ScrollBar = require('./ui/scrollbar'),
+	DataStore = require('./datastore')
 	;
 
 var Z_INDEX = 999;
@@ -1239,7 +1703,7 @@ function LayerProp(name) {
 	this.name = name;
 	this.values = [];
 
-	this.tmpValue = 0;
+	this._value = 0;
 
 	this._color = '#' + (Math.random() * 0xffffff | 0).toString(16);
 	/*
@@ -1249,59 +1713,20 @@ function LayerProp(name) {
 	*/
 }
 
-function DataStore() {
-	this.blank();
-}
-
-DataStore.prototype.blank = function() {
-	var data = {};
-
-	data.version = package_json.version;
-	data.modified = new Date().toString();
-	data.title = 'Untitled';
-
-	data.layers = [];
-
-	this.data = data;
-};
-
-DataStore.prototype.update = function() {
-	var data = this.data;
-
-	data.version = package_json.version;
-	data.modified = new Date().toString();
-};
-
-DataStore.prototype.setJSONString = function(data) {
-	this.data = JSON.parse(data);
-};
-
-DataStore.prototype.setJSON = function(data) {
-	this.data = data;
-};
-
-DataStore.prototype.getJSONString = function(format) {
-	return JSON.stringify(this.data, null, format);
-};
-
-
-DataStore.prototype.get = function(path) {
-	return this.data[path];
-};
-
 function Timeliner(target) {
 	// Aka Layer Manager / Controller
 
 	// Should persist current time too.
 	var data = new DataStore();
-	var layers = data.get('layers');
+	var layer_store = data.get('layers');
+	var layers = layer_store.value;
 
 	window._data = data;
 
 	var dispatcher = new Dispatcher();
 
-	var timeline = new TimelinePanel(layers, dispatcher);
-	var layer_panel = new LayerCabinet(layers, dispatcher);
+	var timeline = new TimelinePanel(data, dispatcher);
+	var layer_panel = new LayerCabinet(data, dispatcher);
 
 	var undo_manager = new UndoManager(dispatcher);
 
@@ -1311,15 +1736,14 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {
-		console.log('layer', layer, value);
 		var index = layers.indexOf(layer);
 		
-		// layer.values.push
-		var t = timeline.current_frame;
-		
+		var t = data.get('ui:currentTime').value;
 		var v = utils.findTimeinLayer(layer, t);
 
-		console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
+		// console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
+		// console.log('layer', layer, value);
+
 		if (typeof(v) === 'number') {
 			layer.values.splice(v, 0, {
 				time: t,
@@ -1335,8 +1759,7 @@ function Timeliner(target) {
 			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
 		}
 
-		layer_panel.repaint(t);
-		timeline.repaint();
+		repaintAll();
 
 	});
 
@@ -1345,8 +1768,8 @@ function Timeliner(target) {
 	});
 
 	// dispatcher.fire('value.change', layer, me.value);
-	dispatcher.on('value.change', function(layer, value) {
-		var t = timeline.current_frame;
+	dispatcher.on('value.change', function(layer, value, dont_save) {
+		var t = data.get('ui:currentTime').value;
 		
 		var v = utils.findTimeinLayer(layer, t);
 
@@ -1357,18 +1780,17 @@ function Timeliner(target) {
 				value: value,
 				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
 			});
-			undo_manager.save(new UndoState(data, 'Add value'));
+			if (!dont_save) undo_manager.save(new UndoState(data, 'Add value'));
 		} else {
 			v.object.value = value;
-			undo_manager.save(new UndoState(data, 'Update value'));
+			if (!dont_save) undo_manager.save(new UndoState(data, 'Update value'));
 		}
 
-		layer_panel.repaint(t);
-		timeline.repaint();
+		repaintAll();
 	});
 
 	dispatcher.on('ease', function(layer, ease_type) {
-		var t = timeline.current_frame;
+		var t = data.get('ui:currentTime').value;
 		var v = utils.timeAtLayer(layer, t);
 		// console.log('Ease Change > ', layer, value, v);
 		if (v && v.entry) {
@@ -1377,9 +1799,7 @@ function Timeliner(target) {
 
 		undo_manager.save(new UndoState(data, 'Add Ease'));
 
-		layer_panel.repaint(t);
-		timeline.repaint();
-		// save();
+		repaintAll();
 	});
 
 	var start_play = null,
@@ -1398,7 +1818,7 @@ function Timeliner(target) {
 			startPlaying();
 		}
 
-		timeline.updateTime(played_from);
+		setCurrentTime(played_from);
 	});
 
 	dispatcher.on('controls.play', startPlaying);
@@ -1406,7 +1826,7 @@ function Timeliner(target) {
 
 	function startPlaying() {
 		// played_from = timeline.current_frame;
-		start_play = performance.now() - timeline.current_frame * 1000;
+		start_play = performance.now() - data.get('ui:currentTime').value * 1000;
 		layer_panel.setControlStatus(true);
 		// dispatcher.fire('controls.status', true);
 	}
@@ -1419,13 +1839,19 @@ function Timeliner(target) {
 
 	dispatcher.on('controls.stop', function() {
 		if (start_play !== null) pausePlaying();
-		timeline.updateTime(0);
+		setCurrentTime(0);
 	});
 
-	dispatcher.on('time.update', function(s) {
-		if (start_play) start_play = performance.now() - timeline.current_frame * 1000;
-		layer_panel.repaint(s);
-	});
+	var currentTimeStore = data.get('ui:currentTime');
+	dispatcher.on('time.update', setCurrentTime);
+
+	function setCurrentTime(value) {
+		currentTimeStore.value = value;
+
+		if (start_play) start_play = performance.now() - value * 1000;
+		repaintAll();
+		// layer_panel.repaint(s);
+	}
 
 	dispatcher.on('target.notify', function(name, value) {
 		if (target) target[name] = value;
@@ -1433,7 +1859,8 @@ function Timeliner(target) {
 
 	dispatcher.on('update.scale', function(v) {
 		console.log('range', v);
-		timeline.setTimeScale(v);
+		data.get('ui:timeScale').value = v;
+		// timeline.setTimeScale(v);
 		timeline.repaint();
 	});
 
@@ -1443,10 +1870,6 @@ function Timeliner(target) {
 		data.setJSONString(history.state);
 		
 		updateState();
-
-		var t = timeline.current_frame;
-		layer_panel.repaint(t);
-		timeline.repaint();
 	});
 
 	dispatcher.on('controls.redo', function() {
@@ -1454,10 +1877,6 @@ function Timeliner(target) {
 		data.setJSONString(history.state);
 		
 		updateState();
-
-		var t = timeline.current_frame;
-		layer_panel.repaint(t);
-		timeline.repaint();
 	});
 
 	/*
@@ -1469,9 +1888,10 @@ function Timeliner(target) {
 		
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
-			timeline.updateTime(t);
+			setCurrentTime(t);
 
-			if (t > 10) {
+
+			if (t > data.get('ui:totalTime').value) {
 				// simple loop
 				start_play = performance.now();
 			}
@@ -1484,7 +1904,7 @@ function Timeliner(target) {
 			restyle(layer_panel.dom, timeline.dom);
 
 			timeline.resize();
-			timeline.repaint();
+			repaintAll();
 			needsResize = false;
 
 			dispatcher.fire('resize');
@@ -1513,7 +1933,7 @@ function Timeliner(target) {
 	}
 
 	function saveAs(name) {
-		if (!name) name = data.get('name');
+		if (!name) name = data.get('name').value;
 		name = prompt('Pick a name to save to (localStorage)', name);
 		if (name) {
 			data.data.name = name;
@@ -1522,7 +1942,7 @@ function Timeliner(target) {
 	}
 
 	function saveSimply() {
-		var name = data.get('name');
+		var name = data.get('name').value;
 		if (name) {
 			save(name);
 		} else {
@@ -1550,20 +1970,36 @@ function Timeliner(target) {
 
 	function load(o) {
 		data.setJSON(o);
+		// 
+		if (data.getValue('ui') === undefined) {
+			data.setValue('ui', {
+				currentTime: 0,
+				totalTime: 20,
+				scrollTime: 0,
+				timeScale: 40
+			});
+		}
 
 		undo_manager.clear();
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
 		
 		updateState();
-
-		layer_panel.repaint();
-		timeline.repaint();
 	}
 
 	function updateState() {
-		layers = data.get('layers');
-		layer_panel.setState(layers);
-		timeline.setState(layers);
+		layers = layer_store.value; // FIXME: support Arrays
+		layer_panel.setState(layer_store);
+		timeline.setState(layer_store);
+
+		repaintAll();
+	}
+
+	function repaintAll() {
+		var content_height = layers.length * Settings.LINE_HEIGHT;
+		scrollbar.setLength(Settings.TIMELINE_SCROLL_HEIGHT / content_height);
+
+		layer_panel.repaint();
+		timeline.repaint();
 	}
 
 	function promptImport() {
@@ -1586,9 +2022,6 @@ function Timeliner(target) {
 	dispatcher.on('new', function() {
 		data.blank();
 		updateState();
-
-		layer_panel.repaint();
-		timeline.repaint();
 	});
 	
 	dispatcher.on('openfile', function() {
@@ -1624,10 +2057,12 @@ function Timeliner(target) {
 		padding: 0,
 		fontFamily: 'monospace',
 		zIndex: Z_INDEX,
-		border: '2px solid ' + Theme.b,
+		border: '2px solid ' + Theme.a,
 		fontSize: '12px',
 		color: Theme.d,
-		overflow: 'hidden'
+		overflow: 'hidden',
+		top: '20px',
+		left: '20px'
 	});
 
 	pane.style.backgroundColor = Theme.a;
@@ -1715,6 +2150,7 @@ function Timeliner(target) {
 	// button_open.textContent = 'Open';
 	// button_open.onclick = this.promptOpen;
 
+
 	// bottom_right.appendChild(button_load);
 	// bottom_right.appendChild(button_save);
 	// bottom_right.appendChild(button_open);
@@ -1736,6 +2172,35 @@ function Timeliner(target) {
 	// bottom_right.appendChild(zoom_in.dom);
 	// bottom_right.appendChild(zoom_out.dom);
 	// bottom_right.appendChild(cog.dom);
+
+	// add layer
+	var plus = new IconButton(12, 'plus', 'New Layer', dispatcher);
+	plus.onClick(function() {
+		var name = prompt('Layer name?');
+		addLayer(name);
+
+		undo_manager.save(new UndoState(data, 'Layer added'));
+
+		repaintAll();
+	});
+	bottom_right.appendChild(plus.dom);
+
+
+	// trash
+	var trash = new IconButton(12, 'trash', 'Delete save', dispatcher);
+	trash.onClick(function() {
+		var name = data.get('name').value;
+		if (name && localStorage[STORAGE_PREFIX + name]) {
+			var ok = confirm('Are you sure you wish to delete ' + name + '?');
+			if (ok) {
+				delete localStorage[STORAGE_PREFIX + name];
+				dispatcher.fire('status', name + ' deleted');
+				dispatcher.fire('save:done');
+			}
+		}
+	});
+	bottom_right.appendChild(trash.dom);
+
 
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
 
@@ -1763,6 +2228,31 @@ function Timeliner(target) {
 
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
+
+	var scrollbar = new ScrollBar(200, 10);
+	div.appendChild(scrollbar.dom);
+
+	// percentages
+	scrollbar.onScroll.do(function(type, scrollTo) {
+		switch(type) {
+			case 'scrollto':
+				layer_panel.scrollTo(scrollTo);
+				timeline.scrollTo(scrollTo);
+				break;
+	//		case 'pageup':
+	// 			scrollTop -= pageOffset;
+	// 			me.draw();
+	// 			me.updateScrollbar();
+	// 			break;
+	// 		case 'pagedown':
+	// 			scrollTop += pageOffset;
+	// 			me.draw();
+	// 			me.updateScrollbar();
+	// 			break;
+		}
+	});
+
+
 
 	// document.addEventListener('keypress', function(e) {
 	// 	console.log('kp', e);
@@ -1809,6 +2299,10 @@ function Timeliner(target) {
 	var needsResize = true;
 
 	function resize(width, height) {
+		// data.get('ui:bounds').value = {
+		// 	width: width,
+		// 	height: height
+		// };
 		// TODO: remove ugly hardcodes
 		width -= 4;
 		height -= 32;
@@ -1816,12 +2310,26 @@ function Timeliner(target) {
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
 
+		Settings.TIMELINE_SCROLL_HEIGHT = height - Settings.MARKER_TRACK_HEIGHT;
+		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
+
+		scrollbar.setHeight(scrollable_height - 2);
+		// scrollbar.setThumb
+		
+		style(scrollbar.dom, {
+			top: Settings.MARKER_TRACK_HEIGHT + 'px',
+			left: (width - 16) + 'px',
+		});
+
 		needsResize = true;
 	}
 
 	function restyle(left, right) {
-		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;background: ' + Theme.a + ';';
-		left.style.overflow = 'hidden';
+		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;';
+		style(left, {
+			// background: Theme.a,
+			overflow: 'hidden'
+		});
 		left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
 
 		// right.style.cssText = 'position: absolute; top: 0px;';
@@ -1833,14 +2341,45 @@ function Timeliner(target) {
 	function addLayer(name) {
 		var layer = new LayerProp(name);
 
+		layers = layer_store.value;
 		layers.push(layer);
 
-		layer_panel.setState(layers);
-		layer_panel.repaint();
-		timeline.repaint();
+		layer_panel.setState(layer_store);
 	}
 
 	this.addLayer = addLayer;
+
+	this.setTarget = function(t) {
+		timeline = t;
+	};
+
+	function getValueRanges(ranges, interval) {
+		interval = interval ? interval : 0.15;
+		ranges = ranges ? ranges : 2;
+
+		// not optimized!
+		var t = data.get('ui:currentTime').value;
+
+		var values = [];
+
+		for (var u = -ranges; u <= ranges; u++) {
+			// if (u == 0) continue;
+			var o = {};
+
+			for (var l = 0; l < layers.length; l++) {
+				var layer = layers[l];		
+				var m = utils.timeAtLayer(layer, t + u * interval);
+				o[layer.name] = m.value;
+			}
+
+			values.push(o);
+
+		}
+
+		return values;
+	}
+
+	this.getValues = getValueRanges;
 
 	(function DockingWindow() {
 		"use strict";
@@ -1851,7 +2390,8 @@ function Timeliner(target) {
 
 		// Thresholds
 		var FULLSCREEN_MARGINS = 2;
-		var MARGINS = 8;
+		var SNAP_MARGINS = 8;
+		var MARGINS = 2;
 
 		// End of what's configurable.
 
@@ -2130,16 +2670,16 @@ function Timeliner(target) {
 
 			if (e.clientY < FULLSCREEN_MARGINS) return 'full-screen';
 
-			if (e.clientY < MARGINS) return 'snap-top-edge';
+			if (e.clientY < SNAP_MARGINS) return 'snap-top-edge';
 
 			// hintLeft();
-			if (e.clientX < MARGINS) return 'snap-left-edge';
+			if (e.clientX < SNAP_MARGINS) return 'snap-left-edge';
 
 			// hintRight();
-			if (window.innerWidth - e.clientX < MARGINS) return 'snap-right-edge';
+			if (window.innerWidth - e.clientX < SNAP_MARGINS) return 'snap-right-edge';
 
 			// hintBottom();
-			if (window.innerHeight- e.clientY < MARGINS) return 'snap-bottom-edge';
+			if (window.innerHeight- e.clientY < SNAP_MARGINS) return 'snap-bottom-edge';
 
 		}
 
@@ -2196,7 +2736,7 @@ function Timeliner(target) {
 }
 
 window.Timeliner = Timeliner;
-},{"../package.json":1,"./dispatcher":2,"./icon_button":4,"./layer_cabinet":5,"./settings":7,"./theme":8,"./timeline_panel":9,"./undo":14,"./utils":15}],11:[function(require,module,exports){
+},{"../package.json":"/Users/joshua/dev/gits/timeliner/package.json","./datastore":"/Users/joshua/dev/gits/timeliner/src/datastore.js","./dispatcher":"/Users/joshua/dev/gits/timeliner/src/dispatcher.js","./icon_button":"/Users/joshua/dev/gits/timeliner/src/icon_button.js","./layer_cabinet":"/Users/joshua/dev/gits/timeliner/src/layer_cabinet.js","./settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./timeline_panel":"/Users/joshua/dev/gits/timeliner/src/timeline_panel.js","./ui/scrollbar":"/Users/joshua/dev/gits/timeliner/src/ui/scrollbar.js","./undo":"/Users/joshua/dev/gits/timeliner/src/undo.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/tween.js":[function(require,module,exports){
 /**************************/
 // Tweens
 /**************************/
@@ -2221,7 +2761,7 @@ var Tweens = {
 };
 
 module.exports = Tweens;
-},{}],12:[function(require,module,exports){
+},{}],"/Users/joshua/dev/gits/timeliner/src/ui/layer_view.js":[function(require,module,exports){
 var
 	Theme = require('../theme'),
 	NumberUI = require('./number'),
@@ -2236,7 +2776,7 @@ function LayerView(layer, dispatcher) {
 	var dom = document.createElement('div');
 
 	var label = document.createElement('span');
-	label.textContent = layer.name;
+	
 	label.style.cssText = 'font-size: 12px; padding: 4px;';
 
 	var dropdown = document.createElement('select');
@@ -2258,8 +2798,8 @@ function LayerView(layer, dispatcher) {
 	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
 	
 	keyframe_button.addEventListener('click', function(e) {
-		console.log('keyframing...');
-		dispatcher.fire('keyframe', layer, value.value);
+		console.log('clicked:keyframing...', state.get('_value').value);
+		dispatcher.fire('keyframe', layer, state.get('_value').value);
 	});
 
 	/*
@@ -2288,21 +2828,41 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(button);
 	*/
 
-	var value = new NumberUI(layer, dispatcher);
+	var number = new NumberUI(layer, dispatcher);
+
+	number.onChange.do(function(value, done) {
+		state.get('_value').value = value;
+		dispatcher.fire('value.change', layer, value, done);
+	});
+
+	utils.style(number.dom, {
+		float: 'right'
+	});
 
 	dom.appendChild(label);
 	dom.appendChild(keyframe_button);
-	dom.appendChild(value.dom);
+	dom.appendChild(number.dom);
 	dom.appendChild(dropdown);
 	
 	dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (Settings.LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
 	this.dom = dom;
 
 	this.repaint = repaint;
+	var state;
 
-	this.setState = function(l) {
+	this.setState = function(l, s) {
 		layer = l;
-		value.setState(l);
+		state = s;
+
+		var tmp_value = state.get('_value');
+		if (tmp_value.value === undefined) {
+			tmp_value.value = 0;
+		}
+
+		number.setValue(tmp_value.value);
+		label.textContent = state.get('name').value;
+
+		repaint();
 	};
 
 	function repaint(s) {
@@ -2332,7 +2892,9 @@ function LayerView(layer, dispatcher) {
 			// keyframe_button.style.borderStyle = 'inset';
 		}
 
-		value.setValue(o.value);
+		state.get('_value').value = o.value;
+		number.setValue(o.value);
+		number.paint();
 
 		dispatcher.fire('target.notify', layer.name, o.value);
 	}
@@ -2341,109 +2903,238 @@ function LayerView(layer, dispatcher) {
 
 module.exports = LayerView;
 
-},{"../settings":7,"../theme":8,"../tween":11,"../utils":15,"./number":13}],13:[function(require,module,exports){
-var Theme = require('../theme');
+},{"../settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","../theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","../tween":"/Users/joshua/dev/gits/timeliner/src/tween.js","../utils":"/Users/joshua/dev/gits/timeliner/src/utils.js","./number":"/Users/joshua/dev/gits/timeliner/src/ui/number.js"}],"/Users/joshua/dev/gits/timeliner/src/ui/number.js":[function(require,module,exports){
+var Theme = require('../theme'),
+	Do = require('do.js'),
+	handleDrag = require('../handle_drag'),
+	style = require('../utils').style
+	;
 
 /**************************/
 // NumberUI
 /**************************/
 
-function NumberUI(layer, dispatcher) {
+function NumberUI(config) {
+	config = config || {};
+	var min = config.min === undefined ? -Infinity : config.min;
+	var step = config.step || 0.1;
+	var precision = config.precision || 3;
+	// Range
+	// Max
+
 	var span = document.createElement('input');
 	// span.type = 'number'; // spinner
 	
-	span.style.cssText = 'text-align: center; font-size: 10px; padding: 1px; cursor: ns-resize; float:right; width:40px; margin: 0;  margin-right: 10px; appearance: none; outline: none; border: 0; background: none; border-bottom: 1px dotted '+ Theme.c+ '; color: ' + Theme.c;
+	style(span, {
+		textAlign: 'center',
+		fontSize: '10px',
+		padding: '1px',
+		cursor: 'ns-resize',
+		width: '40px',
+		margin: 0,
+		marginRight: '10px',
+		appearance: 'none',
+		outline: 'none',
+		border: 0,
+		background: 'none',
+		borderBottom: '1px dotted '+ Theme.c,
+		color: Theme.c
+	});
 
 	var me = this;
+	var state, value = 0, unchanged_value;
 
-	me.value = span.value = layer.tmpValue;
-
-	this.setState = function(l) {
-		layer = l;
-	};
+	this.onChange = new Do();
 
 	span.addEventListener('change', function(e) {
 		console.log('input changed', span.value);
+		value = parseFloat(span.value, 10);
+
 		fireChange();
 	});
 
-	this.value = layer.tmpValue;
+	handleDrag(span, onDown, onMove, onUp);
 
-	var startx, starty, moved;
-
-	span.addEventListener('mousedown', function(e) {
-		e.preventDefault();
-		startx = e.clientX;
-		starty = e.clientY;
-		moved = false;
-
-		// 
-		document.addEventListener('mousemove', onMouseMove);
-		document.addEventListener('mouseup', onMouseUp);
-	});
-
-	span.addEventListener('touchstart', function(e) {
-		e.preventDefault();
-		var e = e.touches[0];
-		startx = e.clientX;
-		starty = e.clientY;
-		console.log(startx);
-		moved = false;
-
-		// 
-		// document.addEventListener('mousemove', onMouseMove);
-		// document.addEventListener('mouseup', onMouseUp);
-	});
-
-	span.addEventListener('touchmove', function(e) {
-		var e = e.touches[0];
-		onMouseMove(e);
-	});
-
-	span.addEventListener('touchend', function(e) {
-		if (moved) fireChange();
+	function onUp(e) {
+		if (e.moved) fireChange();
 		else {
 			// single click
 			span.focus();
 		}
-	});
-
-	function onMouseMove(e) {
-		// console.log(e.clientX, e.clientY);
-		var dx = e.clientX - startx;
-		var dy = e.clientY - starty;
-		span.value = me.value + dx * 0.000001 + dy * -10 * 0.01;
-		dispatcher.fire('target.notify', layer.name, span.value);
-
-		moved = true;
 	}
 
-	function onMouseUp() {
-		document.removeEventListener('mousemove', onMouseMove);
-		document.removeEventListener('mouseup', onMouseUp);
+	function onMove(e) {
+		var dx = e.dx;
+		var dy = e.dy;
+	
+		var stepping = 1 * step;
+		// value = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
+		value = unchanged_value + dx * stepping + dy * -stepping;
 
-		if (moved) fireChange();
-		else {
-			// single click
-			span.focus();
-		}
+		value = Math.max(min, value);
+
+		// value = +value.toFixed(precision); // or toFixed toPrecision
+		me.onChange.fire(value, true);
+	}
+
+	function onDown(e) {
+		unchanged_value = value;
 	}
 
 	function fireChange() {
-		layer.tmpValue = me.value = parseFloat(span.value, 10);
-		dispatcher.fire('value.change', layer, me.value);
-		dispatcher.fire('target.notify', layer.name, me.value);
+		me.onChange.fire(value);
 	}
 
 	this.dom = span;
 
-	this.setValue = function(e) {
-		span.value = e;
+	// public
+	this.setValue = function(v) {
+		value = v;
+	};
+
+	this.paint = function() {
+		if (value) span.value = value.toFixed(precision);
 	};
 }
 
 module.exports = NumberUI;
-},{"../theme":8}],14:[function(require,module,exports){
+},{"../handle_drag":"/Users/joshua/dev/gits/timeliner/src/handle_drag.js","../theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","../utils":"/Users/joshua/dev/gits/timeliner/src/utils.js","do.js":"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js"}],"/Users/joshua/dev/gits/timeliner/src/ui/scrollbar.js":[function(require,module,exports){
+var SimpleEvent = require('do.js');
+var utils = require('../utils');
+console.log(utils);
+
+// ********** class: ScrollBar ****************** //
+/*
+	Simple UI widget that displays a scrolltrack 
+	and slider, that fires some scroll events
+*/
+// ***********************************************
+
+var scrolltrack_style = {
+	// float: 'right',
+	position: 'absolute',
+	// right: '0',
+	// top: '0',
+	// bottom: '0',
+	background: '-webkit-gradient(linear, left top, right top, color-stop(0, rgb(29,29,29)), color-stop(0.6, rgb(50,50,50)) )',
+	border: '1px solid rgb(29, 29, 29)',
+	// zIndex: '1000',
+	textAlign: 'center',
+	cursor: 'pointer'
+};
+
+var scrollbar_style = {
+	background: '-webkit-gradient(linear, left top, right top, color-stop(0.2, rgb(88,88,88)), color-stop(0.6, rgb(64,64,64)) )',
+	border: '1px solid rgb(25,25,25)',
+	// position: 'absolute',
+	position: 'relative',
+	borderRadius: '6px'
+};
+
+function ScrollBar(h, w, dispatcher) {
+
+	var SCROLLBAR_WIDTH = w ? w : 12;
+	var SCROLLBAR_MARGIN = 3;
+	var SCROLL_WIDTH = SCROLLBAR_WIDTH + SCROLLBAR_MARGIN * 2;
+	var MIN_BAR_LENGTH = 25;
+
+	var scrolltrack = document.createElement('div');
+	utils.style(scrolltrack, scrolltrack_style);
+
+	var scrolltrackHeight = h - 2;
+	scrolltrack.style.height = scrolltrackHeight + 'px' ;
+	scrolltrack.style.width = SCROLL_WIDTH; //SCROLLBAR_WIDTH;
+
+	// var scrollTop = 0;
+	var scrollbar = document.createElement('div');
+	// scrollbar.className = 'scrollbar';
+	utils.style(scrollbar, scrollbar_style);
+	scrollbar.style.width = SCROLLBAR_WIDTH;
+	scrollbar.style.height = h / 2;
+	scrollbar.style.top = 0;
+	scrollbar.style.left = SCROLLBAR_MARGIN + 'px'; // 0; //S
+
+	scrolltrack.appendChild(scrollbar);
+
+	var me = this;
+
+	var bar_length, bar_y;
+
+	// Sets lengths of scrollbar by percentage
+	this.setLength = function(l) {
+		// limit 0..1
+		l = Math.max(Math.min(1, l), 0);
+		l *= scrolltrackHeight;
+		bar_length = Math.max(l, MIN_BAR_LENGTH);
+		scrollbar.style.height = bar_length;
+	};
+
+	this.setHeight = function(height) {
+		h = height;
+
+		scrolltrackHeight = h - 2;
+		scrolltrack.style.height = scrolltrackHeight + 'px' ;
+	};
+
+	// Moves scrollbar to position by Percentage
+	this.setPosition = function(p) {
+		p = Math.max(Math.min(1, p), 0);
+		var emptyTrack = scrolltrackHeight - bar_length;
+		bar_y = p * emptyTrack;
+		scrollbar.style.top = bar_y;
+	};
+
+	this.setLength(1);
+	this.setPosition(0);
+	this.onScroll = new SimpleEvent();
+
+	var mouse_down_grip;
+
+	function onDown(event) {
+		event.preventDefault();
+
+		if (event.target == scrollbar) {
+			mouse_down_grip = event.clientY;
+			document.addEventListener('mousemove', onMove, false);
+			document.addEventListener('mouseup', onUp, false);
+		} else {
+			if (event.clientY < bar_y) {
+				me.onScroll.fire('pageup');
+			} else if (event.clientY > (bar_y + bar_length)) {
+				me.onScroll.fire('pagedown');
+			}
+			// if want to drag scroller to empty track instead
+			// me.setPosition(event.clientY / (scrolltrackHeight - 1));
+		}
+	}
+
+	function onMove(event) {
+		event.preventDefault();
+
+		// event.target == scrollbar
+		var emptyTrack = scrolltrackHeight - bar_length;
+		var scrollto = (event.clientY - mouse_down_grip) / emptyTrack;
+
+		// clamp limits to 0..1
+		if (scrollto > 1) scrollto = 1;
+		if (scrollto < 0) scrollto = 0;
+		me.setPosition(scrollto);
+		me.onScroll.fire('scrollto', scrollto);
+	}
+
+	function onUp(event) {
+		onMove(event);
+		document.removeEventListener('mousemove', onMove, false);
+		document.removeEventListener('mouseup', onUp, false);
+	}
+
+	scrolltrack.addEventListener('mousedown', onDown, false);
+	this.dom = scrolltrack;
+
+}
+
+module.exports = ScrollBar;
+},{"../utils":"/Users/joshua/dev/gits/timeliner/src/utils.js","do.js":"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js"}],"/Users/joshua/dev/gits/timeliner/src/undo.js":[function(require,module,exports){
 /**************************/
 // Undo Manager
 /**************************/
@@ -2521,7 +3212,7 @@ module.exports = {
 	UndoState: UndoState,
 	UndoManager: UndoManager
 };
-},{}],15:[function(require,module,exports){
+},{}],"/Users/joshua/dev/gits/timeliner/src/utils.js":[function(require,module,exports){
 var
 	Tweens = require('./tween');
 
@@ -2648,7 +3339,7 @@ function format_friendly_seconds(s, type) {
 	return str;	
 }
 
-
+// get object at time
 function findTimeinLayer(layer, time) {
 	var values = layer.values;
 	var i, il;
@@ -2742,6 +3433,7 @@ function timeAtLayer(layer, t) {
 
 			return {
 				entry: prev_entry,
+				target_tween: entry,
 				value: new_value,
 				tween: prev_entry.tween,
 				can_tween: true,
@@ -2758,4 +3450,4 @@ function timeAtLayer(layer, t) {
 
 }
 
-},{"./tween":11}]},{},[2,4,5,6,7,8,9,10,11,14,15])
+},{"./tween":"/Users/joshua/dev/gits/timeliner/src/tween.js"}]},{},["/Users/joshua/dev/gits/timeliner/src/datastore.js","/Users/joshua/dev/gits/timeliner/src/dispatcher.js","/Users/joshua/dev/gits/timeliner/src/handle_drag.js","/Users/joshua/dev/gits/timeliner/src/icon_button.js","/Users/joshua/dev/gits/timeliner/src/layer_cabinet.js","/Users/joshua/dev/gits/timeliner/src/save_format.js","/Users/joshua/dev/gits/timeliner/src/settings.js","/Users/joshua/dev/gits/timeliner/src/theme.js","/Users/joshua/dev/gits/timeliner/src/timeline_panel.js","/Users/joshua/dev/gits/timeliner/src/timeliner.js","/Users/joshua/dev/gits/timeliner/src/tween.js","/Users/joshua/dev/gits/timeliner/src/undo.js","/Users/joshua/dev/gits/timeliner/src/utils.js"]);

@@ -5,7 +5,7 @@
   "main": "timeliner.js",
   "scripts": {
     "build": "browserify src/*.js --full-path=false -o timeliner.js",
-    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.js",
+    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.min.js",
     "watch": "watchify src/*.js -o timeliner.js -v",
     "start": "npm run watch",
     "test": "echo \"Error: no tests :(\" && exit 1"
