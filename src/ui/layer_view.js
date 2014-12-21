@@ -128,6 +128,7 @@ function LayerView(layer, dispatcher) {
 			// keyframe_button.style.borderStyle = 'inset';
 		}
 
+		state.get('_value').value = o.value;
 		number.setValue(o.value);
 		number.paint();
 

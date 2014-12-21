@@ -240,16 +240,23 @@ function TimelinePanel(data, dispatcher) {
 		ctx.fillStyle = Theme.c; // 'yellow';
 
 		ctx.beginPath();
-		ctx.rect(scroller.left, 5, scroller.grip_length, h); // 14
+		ctx.rect(scroller.left, 5, scroller.grip_length, h);
 		ctx.fill();
 
-		var r = current_frame * k;
-		ctx.beginPath();
-		ctx.moveTo(r, 5);
-		ctx.lineTo(r, TOP_SCROLL_TRACK);
-		ctx.strokeStyle = 'red';
-		ctx.lineWidth = 2;
-		ctx.stroke();
+		var r = current_frame * k;		
+
+		// ctx.fillStyle = Theme.a; // 'yellow';
+		// ctx.fillRect(0, 5, w, 2);
+
+		ctx.fillStyle = 'red';
+		ctx.fillRect(0, 5, r, 2);
+
+		// ctx.strokeStyle = 'red';
+		// ctx.lineWidth = 2;
+		// ctx.beginPath();
+		// ctx.moveTo(r, 5);
+		// ctx.lineTo(r, 15);
+		// ctx.stroke();
 
 	}
 
@@ -442,7 +449,6 @@ function TimelinePanel(data, dispatcher) {
 	function pointerStart(e) {
 		canvasBounds = canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-		console.log(canvas.offsetTop, canvasBounds);
 
 		if (my <= TOP_SCROLL_TRACK) return false;
 
@@ -498,16 +504,11 @@ function TimelinePanel(data, dispatcher) {
 	var draggingx;
 	handleDrag(canvas, function down(e) {
 			draggingx = scroller.left;
-			console.log('ssssss on');
 		}, function move(e) {
-			// scroller.left = draggingx + e.dx;
 			data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
-			console.log('ssssss move', scroller.left);
 			repaint();
 		}, function up() {
-			console.log('ssssss upppp');
 		}, function(e) {
-
 			var bar = e.offsetx >= scroller.left && e.offsetx <= scroller.left + scroller.grip_length;
 			return e.offsety <= TOP_SCROLL_TRACK && bar;
 		}

@@ -60,15 +60,14 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {
-		console.log('layer', layer, value);
 		var index = layers.indexOf(layer);
 		
-		// layer.values.push
 		var t = data.get('ui:currentTime').value;
-		
 		var v = utils.findTimeinLayer(layer, t);
 
-		console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
+		// console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
+		// console.log('layer', layer, value);
+
 		if (typeof(v) === 'number') {
 			layer.values.splice(v, 0, {
 				time: t,
@@ -312,7 +311,7 @@ function Timeliner(target) {
 	}
 
 	function updateState() {
-		// layers = layer_store.value;
+		layers = layer_store.value; // FIXME: support Arrays
 		layer_panel.setState(layer_store);
 		timeline.setState(layer_store);
 
