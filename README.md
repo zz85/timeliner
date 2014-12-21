@@ -68,7 +68,15 @@ or
 1. Select time between 2 keyframes
 2. Select easing type from the dropdown
 
-## Curent Features
+## Releases
+
+1.4.0
+- Bug fix (insert keyframes should interpolate)
+- ghosting / onioning skinning tweened values
+- Icon and layout tweaks
+- Basic time & vertical scrolling
+- Simple Ghosting / Onion Skinning Support [Example](http://zz85.github.io/timeliner/test_ghosts.html)
+
 1.3.0
 - autosave
 - load (localstorage, new, autosave, filesystem)
@@ -106,13 +114,15 @@ or
 - adjust values (basic)
 
 ## TODO
-- scrolling
+- better marking time when scaling time
+- better keyboard shortcuts
+- move tween blocks
+- custom context / popup menu
 - attempt virtual-dom / v.rendering
+- consider immutable js or localstorage for undo stack
 - curve editor
 - graph editor
 - support audio
 - support guestures
 - remote control
-- insert keyframes should interpolate
-- ghosting / onioning skinning tweened values
 - a whole ton more
