@@ -2,6 +2,7 @@ var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
 	utils = require('./utils'),
+	proxy_ctx = utils.proxy_ctx,
 	Tweens = require('./tween'),
 	handleDrag = require('./handle_drag');
 
@@ -98,6 +99,7 @@ function TimelinePanel(data, dispatcher) {
 	this.resize();
 
 	var ctx = canvas.getContext('2d');
+	var wrap_ctx = proxy_ctx(ctx);
 
 	var current_frame; // currently in seconds
 	// var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
@@ -121,9 +123,10 @@ function TimelinePanel(data, dispatcher) {
 			y = i * LINE_HEIGHT;
 			y = ~~y - 0.5;
 
-			ctx.moveTo(0, y);
-			ctx.lineTo(width, y);
-			ctx.stroke();
+			wrap_ctx
+			.moveTo(0, y)
+			.lineTo(width, y)
+			.stroke();
 		}
 		
 		// Draw Easing Rects
@@ -148,13 +151,13 @@ function TimelinePanel(data, dispatcher) {
 				var y1 = y + 2;
 				var y2 = y + LINE_HEIGHT - 2;
 				// console.log('concert', frame.time, '->', x, y2);
-				ctx.beginPath();
-				ctx.moveTo(x, y1);
-				ctx.lineTo(x2, y1);
-				ctx.lineTo(x2, y2);
-				ctx.lineTo(x, y2);
-				ctx.closePath();
-				ctx.fill();
+				wrap_ctx.beginPath()
+				.moveTo(x, y1)
+				.lineTo(x2, y1)
+				.lineTo(x2, y2)
+				.lineTo(x, y2)
+				.closePath()
+				.fill()
 
 				// draw easing graph
 				var color = parseInt(frame._color.substring(1,7), 16);

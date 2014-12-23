@@ -9,7 +9,8 @@ module.exports = {
 	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,
-	timeAtLayer: timeAtLayer
+	timeAtLayer: timeAtLayer,
+	proxy_ctx: proxy_ctx
 };
 
 /**************************/
@@ -232,4 +233,47 @@ function timeAtLayer(layer, t) {
 		keyframe: false
 	}; 
 
+}
+
+
+function proxy_ctx(ctx) {
+	// Creates a proxy 2d context wrapper which 
+	// allows the fluent / chaining API.
+	var wrapper = {};
+
+	function proxy_function(c) {
+		return function() {
+			ctx[c].apply(ctx, arguments);
+			return wrapper;
+		};
+	}
+
+	function proxy_property(c) {
+		return function(v) {
+			ctx[c] = v;
+			return wrapper;
+		};
+	}
+
+	var a = 0;
+	for (var c in ctx) {
+		// if (!ctx.hasOwnProperty(c)) continue;
+		// console.log(c, typeof(ctx[c]), ctx.hasOwnProperty(c));
+		// string, number, boolean, function, object
+
+		var type = typeof(ctx[c]);
+		switch(type) {
+			case 'object':
+				break;
+			case 'function':
+				wrapper[c] = proxy_function(c);
+				break;
+			default:
+				wrapper[c] = proxy_property(c);
+				break;
+		}
+	}
+
+	console.log('total', a);
+	return wrapper;
 }
