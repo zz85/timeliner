@@ -22,6 +22,13 @@ Aka. Subdivison LOD
 */
 // TODO: refactor to use a nicer scale
 
+
+// TODO
+// dirty rendering
+// drag block
+// drag current time
+// pointer on timescale
+
 var subds, subd_type, subd1, subd2, subd3;
 
 function time_scaled() {
@@ -155,8 +162,8 @@ function TimelinePanel(data, dispatcher) {
 
 		this.mousedrag = function(e) {
 			var t = x_to_time(x + e.dx);
-			console.log(t);
 			t = Math.max(0, t);
+			// TODO limit moving to neighbours
 			frame.time = t;
 			dispatcher.fire('time.update', t);
 			// console.log('frame', frame);
@@ -338,6 +345,7 @@ function TimelinePanel(data, dispatcher) {
 			}
 		}
 
+		// clear old mousein
 		if (last_over && last_over != over) {
 			item = last_over;
 			if (item.mouseout) item.mouseout();
@@ -543,63 +551,10 @@ function TimelinePanel(data, dispatcher) {
 	var dragObject;
 	var canvasBounds;
 
-	canvas.addEventListener('touchstart', function(ev) {
-		e = ev.touches[0];
-		pointerStart(e);
-		ev.preventDefault();
-	});
-
-	canvas.addEventListener('touchmove', function(ev) {
-		e = ev.touches[0];
-		onMouseMove(e);
-	});
-
-	function pointerStart(e) {
-		canvasBounds = canvas.getBoundingClientRect();
-
-		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-
-		if (my <= TOP_SCROLL_TRACK) return false;
-
-		mousedown = true;
-
-		// var track = y_to_track(my);
-		// var s = x_to_time(mx);
-
-		// dragObject = null;
-
-		// console.log('track', track, 't', s, layers[track]);
-		
-		// if (layers[track]) {
-		// 	var tmp = utils.findTimeinLayer(layers[track], s);
-		// 	var tmp2 = utils.timeAtLayer(layers[track], s);
-
-		// 	console.log('drag start', tmp, tmp2);
-
-		//  	if (typeof(tmp) !== 'number') dragObject = tmp;
-		// }
-
-		onPointerMove(mx, my);
-		return true;
-	}
-
-	canvas.addEventListener('mousedown', function(e) {
-
-		var hit = pointerStart(e);
-		if (!hit) return;
-		
-
-		e.preventDefault();
-		document.addEventListener('mouseup', onMouseUp);
-
-	});
-
 	document.addEventListener('mousemove', onMouseMove);
-	
 
 	canvas.addEventListener('dblclick', function(e) {
-		console.log('dblclick!');
-		// canvasBounds = canvas.getBoundingClientRect();
+		canvasBounds = canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 
 
@@ -611,21 +566,6 @@ function TimelinePanel(data, dispatcher) {
 		
 	});
 
-	function onMouseUp(e) {
-		// canvasBounds = canvas.getBoundingClientRect();
-		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-
-		onPointerMove(mx, my);
-		if (dragObject) {
-			dispatcher.fire('keyframe.move');
-		}
-		mousedown = false;
-		dragObject = null;
-
-		// document.removeEventListener('mousemove', onMouseMove);
-		document.removeEventListener('mouseup', onMouseUp);
-	}
-
 	function onMouseMove(e) {
 		canvasBounds = canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
@@ -636,6 +576,7 @@ function TimelinePanel(data, dispatcher) {
 	var pointer = null;
 
 	function onPointerMove(x, y) {
+		if (mousedownItem) return;
 		pointerdidMoved = true;
 		pointer = {x: x, y: y};
 	}
@@ -644,7 +585,7 @@ function TimelinePanel(data, dispatcher) {
 		pointer = null;
 	});
 
-	var mousedown2 = false;
+	var mousedown2 = false, mouseDownThenMove = false;
 	handleDrag(canvas, function down(e) {
 			mousedown2 = true;
 			pointer = {
@@ -652,37 +593,27 @@ function TimelinePanel(data, dispatcher) {
 				y: e.offsety
 			};
 			pointerEvents();
+			dispatcher.fire('time.update', x_to_time(e.offsetx));
+			// Hit criteria
 		}, function move(e) {
 			mousedown2 = false;
 			if (mousedownItem) {
-				console.log('.', e.offsetx, e.dx);
+				mouseDownThenMove = true;
 				if (mousedownItem.mousedrag) {
 					mousedownItem.mousedrag(e);
 				}
+			} else {
+				dispatcher.fire('time.update', x_to_time(e.offsetx));
 			}
 		}, function up() {
+			if (mouseDownThenMove) {
+				dispatcher.fire('keyframe.move');
+			}
 			mousedown2 = false;
 			mousedownItem = null;
+			mouseDownThenMove = false;
 		}
 	);
-
-	function onPointerDrag(x, y) {
-
-		if (x < LEFT_GUTTER) x = LEFT_GUTTER;
-		if (x > width) return;
-
-		var s = x_to_time(x);
-		if (dragObject) {
-			dragObject.object.time = s; // hack! // needs reorder upon mouse up!
-		} else {
-			
-		}
-
-		// Move the cursor;
-		dispatcher.fire('time.update', s);
-		
-		// console.log(s, format_friendly_seconds(s), this);
-	}
 
 	this.setState = function(state) {
 		layers = state.value;
