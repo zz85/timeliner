@@ -243,6 +243,7 @@ function proxy_ctx(ctx) {
 
 	function proxy_function(c) {
 		return function() {
+			// Warning: this doesn't return value of function call
 			ctx[c].apply(ctx, arguments);
 			return wrapper;
 		};
@@ -255,7 +256,11 @@ function proxy_ctx(ctx) {
 		};
 	}
 
-	var a = 0;
+	wrapper.run = function(args) {
+		args(wrapper);
+		return wrapper;
+	};
+
 	for (var c in ctx) {
 		// if (!ctx.hasOwnProperty(c)) continue;
 		// console.log(c, typeof(ctx[c]), ctx.hasOwnProperty(c));
@@ -274,6 +279,5 @@ function proxy_ctx(ctx) {
 		}
 	}
 
-	console.log('total', a);
 	return wrapper;
 }
