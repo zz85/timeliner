@@ -118,6 +118,46 @@ function TimelinePanel(data, dispatcher) {
 	var needsRepaint = false;
 	var renderItems = [];
 
+	function EasingRect(x1, y1, x2, y2, frame, frame2, values, layer, j) {
+		var self = this;
+
+		this.path = function() {
+			ctx_wrap.beginPath()
+			.moveTo(x1, y1)
+			.lineTo(x2, y1)
+			.lineTo(x2, y2)
+			.lineTo(x1, y2)
+			.closePath()
+		};
+		
+		this.paint = function() {
+			this.path();
+			ctx.fillStyle = frame._color;
+			ctx.fill();
+		};
+
+		this.mouseover = function() {
+			canvas.style.cursor = 'move'; // pointer move ew-resize
+		};
+
+		this.mouseout = function() {
+			canvas.style.cursor = 'default';
+		};
+
+		this.mousedrag = function(e) {
+			var t1 = x_to_time(x1 + e.dx);
+			t1 = Math.max(0, t1);
+			// TODO limit moving to neighbours
+			frame.time = t1;
+
+			var t2 = x_to_time(x2 + e.dx);
+			t2 = Math.max(0, t2);
+			// TODO limit moving to neighbours
+			frame2.time = t2;
+
+			dispatcher.fire('time.update', t1);
+		};
+	}
 
 	function Diamond(frame, y) {
 		var x, y2;
@@ -153,11 +193,13 @@ function TimelinePanel(data, dispatcher) {
 		this.mouseover = function() {
 			isOver = true;
 			canvas.style.cursor = 'move'; // pointer move ew-resize
+			self.paint(ctx_wrap);
 		};
 
 		this.mouseout = function() {
 			isOver = false;
 			canvas.style.cursor = 'default';
+			self.paint(ctx_wrap);
 		};
 
 		this.mousedrag = function(e) {
@@ -193,6 +235,9 @@ function TimelinePanel(data, dispatcher) {
 			.stroke();
 		}
 		
+
+		var frame, frame2;
+
 		// Draw Easing Rects
 		for (i = 0; i < il; i++) {
 			// check for keyframes
@@ -202,9 +247,10 @@ function TimelinePanel(data, dispatcher) {
 			y = i * LINE_HEIGHT;
 
 			for (var j = 0; j < values.length - 1; j++) {
-				var frame = values[j];
-				var frame2 = values[j + 1];
-				ctx.fillStyle = frame._color; // Theme.c
+				frame = values[j];
+				frame2 = values[j + 1];
+				
+				
 
 				// Draw Tween Rect
 				x = time_to_x(frame.time);
@@ -215,34 +261,30 @@ function TimelinePanel(data, dispatcher) {
 				var y1 = y + 2;
 				var y2 = y + LINE_HEIGHT - 2;
 				// console.log('concert', frame.time, '->', x, y2);
-				ctx_wrap.beginPath()
-				.moveTo(x, y1)
-				.lineTo(x2, y1)
-				.lineTo(x2, y2)
-				.lineTo(x, y2)
-				.closePath()
-				.fill()
 
-				// draw easing graph
-				var color = parseInt(frame._color.substring(1,7), 16);
-				color = 0xffffff ^ color;
-				color = color.toString(16);           // convert to hex
-				color = '#' + ('000000' + color).slice(-6); 
 
-				ctx.strokeStyle = color;
-				var x3;
-				ctx.beginPath();
-				ctx.moveTo(x, y2);
-				var dy = y1 - y2;
-				var dx = x2 - x;
+				renderItems.push(new EasingRect(x, y1, x2, y2, frame, frame2));
 
-				for (x3=x; x3 < x2; x3++) {
-					ctx.lineTo(x3, y2 + Tweens[frame.tween]((x3 - x)/dx) * dy);
-				}
-				ctx.stroke();
+				// // draw easing graph
+				// var color = parseInt(frame._color.substring(1,7), 16);
+				// color = 0xffffff ^ color;
+				// color = color.toString(16);           // convert to hex
+				// color = '#' + ('000000' + color).slice(-6); 
+
+				// ctx.strokeStyle = color;
+				// var x3;
+				// ctx.beginPath();
+				// ctx.moveTo(x, y2);
+				// var dy = y1 - y2;
+				// var dx = x2 - x;
+
+				// for (x3=x; x3 < x2; x3++) {
+				// 	ctx.lineTo(x3, y2 + Tweens[frame.tween]((x3 - x)/dx) * dy);
+				// }
+				// ctx.stroke();
 			}
 
-			var j, frame;
+			var j;
 			for (j = 0; j < values.length; j++) {
 				// Dimonds
 				frame = values[j];
@@ -349,13 +391,11 @@ function TimelinePanel(data, dispatcher) {
 		if (last_over && last_over != over) {
 			item = last_over;
 			if (item.mouseout) item.mouseout();
-			item.paint(ctx_wrap);
 		}
 
 		if (over) {
 			item = over;
 			if (item.mouseover) item.mouseover();
-			item.paint(ctx_wrap);
 
 			if (mousedown2) {
 				mousedownItem = item;
