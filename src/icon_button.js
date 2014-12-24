@@ -29,9 +29,10 @@ function IconButton(size, icon, tooltip, dp) {
 
 	var me = this;
 	this.size = size;
+	var dpr = 1;
 
 	this.resize = function() {
-		var dpr = window.devicePixelRatio;
+		dpr = window.devicePixelRatio;
 		var height = size;
 
 		var glyph = font.fonts[icon];
@@ -123,7 +124,11 @@ function IconButton(size, icon, tooltip, dp) {
 		style(button, borders);
 		
 		ctx.fillStyle = Theme.d;
-		me.dropshadow = true;
+		// me.dropshadow = true;
+		ctx.shadowColor = Theme.b;
+		ctx.shadowBlur = 0.5 * dpr;
+		ctx.shadowOffsetX = 1 * dpr;
+		ctx.shadowOffsetY = 1 * dpr;
 		me.draw();
 
 		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
@@ -150,6 +155,10 @@ function IconButton(size, icon, tooltip, dp) {
 		style(button, no_borders);
 		me.dropshadow = false;
 		ctx.fillStyle = Theme.c;
+		ctx.shadowColor = null;
+		ctx.shadowBlur = 0;
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
 		me.draw();
 	});
 
