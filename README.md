@@ -70,6 +70,10 @@ or
 
 ## Releases
 
+1.5.0
+- Fix package.json dependencies
+- Easy way to move keyframes (reimplemented block dragging)
+
 1.4.0
 - Bug fix (insert keyframes should interpolate)
 - ghosting / onioning skinning tweened values
@@ -114,6 +118,8 @@ or
 - adjust values (basic)
 
 ## TODO
+- slider units
+- usability improvements
 - better marking time when scaling time
 - better keyboard shortcuts
 - move tween blocks

@@ -123,11 +123,8 @@ function TimelinePanel(data, dispatcher) {
 
 		this.path = function() {
 			ctx_wrap.beginPath()
-			.moveTo(x1, y1)
-			.lineTo(x2, y1)
-			.lineTo(x2, y2)
-			.lineTo(x1, y2)
-			.closePath()
+			.rect(x1, y1, x2-x1, y2-y1)
+			.closePath();
 		};
 		
 		this.paint = function() {
@@ -137,7 +134,7 @@ function TimelinePanel(data, dispatcher) {
 		};
 
 		this.mouseover = function() {
-			canvas.style.cursor = 'move'; // pointer move ew-resize
+			canvas.style.cursor = 'pointer'; // pointer move ew-resize
 		};
 
 		this.mouseout = function() {
@@ -152,7 +149,6 @@ function TimelinePanel(data, dispatcher) {
 
 			var t2 = x_to_time(x2 + e.dx);
 			t2 = Math.max(0, t2);
-			// TODO limit moving to neighbours
 			frame2.time = t2;
 
 			dispatcher.fire('time.update', t1);
@@ -186,8 +182,8 @@ function TimelinePanel(data, dispatcher) {
 			else
 				ctx_wrap.fillStyle('yellow'); // Theme.d
 
-			ctx_wrap.fill();
-			//.stroke();
+			ctx_wrap.fill()
+			.stroke();
 		};
 
 		this.mouseover = function() {
@@ -236,7 +232,7 @@ function TimelinePanel(data, dispatcher) {
 		}
 		
 
-		var frame, frame2;
+		var frame, frame2, j;
 
 		// Draw Easing Rects
 		for (i = 0; i < il; i++) {
@@ -246,12 +242,10 @@ function TimelinePanel(data, dispatcher) {
 
 			y = i * LINE_HEIGHT;
 
-			for (var j = 0; j < values.length - 1; j++) {
+			for (j = 0; j < values.length - 1; j++) {
 				frame = values[j];
 				frame2 = values[j + 1];
 				
-				
-
 				// Draw Tween Rect
 				x = time_to_x(frame.time);
 				x2 = time_to_x(frame2.time);
@@ -260,8 +254,6 @@ function TimelinePanel(data, dispatcher) {
 				
 				var y1 = y + 2;
 				var y2 = y + LINE_HEIGHT - 2;
-				// console.log('concert', frame.time, '->', x, y2);
-
 
 				renderItems.push(new EasingRect(x, y1, x2, y2, frame, frame2));
 
@@ -284,7 +276,6 @@ function TimelinePanel(data, dispatcher) {
 				// ctx.stroke();
 			}
 
-			var j;
 			for (j = 0; j < values.length; j++) {
 				// Dimonds
 				frame = values[j];
@@ -376,7 +367,7 @@ function TimelinePanel(data, dispatcher) {
 		var last_over = over;
 		// over = [];
 		over = null;
-		for (i = 0, il = renderItems.length; i < il; i++) {
+		for (i = renderItems.length; i-- > 0;) {
 			item = renderItems[i];
 			item.path(ctx_wrap);
 
@@ -563,7 +554,6 @@ function TimelinePanel(data, dispatcher) {
 
 
 	function x_to_time(x) {
-
 		var units = time_scale / subd3;
 
 		// return frame_start + (x - LEFT_GUTTER) / time_scale;
@@ -578,7 +568,6 @@ function TimelinePanel(data, dispatcher) {
 
 		return ds;
 	}
-
 
 	var me = this;
 	this.repaint = repaint;

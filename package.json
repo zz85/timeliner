@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/zz85/timeliner",
   "devDependencies": {
+    "do.js": "^1.0.0",
     "uglifyify": "^2.6.0"
   }
 }
