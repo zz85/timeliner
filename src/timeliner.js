@@ -277,6 +277,8 @@ function Timeliner(target) {
 	function exportJSON() {
 		var json = data.getJSONString();
 		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON', json);
+
+		console.log(JSON.stringify(data.data, null, '\t'));
 		if (!ret) return;
 
 		// make json downloadable
@@ -338,6 +340,8 @@ function Timeliner(target) {
 			loadJSONString(localStorage[STORAGE_PREFIX + title]);
 		}
 	}
+
+	this.openLocalSave = open;
 
 	dispatcher.on('import', function() {
 		promptImport();
