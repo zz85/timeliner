@@ -54,15 +54,12 @@ function LayerCabinet(data, dispatcher) {
 
 	var range = document.createElement('input');
 	range.type = "range";
-	// range.min = 0.5;
-	// range.max = 600;
-
 	range.min = 0;
 	range.max = 100;
 
-	range.value = Settings.time_scale;
+	range.value = convertTimeToPercent(Settings.time_scale);
 	
-	range.step = 0.1;
+	range.step = 0.01;
 	style(range, {
 		width: '70px'
 	});
@@ -301,27 +298,31 @@ function LayerCabinet(data, dispatcher) {
 
 	// range.addEventListener('change', changeRange);
 
-	function ExponentialOut(a) {
-		return 1===a?1:1-Math.pow(2,-10*a);
+
+	function convertPercentToTime(t) {
+		var min_time = 1;
+		var max_time = 10 * 60; // 10 minutes
+		var v = 500 / (t * (max_time - min_time) + min_time);
+		return v;
+	}
+
+	function convertTimeToPercent(v) {
+		var min_time = 1;
+		var max_time = 10 * 60; // 10 minutes
+		var t  = ((500 / v) - min_time)  / (max_time - min_time);
+		return t;
 	}
 
 	function changeRange() {
-		// var v = range.max - range.value;
 		var t = range.value / range.max;
-		// t = ExponentialOut(t);
-		// t = Math.exp(t);
-		// t = t * t;
-		// t = t * (2 - t);
-
 		// 800px - 10 minutes - 100%
 		// 50% - 5 minutes
 		// 10*
 		// 100% - 60s / 1 second
-		var min_time = 1;
-		var max_time = 10 * 60; // 10 minutes
-		var v = 500 / (t * (max_time - min_time) + min_time);
-		console.log('scale', v);
-		dispatcher.fire('update.scale', v);
+
+		// TODO: scale time correctly
+
+		dispatcher.fire('update.scale', convertPercentToTime(t));
 	}		
 
 	var layer_uis = [], visible_layers = 0;
