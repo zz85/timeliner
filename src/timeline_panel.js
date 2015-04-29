@@ -16,13 +16,6 @@ var
 
 
 	var frame_start = 0; // this is the current scroll position.
-/*
-Aka. Subdivison LOD
-// Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
-*/
-// TODO: refactor to use a nicer scale
-
-
 // TODO
 // dirty rendering
 // drag block
@@ -32,41 +25,20 @@ Aka. Subdivison LOD
 var subds, subd_type, subd1, subd2, subd3;
 
 function time_scaled() {
-	if (time_scale > 350) {
-		subds = [12, 12, 60, 'frames'];
-	} else if (time_scale > 250) {
-		subds = [6, 12, 60, 'frames'];
-	} else if (time_scale > 200) {
-		subds = [6, 6, 30, 'frames'];
-	} else if (time_scale > 150) {
-		subds = [4, 4, 20, 'frames'];
-	} else if (time_scale > 100) {
-		subds = [4, 4, 8, 'frames'];
-	} else if (time_scale > 90) {
-		subds = [4, 4, 8, 'seconds'];
-	} else if (time_scale > 60) {
-		subds = [2, 4, 8, 'seconds'];
-	} else if (time_scale > 40) {
-		subds = [1, 2, 10, 'seconds'];
-	} else if (time_scale > 30) {
-		subds = [1, 2, 10, 'seconds'];
-	} else if (time_scale > 10) {
-		subds = [1, 1, 4, 'seconds'];
-	} else if (time_scale > 4) {
-		subds = [1/5, 1/5, 1/5, 'seconds'];
-	} else if (time_scale > 3) {
-		subds = [1/10, 1/10, 1/5, 'seconds'];
-	} else if (time_scale > 1) {
-		subds = [1/20, 1/20, 1/10, 'seconds'];
-	} else if (time_scale >= 1) {
-		subds = [1/30, 1/30, 1/15, 'seconds'];
-	} else { // 1s per pixel
-		subds = [1/60, 1/60, 1/15, 'seconds'];
-	}
+	/*
+	 * Subdivison LOD
+	 * time_scale refers to number of pixels per unit
+	 * Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
+	 */
+	
+	var a =  time_scale / 60; // bigger wider, smaller narrower (40 - 80)
+	var b = time_scale / 20; // (1x or 2x a)
+	var c = time_scale / 5; // (4x or 5x a)
 
-	console.log(subds);
+	subds = [a, b, c, time_scale > 100 ? 'frames' : 'seconds'];
 
-
+	// console.log(subds, subds[0] / time_scale, subds[1] / time_scale);
+	
 	subd1 = subds[0]; // big ticks / labels
 	subd2 = subds[1]; // medium ticks
 	subd3 = subds[2]; // small ticks

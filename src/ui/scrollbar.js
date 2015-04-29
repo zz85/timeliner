@@ -41,14 +41,14 @@ function ScrollBar(h, w, dispatcher) {
 	utils.style(scrolltrack, scrolltrack_style);
 
 	var scrolltrackHeight = h - 2;
-	scrolltrack.style.height = scrolltrackHeight + 'px' ;
-	scrolltrack.style.width = SCROLL_WIDTH; //SCROLLBAR_WIDTH;
+	scrolltrack.style.height = scrolltrackHeight + 'px';
+	scrolltrack.style.width = SCROLL_WIDTH + 'px';;
 
 	// var scrollTop = 0;
 	var scrollbar = document.createElement('div');
 	// scrollbar.className = 'scrollbar';
 	utils.style(scrollbar, scrollbar_style);
-	scrollbar.style.width = SCROLLBAR_WIDTH;
+	scrollbar.style.width = SCROLLBAR_WIDTH + 'px';
 	scrollbar.style.height = h / 2;
 	scrollbar.style.top = 0;
 	scrollbar.style.left = SCROLLBAR_MARGIN + 'px'; // 0; //S
@@ -65,7 +65,7 @@ function ScrollBar(h, w, dispatcher) {
 		l = Math.max(Math.min(1, l), 0);
 		l *= scrolltrackHeight;
 		bar_length = Math.max(l, MIN_BAR_LENGTH);
-		scrollbar.style.height = bar_length;
+		scrollbar.style.height = bar_length + 'px';
 	};
 
 	this.setHeight = function(height) {
