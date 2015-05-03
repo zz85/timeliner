@@ -63,7 +63,6 @@ function LayerCabinet(data, dispatcher) {
 	style(range, {
 		width: '70px'
 	});
-	
 
 	var draggingRange = 0;
 
@@ -87,6 +86,7 @@ function LayerCabinet(data, dispatcher) {
 		min: 0,
 		step: 0.01
 	};
+
 	var currentTime = new UINumber(time_options);
 	var totalTime = new UINumber(time_options);
 
@@ -392,7 +392,6 @@ function LayerCabinet(data, dispatcher) {
 				continue;
 			}
 			
-			// console.log('yoz', states.get(i).value);
 			layer_uis[i].setState(layers[i], layer_store.get(i));
 			// layer_uis[i].setState('layers'+':'+i);
 			layer_uis[i].repaint(s);

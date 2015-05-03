@@ -38,21 +38,22 @@ function LayerProp(name) {
 }
 
 function Timeliner(target) {
-	// Aka Layer Manager / Controller
+	// Dispatcher for coordination
+	var dispatcher = new Dispatcher();
 
-	// Should persist current time too.
+	// Data
 	var data = new DataStore();
 	var layer_store = data.get('layers');
 	var layers = layer_store.value;
 
-	window._data = data;
+	window._data = data; // expose it for debugging
 
-	var dispatcher = new Dispatcher();
+	// Undo manager
+	var undo_manager = new UndoManager(dispatcher);
 
+	// Views
 	var timeline = new TimelinePanel(data, dispatcher);
 	var layer_panel = new LayerCabinet(data, dispatcher);
-
-	var undo_manager = new UndoManager(dispatcher);
 
 	setTimeout(function() {
 		// hack!
@@ -550,6 +551,11 @@ function Timeliner(target) {
  		transitionDuration: '0.25s',
 		transitionTimingFunction: 'ease-in-out'
 	});
+
+
+	//
+	// Handle DOM Views
+	//
 
 	document.body.appendChild(pane);
 	document.body.appendChild(ghostpane);

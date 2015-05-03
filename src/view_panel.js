@@ -6,20 +6,26 @@ var
 	Tweens = require('./util_tween'),
 	handleDrag = require('./util_handle_drag');
 
-	var 
-		LINE_HEIGHT = Settings.LINE_HEIGHT,
-		DIAMOND_SIZE = Settings.DIAMOND_SIZE,
-		MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
-		
-		LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
-		time_scale = Settings.time_scale;
+var 
+	LINE_HEIGHT = Settings.LINE_HEIGHT,
+	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
+	MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
+	
+	LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
+	time_scale = Settings.time_scale;
 
 
-	var frame_start = 0; // this is the current scroll position.
+var frame_start = 0; // this is the current scroll position.
+
+
+/*
+ * This class contains the view for the right main section of timeliner
+ */
+
+
 // TODO
 // dirty rendering
 // drag block
-// drag current time
 // pointer on timescale
 
 var subds, subd_type, subd1, subd2, subd3;
@@ -72,17 +78,48 @@ function TimelinePanel(data, dispatcher) {
 		canvas.style.width = Settings.width + 'px';
 		canvas.style.height = Settings.height + 'px';
 		SCROLL_HEIGHT = Settings.height - MARKER_TRACK_HEIGHT;
+		canvas2.setSize(Settings.width, 50);
 	};
 
-	this.dom = canvas;
+	var div = document.createElement('div');
+	var Canvas = require('./ui_canvas');
+	var canvas2 = new Canvas(Settings.width, 20);
+	utils.style(canvas2.dom, {
+		position: 'absolute',
+		top: '5px',
+		left: '10px'
+	});
+
+	function ScrollCanvas() {
+		var width, height;
+
+		this.setSize = function(w, h) {
+			width = w;
+			height = h;
+		}
+
+		this.paint = function(ctx) {
+			ctx.clearRect(0, 0, width, height);
+			ctx.fillStyle = 'blue';
+			ctx.fillRect(0, 0, width, height);
+		}
+	}
+
+	canvas2.uses(new ScrollCanvas());
+
+	
+	div.appendChild(canvas);
+	div.appendChild(canvas2.dom);
+
+	// this.dom = canvas;
+	this.dom = div;
 	this.resize();
 
 	var ctx = canvas.getContext('2d');
 	var ctx_wrap = proxy_ctx(ctx);
 
-	var current_frame; // currently in seconds
-	// var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
-
+	var current_frame; // currentTime measured in seconds
+	// technically it could be in frames or  have it in string format (0:00:00:1-60)
 	
 	var LEFT_GUTTER = 20;
 	var i, x, y, il, j;
@@ -272,24 +309,29 @@ function TimelinePanel(data, dispatcher) {
 	var left;
 
 	function drawScroller() {
+		// TODO: move to view_mark_scroller?
+
 		var w = width;
 
 		var totalTime = data.get('ui:totalTime').value;
 		var pixels_per_second = data.get('ui:timeScale').value;
 
-		var viewTime = w / pixels_per_second;
+		var viewTime = w / pixels_per_second; // 8
 
 
 		var k = w / totalTime; // pixels per seconds
 		scroller.k = k;
 
+		
+
 		// 800 / 5 = 180
 
-		// var k = Math.min(viewTime / totalTime, 1);
-		// var grip_length = k * w;
+		var k = Math.min(viewTime / totalTime, 1);
+		var grip_length = k * w;
 
 		scroller.grip_length = viewTime * k;
-		var h = TOP_SCROLL_TRACK;
+		var h = 16; // TOP_SCROLL_TRACK;
+		var h2 = h;
 
 		scroller.left = data.get('ui:scrollTime').value * k;
 		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
@@ -299,7 +341,7 @@ function TimelinePanel(data, dispatcher) {
 		ctx.rect(0, 5, w, h);
 		ctx.fill();
 
-		ctx.fillStyle = Theme.c; // 'yellow';
+		ctx.fillStyle = Theme.c;  // // 'yellow';
 
 		ctx.beginPath();
 		ctx.rect(scroller.left, 5, scroller.grip_length, h);
@@ -307,18 +349,14 @@ function TimelinePanel(data, dispatcher) {
 
 		var r = current_frame * k;		
 
-		// ctx.fillStyle = Theme.a; // 'yellow';
-		// ctx.fillRect(0, 5, w, 2);
+		// ctx.fillStyle = Theme.a;
+		// ctx.fillRect(0, 10-5, r, 10);
 
-		ctx.fillStyle = 'red';
-		ctx.fillRect(0, 5, r, 2);
-
-		// ctx.strokeStyle = 'red';
-		// ctx.lineWidth = 2;
-		// ctx.beginPath();
-		// ctx.moveTo(r, 5);
-		// ctx.lineTo(r, 15);
-		// ctx.stroke();
+		ctx.fillStyle = 'red'; // Theme.b;
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		ctx.arc(r, h2 / 2 + 5, h2 / 3, 0, Math.PI * 2);
+		ctx.fill()
 
 	}
 
@@ -390,6 +428,8 @@ function TimelinePanel(data, dispatcher) {
 			pointerEvents();
 			return;
 		}
+
+		canvas2.repaint();
 
 		setTimeScale();
 

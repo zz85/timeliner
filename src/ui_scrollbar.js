@@ -79,7 +79,7 @@ function ScrollBar(h, w, dispatcher) {
 		p = Math.max(Math.min(1, p), 0);
 		var emptyTrack = scrolltrackHeight - bar_length;
 		bar_y = p * emptyTrack;
-		scrollbar.style.top = bar_y;
+		scrollbar.style.top = bar_y + 'px';
 	};
 
 	this.setLength(1);
