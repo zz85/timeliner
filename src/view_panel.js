@@ -4,15 +4,18 @@ var
 	utils = require('./utils'),
 	proxy_ctx = utils.proxy_ctx,
 	Tweens = require('./util_tween'),
-	handleDrag = require('./util_handle_drag');
+	handleDrag = require('./util_handle_drag'),
+	ScrollCanvas = require('./view_time_scroller')
+	;
 
 var 
 	LINE_HEIGHT = Settings.LINE_HEIGHT,
 	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
-	MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
-	
+	ORIGINAL_MARKER_TRACK_HEIGHT = 35; // Settings.MARKER_TRACK_HEIGHT - 30,
+	MARKER_TRACK_HEIGHT = 25,
 	LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
-	time_scale = Settings.time_scale;
+	time_scale = Settings.time_scale,
+	TOP = 10;
 
 
 var frame_start = 0; // this is the current scroll position.
@@ -72,40 +75,33 @@ function TimelinePanel(data, dispatcher) {
 	};
 
 	this.resize = function() {
+		var h = (Settings.height - ORIGINAL_MARKER_TRACK_HEIGHT);
 		dpr = window.devicePixelRatio;
 		canvas.width = Settings.width * dpr;
-		canvas.height = Settings.height * dpr;
+		canvas.height = h * dpr;
 		canvas.style.width = Settings.width + 'px';
-		canvas.style.height = Settings.height + 'px';
-		SCROLL_HEIGHT = Settings.height - MARKER_TRACK_HEIGHT;
-		canvas2.setSize(Settings.width, 50);
+		canvas.style.height = h + 'px';
+		SCROLL_HEIGHT = Settings.height - ORIGINAL_MARKER_TRACK_HEIGHT;
+		canvas2.setSize(Settings.width, ORIGINAL_MARKER_TRACK_HEIGHT);
 	};
 
 	var div = document.createElement('div');
 	var Canvas = require('./ui_canvas');
 	var canvas2 = new Canvas(Settings.width, 20);
+	
+	utils.style(canvas, {
+		position: 'absolute',
+		top: ORIGINAL_MARKER_TRACK_HEIGHT + 'px',
+		left: '0px'
+	});
+
 	utils.style(canvas2.dom, {
 		position: 'absolute',
-		top: '5px',
+		top: '0px',
 		left: '10px'
 	});
 
-	function ScrollCanvas() {
-		var width, height;
-
-		this.setSize = function(w, h) {
-			width = w;
-			height = h;
-		}
-
-		this.paint = function(ctx) {
-			ctx.clearRect(0, 0, width, height);
-			ctx.fillStyle = 'blue';
-			ctx.fillRect(0, 0, width, height);
-		}
-	}
-
-	canvas2.uses(new ScrollCanvas());
+	canvas2.uses(new ScrollCanvas(data));
 
 	
 	div.appendChild(canvas);
@@ -300,67 +296,6 @@ function TimelinePanel(data, dispatcher) {
 		}
 	}
 
-	var TOP_SCROLL_TRACK = 20;
-	var scroller = {
-		left: 0,
-		grip_length: 0,
-		k: 1
-	};
-	var left;
-
-	function drawScroller() {
-		// TODO: move to view_mark_scroller?
-
-		var w = width;
-
-		var totalTime = data.get('ui:totalTime').value;
-		var pixels_per_second = data.get('ui:timeScale').value;
-
-		var viewTime = w / pixels_per_second; // 8
-
-
-		var k = w / totalTime; // pixels per seconds
-		scroller.k = k;
-
-		
-
-		// 800 / 5 = 180
-
-		var k = Math.min(viewTime / totalTime, 1);
-		var grip_length = k * w;
-
-		scroller.grip_length = viewTime * k;
-		var h = 16; // TOP_SCROLL_TRACK;
-		var h2 = h;
-
-		scroller.left = data.get('ui:scrollTime').value * k;
-		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
-
-		ctx.beginPath();
-		ctx.fillStyle = Theme.b; // 'cyan';
-		ctx.rect(0, 5, w, h);
-		ctx.fill();
-
-		ctx.fillStyle = Theme.c;  // // 'yellow';
-
-		ctx.beginPath();
-		ctx.rect(scroller.left, 5, scroller.grip_length, h);
-		ctx.fill();
-
-		var r = current_frame * k;		
-
-		// ctx.fillStyle = Theme.a;
-		// ctx.fillRect(0, 10-5, r, 10);
-
-		ctx.fillStyle = 'red'; // Theme.b;
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		ctx.arc(r, h2 / 2 + 5, h2 / 3, 0, Math.PI * 2);
-		ctx.fill()
-
-	}
-
-
 	function setTimeScale() {
 		var v = data.get('ui:timeScale').value;
 		if (time_scale !== v) {
@@ -478,7 +413,7 @@ function TimelinePanel(data, dispatcher) {
 
 			var t = (i * units - offsetUnits) / time_scale + frame_start;
 			t = utils.format_friendly_seconds(t, subd_type);
-			ctx.fillText(t, x, 38);
+			ctx.fillText(t, x, TOP);
 		}
 
 		units = time_scale / subd2;
@@ -520,8 +455,6 @@ function TimelinePanel(data, dispatcher) {
 				.run(drawLayerContents)
 			.restore();
 
-		drawScroller();
-
 		// Current Marker / Cursor
 		ctx.strokeStyle = 'red'; // Theme.c
 		x = (current_frame - frame_start) * time_scale + LEFT_GUTTER;
@@ -529,7 +462,7 @@ function TimelinePanel(data, dispatcher) {
 		var txt = utils.format_friendly_seconds(current_frame);
 		var textWidth = ctx.measureText(txt).width;
 
-		var base_line = MARKER_TRACK_HEIGHT- 5, half_rect = textWidth / 2 + 4;
+		var base_line = MARKER_TRACK_HEIGHT - 5, half_rect = textWidth / 2 + 4;
 
 		ctx.beginPath();
 		ctx.moveTo(x, base_line);
@@ -660,24 +593,6 @@ function TimelinePanel(data, dispatcher) {
 		layers = state.value;
 		repaint();
 	};
-
-	/** Handles dragging for scroll bar **/
-
-	var draggingx;
-
-	handleDrag(canvas, function down(e) {
-			draggingx = scroller.left;
-		}, function move(e) {
-			data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
-			repaint();
-		}, function up() {
-		}, function(e) {
-			var bar = e.offsetx >= scroller.left && e.offsetx <= scroller.left + scroller.grip_length;
-			return e.offsety <= TOP_SCROLL_TRACK && bar;
-		}
-	);
-
-	/*** End handling for scrollbar ***/
 
 }
 

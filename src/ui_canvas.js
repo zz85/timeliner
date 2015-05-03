@@ -65,10 +65,13 @@ function Canvas(w, h) {
 
 	handleDrag(canvas,
 		function down(e) {
+			if (child.onDown) { child.onDown(e) };
 		},
 		function move(e) {
+			if (child.onMove) { child.onMove(e) };
 		},
 		function up(e) {
+			if (child.onUp) { child.onUp(e) };
 		},
 		function hit(e) {
 			return true;
@@ -87,5 +90,11 @@ module.exports = Canvas;
 // children
 // 1: override repaint
 // 2: add objects
-// utils.inherits(self, Canvas);
+// Canvas.uses(CanvasChild);
+// CanvasItem
+// width, height, x, y
+// allow Drag
+// allow Click
+// mouseOver
+// 
 
