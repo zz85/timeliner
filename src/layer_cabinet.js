@@ -110,7 +110,7 @@ function LayerCabinet(data, dispatcher) {
 
 	totalTime.onChange.do(function(value, done) {
 		totalTimeStore.value = value;
-		// repaint();
+		repaint();
 	});
 
 	// Play Controls
