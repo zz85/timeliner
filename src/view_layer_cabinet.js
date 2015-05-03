@@ -1,6 +1,6 @@
 var Settings = require('./settings'),
 	ViewLayer = require('./view_layer'),
-	IconButton = require('./icon_button'),
+	IconButton = require('./ui_icon_button'),
 	style = require('./utils').style,
 	Theme = require('./theme'),
 	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,

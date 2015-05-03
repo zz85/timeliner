@@ -1,7 +1,7 @@
 var
 	Theme = require('./theme'),
 	UINumber = require('./ui_number'),
-	Tweens = require('./tween'),
+	Tweens = require('./util_tween'),
 	Settings = require('./settings'),
 	utils = require('./utils')
 ;

@@ -1,6 +1,6 @@
 var Theme = require('./theme'),
 	Do = require('do.js'),
-	handleDrag = require('./handle_drag'),
+	handleDrag = require('./util_handle_drag'),
 	style = require('./utils').style
 	;
 

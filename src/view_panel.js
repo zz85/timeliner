@@ -3,8 +3,8 @@ var
 	Theme = require('./theme'),
 	utils = require('./utils'),
 	proxy_ctx = utils.proxy_ctx,
-	Tweens = require('./tween'),
-	handleDrag = require('./handle_drag');
+	Tweens = require('./util_tween'),
+	handleDrag = require('./util_handle_drag');
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,

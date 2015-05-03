@@ -1,5 +1,5 @@
 var
-	Tweens = require('./tween');
+	Tweens = require('./util_tween');
 
 module.exports = {
 	STORAGE_PREFIX: 'timeliner-',

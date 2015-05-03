@@ -2,23 +2,23 @@
  * @author Joshua Koo http://joshuakoo.com
  */
 
-var undo = require('./undo'),
-	Dispatcher = require('./dispatcher'),
+var undo = require('./util_undo'),
+	Dispatcher = require('./util_dispatcher'),
 	Theme = require('./theme'),
 	UndoManager = undo.UndoManager,
 	UndoState = undo.UndoState,
 	Settings = require('./settings'),
 	utils = require('./utils'),
-	LayerCabinet = require('./layer_cabinet'),
-	TimelinePanel = require('./timeline_panel'),
+	LayerCabinet = require('./view_layer_cabinet'),
+	TimelinePanel = require('./view_panel'),
 	package_json = require('../package.json'),
-	IconButton = require('./icon_button'),
+	IconButton = require('./ui_icon_button'),
 	style = utils.style,
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
 	STORAGE_PREFIX = utils.STORAGE_PREFIX,
 	ScrollBar = require('./ui_scrollbar'),
-	DataStore = require('./datastore')
+	DataStore = require('./util_datastore')
 	;
 
 var Z_INDEX = 999;
