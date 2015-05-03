@@ -17,7 +17,7 @@ var undo = require('./undo'),
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
 	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./ui/scrollbar'),
+	ScrollBar = require('./ui_scrollbar'),
 	DataStore = require('./datastore')
 	;
 

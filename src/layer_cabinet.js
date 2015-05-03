@@ -1,10 +1,10 @@
 var Settings = require('./settings'),
-	LayerUI = require('./ui/layer_view'),
+	ViewLayer = require('./view_layer'),
 	IconButton = require('./icon_button'),
 	style = require('./utils').style,
 	Theme = require('./theme'),
 	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
-	NumberUI = require('./ui/number')
+	UINumber = require('./ui_number')
 	;
 
 function LayerCabinet(data, dispatcher) {
@@ -87,8 +87,8 @@ function LayerCabinet(data, dispatcher) {
 		min: 0,
 		step: 0.01
 	};
-	var currentTime = new NumberUI(time_options);
-	var totalTime = new NumberUI(time_options);
+	var currentTime = new UINumber(time_options);
+	var totalTime = new UINumber(time_options);
 
 	var currentTimeStore = data.get('ui:currentTime');
 	var totalTimeStore = data.get('ui:totalTime');
@@ -359,7 +359,7 @@ function LayerCabinet(data, dispatcher) {
 					layer_ui.dom.style.display = 'block';
 				} else {
 					// new
-					layer_ui = new LayerUI(layer, dispatcher);
+					layer_ui = new ViewLayer(layer, dispatcher);
 					layer_scroll.appendChild(layer_ui.dom);
 				}
 				layer_uis.push(layer_ui);

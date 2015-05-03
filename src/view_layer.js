@@ -1,9 +1,9 @@
 var
-	Theme = require('../theme'),
-	NumberUI = require('./number'),
-	Tweens = require('../tween'),
-	Settings = require('../settings'),
-	utils = require('../utils')
+	Theme = require('./theme'),
+	UINumber = require('./ui_number'),
+	Tweens = require('./tween'),
+	Settings = require('./settings'),
+	utils = require('./utils')
 ;
 
 // TODO - tagged by index instead, work off layers.
@@ -51,12 +51,6 @@ function LayerView(layer, dispatcher) {
 	button.style.cssText = 'font-size: 12px; padding: 1px; ';
 	dom.appendChild(button);
 
-	// Mute
-	button = document.createElement('button');
-	button.textContent = 'M';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
-
 	// Solo
 	button = document.createElement('button');
 	button.textContent = 'S';
@@ -64,7 +58,13 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(button);
 	*/
 
-	var number = new NumberUI(layer, dispatcher);
+	// Mute
+	button = document.createElement('button');
+	button.textContent = 'M';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+
+	var number = new UINumber(layer, dispatcher);
 
 	number.onChange.do(function(value, done) {
 		state.get('_value').value = value;

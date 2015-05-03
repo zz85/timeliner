@@ -31,9 +31,9 @@ function time_scaled() {
 	 * Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
 	 */
 	
-	var a =  time_scale / 60; // bigger wider, smaller narrower (40 - 80)
-	var b = time_scale / 20; // (1x or 2x a)
-	var c = time_scale / 5; // (4x or 5x a)
+	var a =  time_scale / 80; // bigger wider, smaller narrower (40 - 80)
+	var b = time_scale / 40; // (1x or 2x a)
+	var c = time_scale / 10; // (4x or 5x a)
 
 	subds = [a, b, c, time_scale > 100 ? 'frames' : 'seconds'];
 
