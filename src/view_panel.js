@@ -5,13 +5,14 @@ var
 	proxy_ctx = utils.proxy_ctx,
 	Tweens = require('./util_tween'),
 	handleDrag = require('./util_handle_drag'),
-	ScrollCanvas = require('./view_time_scroller')
+	ScrollCanvas = require('./view_time_scroller'),
+	Canvas = require('./ui_canvas')
 	;
 
 var 
 	LINE_HEIGHT = Settings.LINE_HEIGHT,
 	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
-	ORIGINAL_MARKER_TRACK_HEIGHT = 35; // Settings.MARKER_TRACK_HEIGHT - 30,
+	TIME_SCROLLER_HEIGHT = 35;
 	MARKER_TRACK_HEIGHT = 25,
 	LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
 	time_scale = Settings.time_scale,
@@ -75,37 +76,38 @@ function TimelinePanel(data, dispatcher) {
 	};
 
 	this.resize = function() {
-		var h = (Settings.height - ORIGINAL_MARKER_TRACK_HEIGHT);
+		var h = (Settings.height - TIME_SCROLLER_HEIGHT);
 		dpr = window.devicePixelRatio;
 		canvas.width = Settings.width * dpr;
 		canvas.height = h * dpr;
 		canvas.style.width = Settings.width + 'px';
 		canvas.style.height = h + 'px';
-		SCROLL_HEIGHT = Settings.height - ORIGINAL_MARKER_TRACK_HEIGHT;
-		canvas2.setSize(Settings.width, ORIGINAL_MARKER_TRACK_HEIGHT);
+		SCROLL_HEIGHT = Settings.height - TIME_SCROLLER_HEIGHT;
+		scroll_canvas.setSize(Settings.width, TIME_SCROLLER_HEIGHT);
 	};
 
 	var div = document.createElement('div');
-	var Canvas = require('./ui_canvas');
-	var canvas2 = new Canvas(Settings.width, 20);
+	
+	var scroll_canvas = new Canvas(Settings.width, TIME_SCROLLER_HEIGHT);
+	data.addListener('ui', repaint );
 	
 	utils.style(canvas, {
 		position: 'absolute',
-		top: ORIGINAL_MARKER_TRACK_HEIGHT + 'px',
+		top: TIME_SCROLLER_HEIGHT + 'px',
 		left: '0px'
 	});
 
-	utils.style(canvas2.dom, {
+	utils.style(scroll_canvas.dom, {
 		position: 'absolute',
 		top: '0px',
 		left: '10px'
 	});
 
-	canvas2.uses(new ScrollCanvas(data));
+	scroll_canvas.uses(new ScrollCanvas(data));
 
 	
 	div.appendChild(canvas);
-	div.appendChild(canvas2.dom);
+	div.appendChild(scroll_canvas.dom);
 
 	// this.dom = canvas;
 	this.dom = div;
@@ -364,7 +366,7 @@ function TimelinePanel(data, dispatcher) {
 			return;
 		}
 
-		canvas2.repaint();
+		scroll_canvas.repaint();
 
 		setTimeScale();
 

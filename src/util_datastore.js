@@ -7,7 +7,16 @@ function DataStore() {
 	this.blank();
 	this.onOpen = new Do();
 	this.onSave = new Do();
+
+	this.listeners = [];
 }
+
+DataStore.prototype.addListener = function(path, cb) {
+	this.listeners.push({
+		path: path,
+		callback: cb
+	});
+};
 
 DataStore.prototype.blank = function() {
 	var data = {};
@@ -62,6 +71,10 @@ DataStore.prototype.setValue = function(paths, value) {
 	}
 
 	reference[path] = value;
+
+	this.listeners.forEach(function(l) {
+		if (paths.indexOf(l.path) > -1) l.callback();
+	})
 };
 
 DataStore.prototype.get = function(path, suffix) {

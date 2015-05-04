@@ -72,10 +72,10 @@ function Canvas(w, h) {
 		},
 		function up(e) {
 			if (child.onUp) { child.onUp(e) };
-		},
-		function hit(e) {
-			return true;
 		}
+		// function hit(e) {
+		// 	if (child.onHit) { child.onHit(e) };
+		// }
 	);
 }
 
