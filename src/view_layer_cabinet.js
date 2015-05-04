@@ -55,7 +55,7 @@ function LayerCabinet(data, dispatcher) {
 	var range = document.createElement('input');
 	range.type = "range";
 	range.min = 0;
-	range.max = 100;
+	range.max = 1000;
 
 	range.value = convertTimeToPercent(Settings.time_scale);
 	

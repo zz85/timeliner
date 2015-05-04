@@ -170,7 +170,16 @@ function Timeliner(target) {
 	var currentTimeStore = data.get('ui:currentTime');
 	dispatcher.on('time.update', setCurrentTime);
 
+
+	dispatcher.on('update.scrollTime', function(v) {
+		v = Math.max(0 , v);
+		data.get('ui:scrollTime').value = v;
+		repaintAll();
+	});
+	
+
 	function setCurrentTime(value) {
+		value = Math.max(0, value);
 		currentTimeStore.value = value;
 
 		if (start_play) start_play = performance.now() - value * 1000;

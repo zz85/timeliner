@@ -6,6 +6,41 @@ var
 	;
 
 
+function Rect() {
+	
+}
+
+Rect.prototype.set = function(x, y, w, h, color, outline) {
+	this.x = x;
+	this.y = y;
+	this.w = w;
+	this.h = h;
+	this.color = color;
+	this.outline = outline;
+};
+
+Rect.prototype.paint = function(ctx) {
+	ctx.fillStyle = Theme.b;  // // 'yellow';
+	ctx.strokeStyle = Theme.c;
+
+	this.shape(ctx);
+
+	ctx.stroke();
+	ctx.fill();
+};
+
+Rect.prototype.shape = function(ctx) {
+	ctx.beginPath();
+	ctx.rect(this.x, this.y, this.w, this.h);
+};
+
+Rect.prototype.contains = function(x, y) {
+	return x >= this.x && y >= this.y
+	 && x <= this.x + this.w && y <= this.y + this.h;
+};
+
+
+
 function ScrollCanvas(dispatcher, data) {
 	var width, height;
 
@@ -22,6 +57,8 @@ function ScrollCanvas(dispatcher, data) {
 		grip_length: 0,
 		k: 1
 	};
+
+	var scrollRect = new Rect();
 
 	this.paint = function(ctx) {
 		var totalTime = data.get('ui:totalTime').value;
@@ -54,23 +91,16 @@ function ScrollCanvas(dispatcher, data) {
 
 		scroller.grip_length = grip_length;
 
-
-		// scroller.left = scrollTime / pixels_per_second;
-		scroller.left = scrollTime / totalTime  * w;
+		scroller.left = scrollTime / totalTime * w;
 		
-
-		ctx.fillStyle = Theme.b;  // // 'yellow';
-		ctx.strokeStyle = Theme.c;
-
-		ctx.beginPath();
-		ctx.rect(scroller.left, 0, scroller.grip_length, h);
-		ctx.fill();
-		ctx.stroke();
+		scrollRect.set(scroller.left, 0, scroller.grip_length, h);
+		scrollRect.paint(ctx);
 
 		var r = currentTime / totalTime * w;		
 
 		ctx.fillStyle =  Theme.c;
 		ctx.lineWidth = 2;
+		
 		ctx.beginPath();
 		
 		// circle
@@ -78,7 +108,6 @@ function ScrollCanvas(dispatcher, data) {
 
 		// line
 		ctx.rect(r, 0, 2, h + 5);
-
 		ctx.fill()
 
 		ctx.fillText(currentTime && currentTime.toFixed(2), r, h + 14);
@@ -90,18 +119,22 @@ function ScrollCanvas(dispatcher, data) {
 
 	/** Handles dragging for scroll bar **/
 
-	var draggingx;
+	var draggingx = null;
 
 	this.onDown = function(e) {
 		// console.log('ondown', e);
-		draggingx = scroller.left;
+
+		if (scrollRect.contains(e.offsetx - MARGINS, e.offsety -5)) {
+			draggingx = scroller.left;
+			return;
+		}
 		
 		var totalTime = data.get('ui:totalTime').value;
 		var pixels_per_second = data.get('ui:timeScale').value;
 		var w = width - 2 * MARGINS;
 
 		var t = (e.offsetx - MARGINS) / w * totalTime;
-		t = Math.max(0, t);
+		// t = Math.max(0, t);
 
 		// data.get('ui:currentTime').value = t;
 		dispatcher.fire('time.update', t);
@@ -109,9 +142,22 @@ function ScrollCanvas(dispatcher, data) {
 	};
 
 	this.onMove = function move(e) {
-		// console.log(e);
-		this.onDown(e);
+		if (draggingx != null) {
+			var totalTime = data.get('ui:totalTime').value;
+			var w = width - 2 * MARGINS;
+			
+			dispatcher.fire('update.scrollTime', 
+				(draggingx + e.dx)  / w * totalTime);
+
+		} else {
+			this.onDown(e);	
+		}
+		
 	};
+
+	this.onUp = function(e) {
+		draggingx = null;
+	}
 
 	/*** End handling for scrollbar ***/
 }
