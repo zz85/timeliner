@@ -89,7 +89,7 @@ function TimelinePanel(data, dispatcher) {
 	var div = document.createElement('div');
 	
 	var scroll_canvas = new Canvas(Settings.width, TIME_SCROLLER_HEIGHT);
-	data.addListener('ui', repaint );
+	// data.addListener('ui', repaint );
 	
 	utils.style(canvas, {
 		position: 'absolute',
@@ -103,7 +103,7 @@ function TimelinePanel(data, dispatcher) {
 		left: '10px'
 	});
 
-	scroll_canvas.uses(new ScrollCanvas(data));
+	scroll_canvas.uses(new ScrollCanvas(dispatcher, data));
 
 	
 	div.appendChild(canvas);

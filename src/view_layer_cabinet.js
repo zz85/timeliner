@@ -300,16 +300,18 @@ function LayerCabinet(data, dispatcher) {
 
 
 	function convertPercentToTime(t) {
-		var min_time = 1;
-		var max_time = 10 * 60; // 10 minutes
-		var v = 500 / (t * (max_time - min_time) + min_time);
+		var min_time = 10 * 60; // 10 minutes
+		min_time = data.get('ui:totalTime').value;
+		var max_time = 1;
+		var v = Settings.width * 0.8 / (t * (max_time - min_time) + min_time);
 		return v;
 	}
 
 	function convertTimeToPercent(v) {
-		var min_time = 1;
-		var max_time = 10 * 60; // 10 minutes
-		var t  = ((500 / v) - min_time)  / (max_time - min_time);
+		var min_time = 10 * 60; // 10 minutes
+		min_time = data.get('ui:totalTime').value;
+		var max_time = 1;
+		var t  = ((Settings.width * 0.8 / v) - min_time)  / (max_time - min_time);
 		return t;
 	}
 

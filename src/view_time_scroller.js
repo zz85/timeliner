@@ -6,7 +6,7 @@ var
 	;
 
 
-function ScrollCanvas(data) {
+function ScrollCanvas(dispatcher, data) {
 	var width, height;
 
 	this.setSize = function(w, h) {
@@ -93,7 +93,7 @@ function ScrollCanvas(data) {
 	var draggingx;
 
 	this.onDown = function(e) {
-		console.log('ondown', e);
+		// console.log('ondown', e);
 		draggingx = scroller.left;
 		
 		var totalTime = data.get('ui:totalTime').value;
@@ -101,15 +101,17 @@ function ScrollCanvas(data) {
 		var w = width - 2 * MARGINS;
 
 		var t = (e.offsetx - MARGINS) / w * totalTime;
-		data.get('ui:currentTime').value = t;
-		// Math.max(0, t* totalTime);
+		t = Math.max(0, t);
+
+		// data.get('ui:currentTime').value = t;
+		dispatcher.fire('time.update', t);
+		
 	};
 
-	// this.onMove = function move(e) {
-	// 	// console.log(e);
-	// 	data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
-	// 	// repaint
-	// };
+	this.onMove = function move(e) {
+		// console.log(e);
+		this.onDown(e);
+	};
 
 	/*** End handling for scrollbar ***/
 }
