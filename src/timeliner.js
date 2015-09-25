@@ -12,12 +12,12 @@ var undo = require('./undo'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel'),
 	package_json = require('../package.json'),
-	IconButton = require('./icon_button'),
+	IconButton = require('./widget/icon_button'),
 	style = utils.style,
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
 	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./ui/scrollbar'),
+	ScrollBar = require('./widget/scrollbar'),
 	DataStore = require('./datastore')
 	;
 

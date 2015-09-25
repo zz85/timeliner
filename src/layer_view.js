@@ -1,9 +1,9 @@
 var
-	Theme = require('../theme'),
-	NumberUI = require('./number'),
-	Tweens = require('../tween'),
-	Settings = require('../settings'),
-	utils = require('../utils')
+	Theme = require('./theme'),
+	NumberUI = require('./widget/number'),
+	Tweens = require('./tween'),
+	Settings = require('./settings'),
+	utils = require('./utils')
 ;
 
 // TODO - tagged by index instead, work off layers.

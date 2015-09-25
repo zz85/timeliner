@@ -1,6 +1,6 @@
 var font = require('./font.json'),
-	Theme = require('./theme'),
-	style = require('./utils').style;
+	Theme = require('../theme'),
+	style = require('../utils').style;
 
 var dp;
 
@@ -90,7 +90,7 @@ function IconButton(size, icon, tooltip, dp) {
 		function clearLongHoldTimer() {
 			clearTimeout(longHoldTimer);
 		}
-		
+
 		button.addEventListener('mousedown', startHold);
 		button.addEventListener('touchstart', startHold);
 		button.addEventListener('mouseup', clearLongHoldTimer);
@@ -122,7 +122,7 @@ function IconButton(size, icon, tooltip, dp) {
 	button.addEventListener('mouseover', function() {
 		// button.style.background = up;
 		style(button, borders);
-		
+
 		ctx.fillStyle = Theme.d;
 		// me.dropshadow = true;
 		ctx.shadowColor = Theme.b;
@@ -149,7 +149,7 @@ function IconButton(size, icon, tooltip, dp) {
 
 	button.addEventListener('mouseout', function() {
 		// ctx.fillStyle = Theme.c;
-		
+
 
 		button.style.background = normal;
 		style(button, no_borders);

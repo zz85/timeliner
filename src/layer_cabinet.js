@@ -1,10 +1,10 @@
 var Settings = require('./settings'),
-	LayerUI = require('./ui/layer_view'),
-	IconButton = require('./icon_button'),
+	LayerUI = require('./layer_view'),
+	IconButton = require('./widget/icon_button'),
 	style = require('./utils').style,
 	Theme = require('./theme'),
 	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
-	NumberUI = require('./ui/number')
+	NumberUI = require('./widget/number')
 	;
 
 function LayerCabinet(data, dispatcher) {
