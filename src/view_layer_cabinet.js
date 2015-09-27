@@ -9,7 +9,7 @@ var Settings = require('./settings'),
 
 function LayerCabinet(data, dispatcher) {
 	var layer_store = data.get('layers');
-	
+
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
@@ -54,12 +54,11 @@ function LayerCabinet(data, dispatcher) {
 
 	var range = document.createElement('input');
 	range.type = "range";
-	range.min = 0;
-	range.max = 1000;
+	range.value = 0;
+	range.min = -1;
+	range.max = +1;
+	range.step = 0.125;
 
-	range.value = convertTimeToPercent(Settings.time_scale);
-	
-	range.step = 0.01;
 	style(range, {
 		width: '70px'
 	});
@@ -84,7 +83,7 @@ function LayerCabinet(data, dispatcher) {
 
 	var time_options = {
 		min: 0,
-		step: 0.01
+		step: 0.125
 	};
 
 	var currentTime = new UINumber(time_options);
@@ -120,7 +119,7 @@ function LayerCabinet(data, dispatcher) {
 	top.appendChild(play_button.dom);
 	top.appendChild(stop_button.dom);
 	top.appendChild(range);
-	
+
 
 	var operations_div = document.createElement('div');
 	style(operations_div, {
@@ -188,7 +187,7 @@ function LayerCabinet(data, dispatcher) {
 	dispatcher.on('save:done', populateOpen);
 
 	var dropdown = document.createElement('select');
-		
+
 	style(dropdown, {
 		position: 'absolute',
 		// right: 0,
@@ -240,7 +239,7 @@ function LayerCabinet(data, dispatcher) {
 		dispatcher.fire('save');
 	});
 
-	// save as 
+	// save as
 	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
 	operations_div.appendChild(save_as.dom);
 	save_as.onClick(function() {
@@ -270,7 +269,7 @@ function LayerCabinet(data, dispatcher) {
 	operations_div.appendChild(document.createElement('br'));
 
 	// Cloud Download / Upload edit pencil
-	
+
 	/*
 	// // show layer
 	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
@@ -316,16 +315,9 @@ function LayerCabinet(data, dispatcher) {
 	}
 
 	function changeRange() {
-		var t = range.value / range.max;
-		// 800px - 10 minutes - 100%
-		// 50% - 5 minutes
-		// 10*
-		// 100% - 60s / 1 second
 
-		// TODO: scale time correctly
-
-		dispatcher.fire('update.scale', convertPercentToTime(t));
-	}		
+		dispatcher.fire('update.scale', Math.pow(100, -range.value) );
+	}
 
 	var layer_uis = [], visible_layers = 0;
 	var unused_layers = [];
@@ -393,7 +385,7 @@ function LayerCabinet(data, dispatcher) {
 				unused_layers.push(layer_uis.pop());
 				continue;
 			}
-			
+
 			layer_uis[i].setState(layers[i], layer_store.get(i));
 			// layer_uis[i].setState('layers'+':'+i);
 			layer_uis[i].repaint(s);
