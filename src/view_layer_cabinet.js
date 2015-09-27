@@ -31,23 +31,41 @@ function LayerCabinet(data, dispatcher) {
 
 	var playing = false;
 
+
+	var button_styles = {
+		width: '22px',
+		height: '22px',
+		padding: '2px'
+	};
+
+	var op_button_styles = {
+		width: '32px',
+		padding: '3px 4px 3px 4px'
+	};
+
+
 	var play_button = new IconButton(16, 'play', 'play', dispatcher);
+	style(play_button.dom, button_styles, { marginTop: '2px' } );
 	play_button.onClick(function(e) {
 		e.preventDefault();
 		dispatcher.fire('controls.toggle_play');
 	});
 
 	var stop_button = new IconButton(16, 'stop', 'stop', dispatcher);
+	style(stop_button.dom, button_styles, { marginTop: '2px' } );
 	stop_button.onClick(function(e) {
 		dispatcher.fire('controls.stop');
 	});
 
+
 	var undo_button = new IconButton(16, 'undo', 'undo', dispatcher);
+	style(undo_button.dom, op_button_styles);
 	undo_button.onClick(function() {
 		dispatcher.fire('controls.undo');
 	});
 
 	var redo_button = new IconButton(16, 'repeat', 'redo', dispatcher);
+	style(redo_button.dom, op_button_styles);
 	redo_button.onClick(function() {
 		dispatcher.fire('controls.redo');
 	});
@@ -60,7 +78,10 @@ function LayerCabinet(data, dispatcher) {
 	range.step = 0.125;
 
 	style(range, {
-		width: '70px'
+		width: '90px',
+		margin: '0px',
+		marginLeft: '2px',
+		marginRight: '2px'
 	});
 
 	var draggingRange = 0;
@@ -129,8 +150,10 @@ function LayerCabinet(data, dispatcher) {
 	top.appendChild(operations_div);
 	// top.appendChild(document.createElement('br'));
 
+
 	// open _alt
 	var file_open = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
+	style(file_open.dom, op_button_styles);
 	operations_div.appendChild(file_open.dom);
 
 	function populateOpen() {
@@ -234,6 +257,7 @@ function LayerCabinet(data, dispatcher) {
 
 	// save
 	var save = new IconButton(16, 'save', 'Save', dispatcher);
+	style(save.dom, op_button_styles);
 	operations_div.appendChild(save.dom);
 	save.onClick(function() {
 		dispatcher.fire('save');
@@ -241,6 +265,7 @@ function LayerCabinet(data, dispatcher) {
 
 	// save as
 	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
+	style(save_as.dom, op_button_styles);
 	operations_div.appendChild(save_as.dom);
 	save_as.onClick(function() {
 		dispatcher.fire('save_as');
@@ -248,12 +273,14 @@ function LayerCabinet(data, dispatcher) {
 
 	// download json (export)
 	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);
+	style(download_alt.dom, op_button_styles);
 	operations_div.appendChild(download_alt.dom);
 	download_alt.onClick(function() {
 		dispatcher.fire('export');
 	});
 
 	var upload_alt = new IconButton(16, 'upload_alt', 'Load from file', dispatcher);
+	style(upload_alt.dom, op_button_styles);
 	operations_div.appendChild(upload_alt.dom);
 	upload_alt.onClick(function() {
 		dispatcher.fire('openfile');
