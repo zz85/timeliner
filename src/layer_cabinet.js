@@ -54,12 +54,11 @@ function LayerCabinet(data, dispatcher) {
 
 	var range = document.createElement('input');
 	range.type = "range";
-	range.min = 0;
-	range.max = 100;
+	range.value = 0;
+	range.min = -1;
+	range.max = +1;
+	range.step = 0.125;
 
-	range.value = convertTimeToPercent(Settings.time_scale);
-	
-	range.step = 0.01;
 	style(range, {
 		width: '70px'
 	});
@@ -85,7 +84,7 @@ function LayerCabinet(data, dispatcher) {
 
 	var time_options = {
 		min: 0,
-		step: 0.01
+		step: 0.125
 	};
 	var currentTime = new NumberUI(time_options);
 	var totalTime = new NumberUI(time_options);
@@ -314,15 +313,8 @@ function LayerCabinet(data, dispatcher) {
 	}
 
 	function changeRange() {
-		var t = range.value / range.max;
-		// 800px - 10 minutes - 100%
-		// 50% - 5 minutes
-		// 10*
-		// 100% - 60s / 1 second
 
-		// TODO: scale time correctly
-
-		dispatcher.fire('update.scale', convertPercentToTime(t));
+		dispatcher.fire('update.scale', Math.pow(100, -range.value) );
 	}		
 
 	var layer_uis = [], visible_layers = 0;

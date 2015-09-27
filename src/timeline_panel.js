@@ -22,27 +22,18 @@ var
 // drag current time
 // pointer on timescale
 
-var subds, subd_type, subd1, subd2, subd3;
+var tickMark1;
+var tickMark2;
+var tickMark3;
 
 function time_scaled() {
-	/*
-	 * Subdivison LOD
-	 * time_scale refers to number of pixels per unit
-	 * Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
-	 */
-	
-	var a =  time_scale / 60; // bigger wider, smaller narrower (40 - 80)
-	var b = time_scale / 20; // (1x or 2x a)
-	var c = time_scale / 5; // (4x or 5x a)
 
-	subds = [a, b, c, time_scale > 100 ? 'frames' : 'seconds'];
+	var div = 60;
 
-	// console.log(subds, subds[0] / time_scale, subds[1] / time_scale);
-	
-	subd1 = subds[0]; // big ticks / labels
-	subd2 = subds[1]; // medium ticks
-	subd3 = subds[2]; // small ticks
-	subd_type = subds[3];
+	tickMark1 = time_scale / div;
+	tickMark2 = 2 * tickMark1;
+	tickMark3 = 10 * tickMark1;
+
 }
 
 time_scaled();
@@ -324,6 +315,7 @@ function TimelinePanel(data, dispatcher) {
 
 
 	function setTimeScale() {
+
 		var v = data.get('ui:timeScale').value;
 		if (time_scale !== v) {
 			time_scale = v;
@@ -411,15 +403,15 @@ function TimelinePanel(data, dispatcher) {
 		width = Settings.width,
 		height = Settings.height;
 
-		var units = time_scale / subd1;
+		var units = time_scale / tickMark1;
 		var offsetUnits = (frame_start * time_scale) % units;
 
 		var count = (width - LEFT_GUTTER + offsetUnits) / units;
 
-		// console.log('time_scale', time_scale, 'subd1', subd1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
+		// console.log('time_scale', time_scale, 'tickMark1', tickMark1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
 		
 		// time_scale = pixels to 1 second (40)
-		// subd1 = marks per second (marks / s)
+		// tickMark1 = marks per second (marks / s)
 		// units = pixels to every mark (40)
 	
 		// labels only
@@ -437,11 +429,11 @@ function TimelinePanel(data, dispatcher) {
 			ctx.textAlign = 'center';
 
 			var t = (i * units - offsetUnits) / time_scale + frame_start;
-			t = utils.format_friendly_seconds(t, subd_type);
+			t = utils.format_friendly_seconds(t);
 			ctx.fillText(t, x, 38);
 		}
 
-		units = time_scale / subd2;
+		units = time_scale / tickMark2;
 		count = (width - LEFT_GUTTER + offsetUnits) / units;
 
 		// marker lines - main
@@ -454,8 +446,8 @@ function TimelinePanel(data, dispatcher) {
 			ctx.stroke();
 		}
 
-		var mul = subd3 / subd2;
-		units = time_scale / subd3;
+		var mul = tickMark3 / tickMark2;
+		units = time_scale / tickMark3;
 		count = (width - LEFT_GUTTER + offsetUnits) / units;
 		
 		// small ticks
@@ -526,11 +518,11 @@ function TimelinePanel(data, dispatcher) {
 
 
 	function x_to_time(x) {
-		var units = time_scale / subd3;
+		var units = time_scale / tickMark3;
 
 		// return frame_start + (x - LEFT_GUTTER) / time_scale;
 
-		return frame_start + ((x - LEFT_GUTTER) / units | 0) / subd3;
+		return frame_start + ((x - LEFT_GUTTER) / units | 0) / tickMark3;
 	}
 
 	function time_to_x(s) {
