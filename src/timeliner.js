@@ -61,7 +61,7 @@ function Timeliner(target) {
 
 	dispatcher.on('keyframe', function(layer, value) {
 		var index = layers.indexOf(layer);
-		
+
 		var t = data.get('ui:currentTime').value;
 		var v = utils.findTimeinLayer(layer, t);
 
@@ -94,7 +94,7 @@ function Timeliner(target) {
 	// dispatcher.fire('value.change', layer, me.value);
 	dispatcher.on('value.change', function(layer, value, dont_save) {
 		var t = data.get('ui:currentTime').value;
-		
+
 		var v = utils.findTimeinLayer(layer, t);
 
 		console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
@@ -128,7 +128,7 @@ function Timeliner(target) {
 
 	var start_play = null,
 		played_from = 0; // requires some more tweaking
-	
+
 	dispatcher.on('controls.toggle_play', function() {
 		if (start_play) {
 			pausePlaying();
@@ -192,14 +192,14 @@ function Timeliner(target) {
 	dispatcher.on('controls.undo', function() {
 		var history = undo_manager.undo();
 		data.setJSONString(history.state);
-		
+
 		updateState();
 	});
 
 	dispatcher.on('controls.redo', function() {
 		var history = undo_manager.redo();
 		data.setJSONString(history.state);
-		
+
 		updateState();
 	});
 
@@ -209,7 +209,7 @@ function Timeliner(target) {
 
 	function paint() {
 		requestAnimationFrame(paint);
-		
+
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
 			setCurrentTime(t);
@@ -296,7 +296,7 @@ function Timeliner(target) {
 
 	function load(o) {
 		data.setJSON(o);
-		// 
+		//
 		if (data.getValue('ui') === undefined) {
 			data.setValue('ui', {
 				currentTime: 0,
@@ -308,7 +308,7 @@ function Timeliner(target) {
 
 		undo_manager.clear();
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
-		
+
 		updateState();
 	}
 
@@ -351,7 +351,7 @@ function Timeliner(target) {
 		data.blank();
 		updateState();
 	});
-	
+
 	dispatcher.on('openfile', function() {
 		openAs(function(data) {
 			// console.log('loaded ' + data);
@@ -365,7 +365,7 @@ function Timeliner(target) {
 	dispatcher.on('save', saveSimply);
 	dispatcher.on('save_as', saveAs);
 
-	// Expose API	
+	// Expose API
 	this.save = save;
 	this.load = load;
 
@@ -375,34 +375,59 @@ function Timeliner(target) {
 
 	var div = document.createElement('div');
 	div.style.cssText = 'position: absolute;';
-	div.style.top = '16px';
+	div.style.top = '22px';
 
 	var pane = document.createElement('div');
-	
+
 	style(pane, {
 		position: 'fixed',
-		margin: 0,
-		padding: 0,
-		fontFamily: 'monospace',
-		zIndex: Z_INDEX,
-		border: '2px solid ' + Theme.a,
-		fontSize: '12px',
-		color: Theme.d,
-		overflow: 'hidden',
 		top: '20px',
-		left: '20px'
+		left: '20px',
+		margin: 0,
+		border: '1px solid ' + Theme.a,
+		padding: 0,
+		overflow: 'hidden',
+		backgroundColor: Theme.a,
+		color: Theme.d,
+		zIndex: Z_INDEX,
+		fontFamily: 'monospace',
+		fontSize: '12px'
 	});
 
-	pane.style.backgroundColor = Theme.a;
+
+	var header_styles = {
+		position: 'absolute',
+		top: '0px',
+		width: '100%',
+		height: '22px',
+		lineHeight: '22px',
+		overflow: 'hidden'
+	};
+
+	var button_styles = {
+		width: '20px',
+		height: '20px',
+		padding: '2px',
+		marginRight: '2px'
+	};
 
 	var pane_title = document.createElement('div');
+	style(pane_title, header_styles, {
+		borderBottom: '1px solid ' + Theme.b,
+		textAlign: 'center'
+	});
 
 	var title_bar = document.createElement('span');
 	pane_title.appendChild(title_bar);
 
+	title_bar.innerHTML = 'Timeliner ' + package_json.version;
+	pane_title.appendChild(title_bar);
 
-	var top_right_bar = document.createElement('span');
-	top_right_bar.style.float = 'right';
+	var top_right_bar = document.createElement('div');
+	style(top_right_bar, header_styles, {
+		textAlign: 'right'
+	});
+
 	pane_title.appendChild(top_right_bar);
 
 	// resize minimize
@@ -411,40 +436,29 @@ function Timeliner(target) {
 
 	// resize full
 	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
+	style(resize_full.dom, button_styles, { marginRight: '2px' });
 	top_right_bar.appendChild(resize_full.dom);
-	
-	style(pane_title, {
-		position: 'absolute',
-		width: '100%',
-		textAlign: 'left',
-		top: '0px',
-		height: '15px',
-		borderBottom: '1px solid ' + Theme.b,
-		overflow: 'hidden'
-	});
-
-	title_bar.innerHTML = 'Timeliner ' + package_json.version;
 
 	var pane_status = document.createElement('div');
 
-	style(pane_status, {
+	var footer_styles = {
 		position: 'absolute',
-		height: '15px',
-		bottom: '0',
 		width: '100%',
+		height: '22px',
+		lineHeight: '22px',
+		bottom: '0',
 		// padding: '2px',
 		background: Theme.a,
-		borderTop: '1px solid ' + Theme.b,
 		fontSize: '11px'
+	};
+
+	style(pane_status, footer_styles, {
+		borderTop: '1px solid ' + Theme.b,
 	});
 
 	pane.appendChild(div);
 	pane.appendChild(pane_status);
 	pane.appendChild(pane_title);
-
-	var button_styles = {
-		padding: '2px'
-	};
 
 	var label_status = document.createElement('span');
 	label_status.textContent = 'hello!';
@@ -460,6 +474,12 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('status', this.setStatus);
+
+	var bottom_right = document.createElement('div');
+	style(bottom_right, footer_styles, {
+		textAlign: 'right'
+	});
+
 
 	// var button_save = document.createElement('button');
 	// style(button_save, button_styles);
@@ -483,11 +503,9 @@ function Timeliner(target) {
 	// bottom_right.appendChild(button_save);
 	// bottom_right.appendChild(button_open);
 
-	var bottom_right = document.createElement('span');
-	bottom_right.style.float = 'right';
-
 	pane_status.appendChild(label_status);
 	pane_status.appendChild(bottom_right);
+
 
 	/**/
 	// zoom in
@@ -495,7 +513,7 @@ function Timeliner(target) {
 	// zoom out
 	var zoom_out = new IconButton(12, 'zoom_out', 'zoom out', dispatcher);
 	// settings
-	var cog = new IconButton(12, 'cog', 'settings', dispatcher);	
+	var cog = new IconButton(12, 'cog', 'settings', dispatcher);
 
 	// bottom_right.appendChild(zoom_in.dom);
 	// bottom_right.appendChild(zoom_out.dom);
@@ -511,6 +529,7 @@ function Timeliner(target) {
 
 		repaintAll();
 	});
+	style(plus.dom, button_styles);
 	bottom_right.appendChild(plus.dom);
 
 
@@ -527,6 +546,7 @@ function Timeliner(target) {
 			}
 		}
 	});
+	style(trash.dom, button_styles, { marginRight: '2px' });
 	bottom_right.appendChild(trash.dom);
 
 
@@ -599,7 +619,7 @@ function Timeliner(target) {
 
 	document.addEventListener('keydown', function(e) {
 		var play = e.keyCode == 32; // space
-		var enter = e.keyCode == 13; // 
+		var enter = e.keyCode == 13; //
 		var undo = e.metaKey && e.keyCode == 91 && !e.shiftKey;
 
 		var active = document.activeElement;
@@ -633,7 +653,7 @@ function Timeliner(target) {
 		// };
 		// TODO: remove ugly hardcodes
 		width -= 4;
-		height -= 32;
+		height -= 44;
 
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
@@ -643,7 +663,7 @@ function Timeliner(target) {
 
 		scrollbar.setHeight(scrollable_height - 2);
 		// scrollbar.setThumb
-		
+
 		style(scrollbar.dom, {
 			top: Settings.MARKER_TRACK_HEIGHT + 'px',
 			left: (width - 16) + 'px',
@@ -695,7 +715,7 @@ function Timeliner(target) {
 			var o = {};
 
 			for (var l = 0; l < layers.length; l++) {
-				var layer = layers[l];		
+				var layer = layers[l];
 				var m = utils.timeAtLayer(layer, t + u * interval);
 				o[layer.name] = m.value;
 			}
@@ -797,7 +817,7 @@ function Timeliner(target) {
 		document.addEventListener('mousemove', onMove);
 		document.addEventListener('mouseup', onUp);
 
-		// Touch events	
+		// Touch events
 		pane.addEventListener('touchstart', onTouchDown);
 		document.addEventListener('touchmove', onTouchMove);
 		document.addEventListener('touchend', onTouchEnd);
@@ -809,7 +829,7 @@ function Timeliner(target) {
 		}
 
 		function onTouchMove(e) {
-			onMove(e.touches[0]);		
+			onMove(e.touches[0]);
 		}
 
 		function onTouchEnd(e) {
@@ -890,7 +910,7 @@ function Timeliner(target) {
 					var currentWidth = Math.max(clicked.cx - e.clientX  + clicked.w, minWidth);
 					if (currentWidth > minWidth) {
 						pane.style.width = currentWidth + 'px';
-						pane.style.left = e.clientX + 'px';	
+						pane.style.left = e.clientX + 'px';
 					}
 				}
 
@@ -898,7 +918,7 @@ function Timeliner(target) {
 					var currentHeight = Math.max(clicked.cy - e.clientY  + clicked.h, minHeight);
 					if (currentHeight > minHeight) {
 						pane.style.height = currentHeight + 'px';
-						pane.style.top = e.clientY + 'px';	
+						pane.style.top = e.clientY + 'px';
 					}
 				}
 
