@@ -16,7 +16,7 @@ Follow [me](https://twitter.com/blurspline) on twitter for updates.
 
 ## Another js timeline library?
 
-Below are some existing javascript timeline libraries which I think are pretty good. I decided to write mine partly to scratch my itch and partly to challange myself technically. There are challenges in writing one, but its nice to be in control of your own tools.
+Below are some existing javascript timeline libraries which I think are pretty good. I decided to write mine partly to scratch my itch and partly to challenge myself technically. There are challenges in writing one, but its nice to be in control of your own tools.
 
 1. [Timeline.js](https://github.com/vorg/timeline.js) by Marcin Ignac
 2. [Keytime Editor](https://github.com/mattdesl/keytime-editor/) by Matt DesLauriers
