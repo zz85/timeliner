@@ -30,7 +30,7 @@ var frame_start = 0; // this is the current scroll position.
 // TODO
 // dirty rendering
 // drag block
-// pointer on timescale
+// DON'T use time.update for everything
 
 var subds, subd_type, subd1, subd2, subd3;
 
@@ -116,7 +116,7 @@ function TimelinePanel(data, dispatcher) {
 	var ctx = canvas.getContext('2d');
 	var ctx_wrap = proxy_ctx(ctx);
 
-	var current_frame; // currentTime measured in seconds
+	var currentTime; // measured in seconds
 	// technically it could be in frames or  have it in string format (0:00:00:1-60)
 	
 	var LEFT_GUTTER = 20;
@@ -158,7 +158,7 @@ function TimelinePanel(data, dispatcher) {
 			t2 = Math.max(0, t2);
 			frame2.time = t2;
 
-			dispatcher.fire('time.update', t1);
+			// dispatcher.fire('time.update', t1);
 		};
 	}
 
@@ -216,7 +216,6 @@ function TimelinePanel(data, dispatcher) {
 		};
 
 	}
-
 
 	function repaint() {
 		needsRepaint = true;
@@ -370,7 +369,7 @@ function TimelinePanel(data, dispatcher) {
 
 		setTimeScale();
 
-		current_frame = data.get('ui:currentTime').value;
+		currentTime = data.get('ui:currentTime').value;
 		frame_start =  data.get('ui:scrollTime').value;
 
 		/**************************/
@@ -459,9 +458,9 @@ function TimelinePanel(data, dispatcher) {
 
 		// Current Marker / Cursor
 		ctx.strokeStyle = 'red'; // Theme.c
-		x = (current_frame - frame_start) * time_scale + LEFT_GUTTER;
+		x = (currentTime - frame_start) * time_scale + LEFT_GUTTER;
 
-		var txt = utils.format_friendly_seconds(current_frame);
+		var txt = utils.format_friendly_seconds(currentTime);
 		var textWidth = ctx.measureText(txt).width;
 
 		var base_line = MARKER_TRACK_HEIGHT - 5, half_rect = textWidth / 2 + 4;
@@ -538,7 +537,7 @@ function TimelinePanel(data, dispatcher) {
 		var s = x_to_time(mx);
 
 
-		dispatcher.fire('keyframe', layers[track], current_frame);
+		dispatcher.fire('keyframe', layers[track], currentTime);
 		
 	});
 
@@ -569,7 +568,8 @@ function TimelinePanel(data, dispatcher) {
 				y: e.offsety
 			};
 			pointerEvents();
-			dispatcher.fire('time.update', x_to_time(e.offsetx));
+
+			if (!mousedownItem) dispatcher.fire('time.update', x_to_time(e.offsetx));
 			// Hit criteria
 		}, function move(e) {
 			mousedown2 = false;
@@ -581,9 +581,12 @@ function TimelinePanel(data, dispatcher) {
 			} else {
 				dispatcher.fire('time.update', x_to_time(e.offsetx));
 			}
-		}, function up() {
+		}, function up(e) {
 			if (mouseDownThenMove) {
 				dispatcher.fire('keyframe.move');
+			}
+			else {
+				dispatcher.fire('time.update', x_to_time(e.offsetx));
 			}
 			mousedown2 = false;
 			mousedownItem = null;

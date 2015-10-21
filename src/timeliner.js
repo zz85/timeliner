@@ -94,11 +94,12 @@ function Timeliner(target) {
 
 	// dispatcher.fire('value.change', layer, me.value);
 	dispatcher.on('value.change', function(layer, value, dont_save) {
-		var t = data.get('ui:currentTime').value;
-		
+		if (layer._mute) return;
+
+		var t = data.get('ui:currentTime').value;		
 		var v = utils.findTimeinLayer(layer, t);
 
-		console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
+		// console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
 		if (typeof(v) === 'number') {
 			layer.values.splice(v, 0, {
 				time: t,
@@ -112,6 +113,29 @@ function Timeliner(target) {
 		}
 
 		repaintAll();
+	});
+
+	dispatcher.on('action:solo', function(layer, solo) {
+		layer._solo = solo;
+		
+		console.log(layer, solo);
+
+		// When a track is solo-ed, playback only changes values
+		// of that layer.
+	});
+
+	dispatcher.on('action:mute', function(layer, mute) {
+		layer._mute = mute;
+		
+		// When a track is mute, playback does not play 
+		// frames of those muted layers.
+
+		// also feels like hidden feature in photoshop
+
+		// when values are updated, eg. from slider,
+		// no tweens will be created.
+		// we can decide also to "lock in" layers
+		// no changes to tween will be made etc.
 	});
 
 	dispatcher.on('ease', function(layer, ease_type) {
@@ -170,9 +194,8 @@ function Timeliner(target) {
 	var currentTimeStore = data.get('ui:currentTime');
 	dispatcher.on('time.update', setCurrentTime);
 
-
 	dispatcher.on('update.scrollTime', function(v) {
-		v = Math.max(0 , v);
+		v = Math.max(0, v);
 		data.get('ui:scrollTime').value = v;
 		repaintAll();
 	});
@@ -194,7 +217,7 @@ function Timeliner(target) {
 	dispatcher.on('update.scale', function(v) {
 		console.log('range', v);
 		data.get('ui:timeScale').value = v;
-		// timeline.setTimeScale(v);
+
 		timeline.repaint();
 	});
 
@@ -566,8 +589,19 @@ function Timeliner(target) {
 	// Handle DOM Views
 	//
 
-	document.body.appendChild(pane);
-	document.body.appendChild(ghostpane);
+	// Shadow Root
+	var root = document.createElement('timeliner');
+	document.body.appendChild(root);
+	if (root.createShadowRoot) root = root.createShadowRoot();
+
+	window.r = root;
+
+	// var iframe = document.createElement('iframe');
+	// document.body.appendChild(iframe);
+	// root = iframe.contentDocument.body;
+
+	root.appendChild(pane);
+	root.appendChild(ghostpane);
 
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
@@ -620,7 +654,7 @@ function Timeliner(target) {
 		var active = document.activeElement;
 		// console.log( active.nodeName );
 
-		if (active.nodeName.match(/(INPUT|BUTTON|SELECT)/)) {
+		if (active.nodeName.match(/(INPUT|BUTTON|SELECT|TIMELINER)/)) {
 			active.blur();
 		}
 
@@ -636,7 +670,7 @@ function Timeliner(target) {
 			// Esc = stop. FIXME: should rewind head to last played from or Last pointed from?
 			dispatcher.fire('controls.pause');
 		}
-		else console.log(e.keyCode);
+		else console.log('keydown', e.keyCode);
 	});
 
 	var needsResize = true;

@@ -161,6 +161,8 @@ function timeAtLayer(layer, t) {
 	// can't do anything
 	if (il === 0) return;
 
+	if (layer._mute) return
+
 	// find boundary cases
 	entry = values[0];
 	if (t < entry.time) {

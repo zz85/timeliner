@@ -51,18 +51,55 @@ function LayerView(layer, dispatcher) {
 	button.style.cssText = 'font-size: 12px; padding: 1px; ';
 	dom.appendChild(button);
 
-	// Solo
-	button = document.createElement('button');
-	button.textContent = 'S';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
+	
 	*/
 
+	function ToggleButton(text) {
+		// for css based button see http://codepen.io/mallendeo/pen/eLIiG
+
+		var button = document.createElement('button');
+		button.textContent = text;
+
+		utils.style(button, {
+			fontSize: '12px',
+			padding: '1px',
+			borderSize: '2px',
+			outline: 'none',
+			background: '#fff'
+		});
+
+		this.pressed = false;''
+
+		button.onclick = function() {
+			this.pressed = !this.pressed;
+
+			utils.style(button, {
+				borderStyle: this.pressed ? 'inset' : 'outset', // inset outset groove ridge
+			})
+
+			if (this.onClick) this.onClick();
+		}.bind(this);
+
+		this.dom = button;
+
+	}
+
+	// Solo
+	var solo_toggle = new ToggleButton('S');
+	dom.appendChild(solo_toggle.dom);
+
+	solo_toggle.onClick = function() {
+		dispatcher.fire('action:solo', layer, solo_toggle.pressed);
+	}
+
 	// Mute
-	button = document.createElement('button');
-	button.textContent = 'M';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
+	var mute_toggle = new ToggleButton('M');
+	dom.appendChild(mute_toggle.dom);
+
+	mute_toggle.onClick = function() {
+		dispatcher.fire('action:mute', layer, mute_toggle.pressed);
+	}
+
 
 	var number = new UINumber(layer, dispatcher);
 
@@ -80,7 +117,17 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(number.dom);
 	dom.appendChild(dropdown);
 	
-	dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (Settings.LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
+
+	utils.style(dom, {
+		textAlign: 'left',
+		margin: '0px 0px 0px 5px',
+		borderBottom: '1px solid ' + Theme.b,
+		top: 0,
+		left: 0,
+		height: (Settings.LINE_HEIGHT - 1 ) + 'px',
+		color: Theme.c
+	});
+
 	this.dom = dom;
 
 	this.repaint = repaint;
