@@ -28,10 +28,11 @@ function LayerView(layer, dispatcher) {
 	dropdown.addEventListener('change', function(e) {
 		dispatcher.fire('ease', layer, dropdown.value);
 	});
+	var height = (Settings.LINE_HEIGHT - 1);
 
 	var keyframe_button = document.createElement('button');
 	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
-	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
+	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; height: ' + height + 'px; border-style:none; outline: none;'; //  border-style:inset;
 	
 	keyframe_button.addEventListener('click', function(e) {
 		console.log('clicked:keyframing...', state.get('_value').value);

@@ -9,7 +9,7 @@ var
 	Canvas = require('./ui_canvas')
 	;
 
-var 
+var
 	LINE_HEIGHT = Settings.LINE_HEIGHT,
 	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
 	TIME_SCROLLER_HEIGHT = 35;
@@ -32,7 +32,9 @@ var frame_start = 0; // this is the current scroll position.
 // drag block
 // DON'T use time.update for everything
 
-var subds, subd_type, subd1, subd2, subd3;
+var tickMark1;
+var tickMark2;
+var tickMark3;
 
 function time_scaled() {
 	/*
@@ -40,19 +42,12 @@ function time_scaled() {
 	 * time_scale refers to number of pixels per unit
 	 * Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
 	 */
-	
-	var a =  time_scale / 80; // bigger wider, smaller narrower (40 - 80)
-	var b = time_scale / 40; // (1x or 2x a)
-	var c = time_scale / 10; // (4x or 5x a)
+	var div = 60;
 
-	subds = [a, b, c, time_scale > 100 ? 'frames' : 'seconds'];
+	tickMark1 = time_scale / div;
+	tickMark2 = 2 * tickMark1;
+	tickMark3 = 10 * tickMark1;
 
-	// console.log(subds, subds[0] / time_scale, subds[1] / time_scale);
-	
-	subd1 = subds[0]; // big ticks / labels
-	subd2 = subds[1]; // medium ticks
-	subd3 = subds[2]; // small ticks
-	subd_type = subds[3];
 }
 
 time_scaled();
@@ -66,7 +61,7 @@ function TimelinePanel(data, dispatcher) {
 
 	var dpr = window.devicePixelRatio;
 	var canvas = document.createElement('canvas');
-	
+
 	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
 	var layers = data.get('layers').value;
 
@@ -87,10 +82,10 @@ function TimelinePanel(data, dispatcher) {
 	};
 
 	var div = document.createElement('div');
-	
+
 	var scroll_canvas = new Canvas(Settings.width, TIME_SCROLLER_HEIGHT);
 	// data.addListener('ui', repaint );
-	
+
 	utils.style(canvas, {
 		position: 'absolute',
 		top: TIME_SCROLLER_HEIGHT + 'px',
@@ -105,7 +100,7 @@ function TimelinePanel(data, dispatcher) {
 
 	scroll_canvas.uses(new ScrollCanvas(dispatcher, data));
 
-	
+
 	div.appendChild(canvas);
 	div.appendChild(scroll_canvas.dom);
 
@@ -118,7 +113,7 @@ function TimelinePanel(data, dispatcher) {
 
 	var currentTime; // measured in seconds
 	// technically it could be in frames or  have it in string format (0:00:00:1-60)
-	
+
 	var LEFT_GUTTER = 20;
 	var i, x, y, il, j;
 
@@ -133,7 +128,7 @@ function TimelinePanel(data, dispatcher) {
 			.rect(x1, y1, x2-x1, y2-y1)
 			.closePath();
 		};
-		
+
 		this.paint = function() {
 			this.path();
 			ctx.fillStyle = frame._color;
@@ -236,7 +231,7 @@ function TimelinePanel(data, dispatcher) {
 			.lineTo(width, y)
 			.stroke();
 		}
-		
+
 
 		var frame, frame2, j;
 
@@ -251,13 +246,13 @@ function TimelinePanel(data, dispatcher) {
 			for (j = 0; j < values.length - 1; j++) {
 				frame = values[j];
 				frame2 = values[j + 1];
-				
+
 				// Draw Tween Rect
 				x = time_to_x(frame.time);
 				x2 = time_to_x(frame2.time);
 
 				if (!frame.tween || frame.tween == 'none') continue;
-				
+
 				var y1 = y + 2;
 				var y2 = y + LINE_HEIGHT - 2;
 
@@ -267,7 +262,7 @@ function TimelinePanel(data, dispatcher) {
 				// var color = parseInt(frame._color.substring(1,7), 16);
 				// color = 0xffffff ^ color;
 				// color = color.toString(16);           // convert to hex
-				// color = '#' + ('000000' + color).slice(-6); 
+				// color = '#' + ('000000' + color).slice(-6);
 
 				// ctx.strokeStyle = color;
 				// var x3;
@@ -298,6 +293,7 @@ function TimelinePanel(data, dispatcher) {
 	}
 
 	function setTimeScale() {
+
 		var v = data.get('ui:timeScale').value;
 		if (time_scale !== v) {
 			time_scale = v;
@@ -380,24 +376,24 @@ function TimelinePanel(data, dispatcher) {
 		ctx.save();
 		ctx.scale(dpr, dpr);
 
-		// 
+		//
 
 		ctx.lineWidth = 1; // .5, 1, 2
 
 		width = Settings.width,
 		height = Settings.height;
 
-		var units = time_scale / subd1;
+		var units = time_scale / tickMark1;
 		var offsetUnits = (frame_start * time_scale) % units;
 
 		var count = (width - LEFT_GUTTER + offsetUnits) / units;
 
-		// console.log('time_scale', time_scale, 'subd1', subd1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
-		
+		// console.log('time_scale', time_scale, 'tickMark1', tickMark1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
+
 		// time_scale = pixels to 1 second (40)
-		// subd1 = marks per second (marks / s)
+		// tickMark1 = marks per second (marks / s)
 		// units = pixels to every mark (40)
-	
+
 		// labels only
 		for (i = 0; i < count; i++) {
 			x = i * units + LEFT_GUTTER - offsetUnits;
@@ -413,11 +409,11 @@ function TimelinePanel(data, dispatcher) {
 			ctx.textAlign = 'center';
 
 			var t = (i * units - offsetUnits) / time_scale + frame_start;
-			t = utils.format_friendly_seconds(t, subd_type);
-			ctx.fillText(t, x, TOP);
+			t = utils.format_friendly_seconds(t);
+			ctx.fillText(t, x, 38);
 		}
 
-		units = time_scale / subd2;
+		units = time_scale / tickMark2;
 		count = (width - LEFT_GUTTER + offsetUnits) / units;
 
 		// marker lines - main
@@ -430,10 +426,10 @@ function TimelinePanel(data, dispatcher) {
 			ctx.stroke();
 		}
 
-		var mul = subd3 / subd2;
-		units = time_scale / subd3;
+		var mul = tickMark3 / tickMark2;
+		units = time_scale / tickMark3;
 		count = (width - LEFT_GUTTER + offsetUnits) / units;
-		
+
 		// small ticks
 		for (i = 0; i < count; i++) {
 			if (i % mul === 0) continue;
@@ -444,7 +440,7 @@ function TimelinePanel(data, dispatcher) {
 			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
 			ctx.stroke();
 		}
-		
+
 		// Encapsulate a scroll rect for the layers
 		ctx_wrap
 			.save()
@@ -469,7 +465,7 @@ function TimelinePanel(data, dispatcher) {
 		ctx.moveTo(x, base_line);
 		ctx.lineTo(x, height);
 		ctx.stroke();
-		
+
 		ctx.fillStyle = 'red'; // black
 		ctx.textAlign = 'center';
 		ctx.beginPath();
@@ -500,11 +496,11 @@ function TimelinePanel(data, dispatcher) {
 
 
 	function x_to_time(x) {
-		var units = time_scale / subd3;
+		var units = time_scale / tickMark3;
 
 		// return frame_start + (x - LEFT_GUTTER) / time_scale;
 
-		return frame_start + ((x - LEFT_GUTTER) / units | 0) / subd3;
+		return frame_start + ((x - LEFT_GUTTER) / units | 0) / tickMark3;
 	}
 
 	function time_to_x(s) {
@@ -538,7 +534,7 @@ function TimelinePanel(data, dispatcher) {
 
 
 		dispatcher.fire('keyframe', layers[track], currentTime);
-		
+
 	});
 
 	function onMouseMove(e) {
