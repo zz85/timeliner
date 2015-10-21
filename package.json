@@ -1,34 +1,35 @@
 {
-  "name": "timeliner",
-  "version": "1.4.0",
-  "description": "simple js animation timeline library",
+  "name": "timeliner_gui",
+  "version": "0.0.1",
+  "description": "Timeliner GUI",
   "main": "timeliner.js",
   "scripts": {
-    "build": "browserify src/*.js --full-path=false -o timeliner.js",
-    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.min.js",
-    "watch": "watchify src/*.js -o timeliner.js -v",
+    "build": "browserify src/*.js --full-path=false -o timeliner_gui.js",
+    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner_gui.min.js",
+    "watch": "watchify src/*.js -o timeliner_gui.js -v",
     "start": "npm run watch",
     "test": "echo \"Error: no tests :(\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/zz85/timeliner.git"
+    "url": "https://github.com/tschw/timeliner.git"
   },
   "keywords": [
     "timeline",
     "animation",
     "keyframe",
-    "tween",
-    "ease",
     "controls",
     "gui"
   ],
-  "author": "joshua koo",
+  "author": "tschw (the fork)",
+  "contributors": [
+  	"Joshua 'zz85' Koo (original author)"
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zz85/timeliner/issues"
+    "url": "https://github.com/tschw/timeliner/issues"
   },
-  "homepage": "https://github.com/zz85/timeliner",
+  "homepage": "https://github.com/tschw/timeliner",
   "devDependencies": {
     "do.js": "^1.0.0",
     "uglifyify": "^2.6.0"

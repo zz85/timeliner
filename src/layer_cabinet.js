@@ -7,8 +7,7 @@ var Settings = require('./settings'),
 	NumberUI = require('./widget/number')
 	;
 
-function LayerCabinet(data, dispatcher) {
-	var layer_store = data.get('layers');
+function LayerCabinet(context) {
 
 	var div = document.createElement('div');
 
@@ -44,19 +43,22 @@ function LayerCabinet(data, dispatcher) {
 	};
 
 
-	var play_button = new IconButton(16, 'play', 'play', dispatcher);
+	var dispatcher = context.dispatcher,
+		controller = context.controller;
+
+	var play_button = new IconButton(16, 'play', "Play", dispatcher);
 	style(play_button.dom, button_styles, { marginTop: '2px' } );
 	play_button.onClick(function(e) {
 		e.preventDefault();
 		dispatcher.fire('controls.toggle_play');
 	});
 
-	var stop_button = new IconButton(16, 'stop', 'stop', dispatcher);
+	var stop_button = new IconButton(16, 'stop', "Stop", dispatcher);
 	style(stop_button.dom, button_styles, { marginTop: '2px' } );
 	stop_button.onClick(function(e) {
 		dispatcher.fire('controls.stop');
 	});
-
+/*
 
 	var undo_button = new IconButton(16, 'undo', 'undo', dispatcher);
 	style(undo_button.dom, op_button_styles);
@@ -69,7 +71,7 @@ function LayerCabinet(data, dispatcher) {
 	redo_button.onClick(function() {
 		dispatcher.fire('controls.redo');
 	});
-
+*/
 	var range = document.createElement('input');
 	range.type = "range";
 	range.value = 0;
@@ -109,26 +111,13 @@ function LayerCabinet(data, dispatcher) {
 	var currentTime = new NumberUI(time_options);
 	var totalTime = new NumberUI(time_options);
 
-	var currentTimeStore = data.get('ui:currentTime');
-	var totalTimeStore = data.get('ui:totalTime');
-
-	// UI2StoreBind(view, datastore) {
-	// 	view.onChange.do(function(v) {
-	// 		datastore.value = view;
-	// 	})
-
-	// 	datastore.onChange.do(function(v) {
-	// 		view.setValue = v;
-	// 	})
-	// }
-
 	currentTime.onChange.do(function(value, done) {
 		dispatcher.fire('time.update', value);
 		// repaint();
 	});
 
 	totalTime.onChange.do(function(value, done) {
-		totalTimeStore.value = value;
+		context.totalTime = value;
 		// repaint();
 	});
 
@@ -149,7 +138,7 @@ function LayerCabinet(data, dispatcher) {
 	top.appendChild(operations_div);
 	// top.appendChild(document.createElement('br'));
 
-
+/*
 	// open _alt
 	var file_open = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
 	style(file_open.dom, op_button_styles);
@@ -253,8 +242,8 @@ function LayerCabinet(data, dispatcher) {
 	// // new
 	// var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
 	// operations_div.appendChild(file_alt.dom);
-
 	// save
+
 	var save = new IconButton(16, 'save', 'Save', dispatcher);
 	style(save.dom, op_button_styles);
 	operations_div.appendChild(save.dom);
@@ -269,22 +258,22 @@ function LayerCabinet(data, dispatcher) {
 	save_as.onClick(function() {
 		dispatcher.fire('save_as');
 	});
-
+*/
 	// download json (export)
-	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);
+	var download_alt = new IconButton(16, 'download_alt', 'Download animation', dispatcher);
 	style(download_alt.dom, op_button_styles);
 	operations_div.appendChild(download_alt.dom);
 	download_alt.onClick(function() {
 		dispatcher.fire('export');
 	});
 
-	var upload_alt = new IconButton(16, 'upload_alt', 'Load from file', dispatcher);
+	var upload_alt = new IconButton(16, 'upload_alt', 'Upload animation', dispatcher);
 	style(upload_alt.dom, op_button_styles);
 	operations_div.appendChild(upload_alt.dom);
 	upload_alt.onClick(function() {
 		dispatcher.fire('openfile');
 	});
-
+/*
 	var span = document.createElement('span');
 	span.style.width = '20px';
 	span.style.display = 'inline-block';
@@ -293,7 +282,7 @@ function LayerCabinet(data, dispatcher) {
 	operations_div.appendChild(undo_button.dom);
 	operations_div.appendChild(redo_button.dom);
 	operations_div.appendChild(document.createElement('br'));
-
+*/
 	// Cloud Download / Upload edit pencil
 
 	/*
@@ -339,11 +328,12 @@ function LayerCabinet(data, dispatcher) {
 	}
 
 	function changeRange() {
+		console.log("range.value", range.value);
 
-		dispatcher.fire('update.scale', Math.pow(100, -range.value) );
+		dispatcher.fire('update.scale', 6 * Math.pow(100, range.value));
 	}
 
-	var layer_uis = [], visible_layers = 0;
+	var layer_uis = [];
 	var unused_layers = [];
 
 	this.layers = layer_uis;
@@ -360,11 +350,10 @@ function LayerCabinet(data, dispatcher) {
 		}
 	};
 
-	this.setState = function(state) {
+	this.updateState = function() {
 
-		layer_store = state;
-		layers = layer_store.value;
-		// layers = state;
+		var layers = Object.keys( context.controller.channelKeyTimes );
+
 		console.log(layer_uis.length, layers);
 		var i, layer;
 		for (i = 0; i < layers.length; i++) {
@@ -377,13 +366,13 @@ function LayerCabinet(data, dispatcher) {
 					layer_ui.dom.style.display = 'block';
 				} else {
 					// new
-					layer_ui = new LayerUI(layer, dispatcher);
+					layer_ui = new LayerUI(context, layer);
 					layer_scroll.appendChild(layer_ui.dom);
 				}
 				layer_uis.push(layer_ui);
 			}
 
-			// layer_uis[i].setState(layer);
+			layer_uis[i].setState(layer);
 		}
 
 		console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
@@ -391,18 +380,17 @@ function LayerCabinet(data, dispatcher) {
 
 	};
 
-	function repaint(s) {
+	function repaint() {
 
-		s = currentTimeStore.value;
-		currentTime.setValue(s);
-		totalTime.setValue(totalTimeStore.value);
+		var layers = Object.keys( context.controller.channelKeyTimes );
+		var time = context.currentTime;
+		currentTime.setValue(time);
+		totalTime.setValue(context.totalTime);
 		currentTime.paint();
 		totalTime.paint();
 
-		var i;
-
-		s = s || 0;
-		for (i = layer_uis.length; i-- > 0;) {
+		// TODO needed?
+		for (var i = layer_uis.length; i-- > 0;) {
 			// quick hack
 			if (i >= layers.length) {
 				layer_uis[i].dom.style.display = 'none';
@@ -411,17 +399,15 @@ function LayerCabinet(data, dispatcher) {
 			}
 
 			// console.log('yoz', states.get(i).value);
-			layer_uis[i].setState(layers[i], layer_store.get(i));
+			layer_uis[i].setState(layers[i]);
 			// layer_uis[i].setState('layers'+':'+i);
-			layer_uis[i].repaint(s);
+			layer_uis[i].repaint(time);
 		}
-
-		visible_layers = layer_uis.length;
 
 	}
 
 	this.repaint = repaint;
-	this.setState(layer_store);
+	this.updateState();
 
 	this.scrollTo = function(x) {
 		layer_scroll.scrollTop = x * (layer_scroll.scrollHeight - layer_scroll.clientHeight);

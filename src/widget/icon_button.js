@@ -131,7 +131,7 @@ function IconButton(size, icon, tooltip, dp) {
 		ctx.shadowOffsetY = 1 * dpr;
 		me.draw();
 
-		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
+		if (tooltip && dp) dp.fire('status', tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {

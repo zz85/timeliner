@@ -17,8 +17,7 @@ var undo = require('./undo'),
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
 	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./widget/scrollbar'),
-	DataStore = require('./datastore')
+	ScrollBar = require('./widget/scrollbar')
 	;
 
 var Z_INDEX = 999;
@@ -26,8 +25,6 @@ var Z_INDEX = 999;
 function LayerProp(name) {
 	this.name = name;
 	this.values = [];
-
-	this._value = 0;
 
 	this._color = '#' + (Math.random() * 0xffffff | 0).toString(16);
 	/*
@@ -37,97 +34,81 @@ function LayerProp(name) {
 	*/
 }
 
-function Timeliner(target) {
-	// Aka Layer Manager / Controller
-
-	// Should persist current time too.
-	var data = new DataStore();
-	var layer_store = data.get('layers');
-	var layers = layer_store.value;
-
-	window._data = data;
+function Timeliner( controller ) {
 
 	var dispatcher = new Dispatcher();
 
-	var timeline = new TimelinePanel(data, dispatcher);
-	var layer_panel = new LayerCabinet(data, dispatcher);
+	if ( ! controller ) {
+
+		controller = new Timeliner.Controller();
+
+	}
+
+	controller.timeliner = this;
+	controller.init( this );
+
+	var context = {
+
+		totalTime: 20.0,
+		timeScale: 6,
+
+		currentTime: 0.0,
+		scrollTime: 0.0,
+
+		dispatcher: dispatcher,
+
+		controller: controller
+
+	};
+
+	window.dbgTimelinerContext = context; // DEBUG
+
+
+	var timeline = new TimelinePanel(context);
+	var layer_panel = new LayerCabinet(context);
 
 	var undo_manager = new UndoManager(dispatcher);
-
+/*
 	setTimeout(function() {
 		// hack!
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
 	});
+*/
+	dispatcher.on('keyframe', function(channelName) {
+		var time = context.currentTime;
 
-	dispatcher.on('keyframe', function(layer, value) {
-		var index = layers.indexOf(layer);
+		if ( ! controller.hasKeyframe( channelName, time ) ) {
 
-		var t = data.get('ui:currentTime').value;
-		var v = utils.findTimeinLayer(layer, t);
+			controller.setKeyframe( channelName, time );
 
-		// console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
-		// console.log('layer', layer, value);
-
-		if (typeof(v) === 'number') {
-			layer.values.splice(v, 0, {
-				time: t,
-				value: value,
-				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
-			});
-
-			undo_manager.save(new UndoState(data, 'Add Keyframe'));
+//			undo_manager.save(new UndoState(data, 'Add Keyframe'));
 		} else {
-			console.log('remove from index', v);
-			layer.values.splice(v.index, 1);
 
-			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
+			controller.delKeyframe( channelName, time );
+
+//			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
 		}
 
-		repaintAll();
+		repaintAll(); // TODO repaint one channel would be enough
 
 	});
 
 	dispatcher.on('keyframe.move', function(layer, value) {
-		undo_manager.save(new UndoState(data, 'Move Keyframe'));
+//		undo_manager.save(new UndoState(data, 'Move Keyframe'));
 	});
 
-	// dispatcher.fire('value.change', layer, me.value);
-	dispatcher.on('value.change', function(layer, value, dont_save) {
-		var t = data.get('ui:currentTime').value;
-
-		var v = utils.findTimeinLayer(layer, t);
-
-		console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
-		if (typeof(v) === 'number') {
-			layer.values.splice(v, 0, {
-				time: t,
-				value: value,
-				_color: '#' + (Math.random() * 0xffffff | 0).toString(16)
-			});
-			if (!dont_save) undo_manager.save(new UndoState(data, 'Add value'));
-		} else {
-			v.object.value = value;
-			if (!dont_save) undo_manager.save(new UndoState(data, 'Update value'));
-		}
-
-		repaintAll();
-	});
-
-	dispatcher.on('ease', function(layer, ease_type) {
-		var t = data.get('ui:currentTime').value;
-		var v = utils.timeAtLayer(layer, t);
-		// console.log('Ease Change > ', layer, value, v);
-		if (v && v.entry) {
-			v.entry.tween  = ease_type;
-		}
-
-		undo_manager.save(new UndoState(data, 'Add Ease'));
-
-		repaintAll();
-	});
 
 	var start_play = null,
 		played_from = 0; // requires some more tweaking
+
+	var setCurrentTime = function setCurrentTime(value) {
+		var time = Math.min(Math.max(value, 0), context.totalTime);
+		context.currentTime = time;
+		controller.setDisplayTime( time );
+
+		if (start_play) start_play = performance.now() - value * 1000;
+		repaintAll();
+	}
 
 	dispatcher.on('controls.toggle_play', function() {
 		if (start_play) {
@@ -150,7 +131,7 @@ function Timeliner(target) {
 
 	function startPlaying() {
 		// played_from = timeline.current_frame;
-		start_play = performance.now() - data.get('ui:currentTime').value * 1000;
+		start_play = performance.now() - context.currentTime * 1000;
 		layer_panel.setControlStatus(true);
 		// dispatcher.fire('controls.status', true);
 	}
@@ -166,41 +147,37 @@ function Timeliner(target) {
 		setCurrentTime(0);
 	});
 
-	var currentTimeStore = data.get('ui:currentTime');
 	dispatcher.on('time.update', setCurrentTime);
 
-	function setCurrentTime(value) {
-		currentTimeStore.value = value;
-
-		if (start_play) start_play = performance.now() - value * 1000;
-		repaintAll();
-		// layer_panel.repaint(s);
-	}
-
 	dispatcher.on('target.notify', function(name, value) {
-		if (target) target[name] = value;
+		console.log(name, "=", value);
+		//if (target) target[name] = value;
 	});
 
 	dispatcher.on('update.scale', function(v) {
 		console.log('range', v);
-		data.get('ui:timeScale').value = v;
-		// timeline.setTimeScale(v);
+		context.timeScale = v;
+		timeline.setTimeScale(v);
 		timeline.repaint();
 	});
 
 	// handle undo / redo
 	dispatcher.on('controls.undo', function() {
+/*
 		var history = undo_manager.undo();
 		data.setJSONString(history.state);
 
 		updateState();
+*/
 	});
 
 	dispatcher.on('controls.redo', function() {
+/*
 		var history = undo_manager.redo();
 		data.setJSONString(history.state);
 
 		updateState();
+*/
 	});
 
 	/*
@@ -215,7 +192,7 @@ function Timeliner(target) {
 			setCurrentTime(t);
 
 
-			if (t > data.get('ui:totalTime').value) {
+			if (t > context.totalTime) {
 				// simple loop
 				start_play = performance.now();
 			}
@@ -244,6 +221,7 @@ function Timeliner(target) {
 	*/
 
 	function save(name) {
+/*
 		if (!name) name = 'autosave';
 
 		var json = data.getJSONString();
@@ -254,19 +232,20 @@ function Timeliner(target) {
 		} catch (e) {
 			console.log('Cannot save', name, json);
 		}
+*/
 	}
 
 	function saveAs(name) {
-		if (!name) name = data.get('name').value;
+		if (!name) name = context.name;
 		name = prompt('Pick a name to save to (localStorage)', name);
 		if (name) {
-			data.data.name = name;
+			context.name = name;
 			save(name);
 		}
 	}
 
 	function saveSimply() {
-		var name = data.get('name').value;
+		var name = context.name;
 		if (name) {
 			save(name);
 		} else {
@@ -275,17 +254,31 @@ function Timeliner(target) {
 	}
 
 	function exportJSON() {
-		var json = data.getJSONString();
-		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON', json);
 
-		console.log(JSON.stringify(data.data, null, '\t'));
-		if (!ret) return;
+		var structs = controller.serialize();
+//		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON');
+//		if (!ret) {
+//			console.log(JSON.stringify(structs, null, '\t'));
+//			return;
+//		}
 
-		// make json downloadable
-		json = data.getJSONString('\t');
-		var fileName = 'timeliner-test' + '.json';
+		var fileName = 'animation.json';
 
-		saveToFile(json, fileName);
+		saveToFile(JSON.stringify(structs, null, '\t'), fileName);
+
+	}
+
+	function load(structs) {
+
+		controller.deserialize(structs);
+
+		// TODO reset context
+
+//		undo_manager.clear();
+//		undo_manager.save(new UndoState(data, 'Loaded'), true);
+
+		updateState();
+
 	}
 
 	function loadJSONString(o) {
@@ -294,33 +287,15 @@ function Timeliner(target) {
 		load(json);
 	}
 
-	function load(o) {
-		data.setJSON(o);
-		//
-		if (data.getValue('ui') === undefined) {
-			data.setValue('ui', {
-				currentTime: 0,
-				totalTime: 20,
-				scrollTime: 0,
-				timeScale: 40
-			});
-		}
-
-		undo_manager.clear();
-		undo_manager.save(new UndoState(data, 'Loaded'), true);
-
-		updateState();
-	}
-
 	function updateState() {
-		layers = layer_store.value; // FIXME: support Arrays
-		layer_panel.setState(layer_store);
-		timeline.setState(layer_store);
+		layer_panel.updateState();
+		timeline.updateState();
 
 		repaintAll();
 	}
 
 	function repaintAll() {
+		var layers = Object.keys( context.controller.channelKeyTimes );
 		var content_height = layers.length * Settings.LINE_HEIGHT;
 		scrollbar.setLength(Settings.TIMELINE_SCROLL_HEIGHT / content_height);
 
@@ -420,7 +395,7 @@ function Timeliner(target) {
 	var title_bar = document.createElement('span');
 	pane_title.appendChild(title_bar);
 
-	title_bar.innerHTML = 'Timeliner ' + package_json.version;
+	title_bar.innerHTML = package_json.description + " " + package_json.version;
 	pane_title.appendChild(title_bar);
 
 	var top_right_bar = document.createElement('div');
@@ -448,12 +423,12 @@ function Timeliner(target) {
 		lineHeight: '22px',
 		bottom: '0',
 		// padding: '2px',
-		background: Theme.a,
 		fontSize: '11px'
 	};
 
 	style(pane_status, footer_styles, {
 		borderTop: '1px solid ' + Theme.b,
+		background: Theme.a,
 	});
 
 	pane.appendChild(div);
@@ -461,19 +436,19 @@ function Timeliner(target) {
 	pane.appendChild(pane_title);
 
 	var label_status = document.createElement('span');
-	label_status.textContent = 'hello!';
+	label_status.textContent = 'Hello!';
 	label_status.style.marginLeft = '10px';
 
-	this.setStatus = function(text) {
+	dispatcher.on('status', function(text) {
 		label_status.textContent = text;
-	};
+	});
+
 
 	dispatcher.on('state:save', function(description) {
 		dispatcher.fire('status', description);
 		save('autosave');
 	});
 
-	dispatcher.on('status', this.setStatus);
 
 	var bottom_right = document.createElement('div');
 	style(bottom_right, footer_styles, {
@@ -507,7 +482,7 @@ function Timeliner(target) {
 	pane_status.appendChild(bottom_right);
 
 
-	/**/
+/*
 	// zoom in
 	var zoom_in = new IconButton(12, 'zoom_in', 'zoom in', dispatcher);
 	// zoom out
@@ -549,6 +524,7 @@ function Timeliner(target) {
 	style(trash.dom, button_styles, { marginRight: '2px' });
 	bottom_right.appendChild(trash.dom);
 
+*/
 
 	// pane_status.appendChild(document.createTextNode(' | TODO <Dock Full | Dock Botton | Snap Window Edges | zoom in | zoom out | Settings | help>'));
 
@@ -692,7 +668,7 @@ function Timeliner(target) {
 		layers = layer_store.value;
 		layers.push(layer);
 
-		layer_panel.setState(layer_store);
+		layer_panel.updateState();
 	}
 
 	this.addLayer = addLayer;
@@ -700,34 +676,6 @@ function Timeliner(target) {
 	this.setTarget = function(t) {
 		timeline = t;
 	};
-
-	function getValueRanges(ranges, interval) {
-		interval = interval ? interval : 0.15;
-		ranges = ranges ? ranges : 2;
-
-		// not optimized!
-		var t = data.get('ui:currentTime').value;
-
-		var values = [];
-
-		for (var u = -ranges; u <= ranges; u++) {
-			// if (u == 0) continue;
-			var o = {};
-
-			for (var l = 0; l < layers.length; l++) {
-				var layer = layers[l];
-				var m = utils.timeAtLayer(layer, t + u * interval);
-				o[layer.name] = m.value;
-			}
-
-			values.push(o);
-
-		}
-
-		return values;
-	}
-
-	this.getValues = getValueRanges;
 
 	(function DockingWindow() {
 		"use strict";
@@ -1082,5 +1030,86 @@ function Timeliner(target) {
 	})();
 
 }
+
+Timeliner.Controller = function ControllerInterface() {
+
+	this.time = 0;
+	this.timeliner = null;
+	this.channelKeyTimes = {};
+
+};
+
+Timeliner.Controller.prototype = {
+
+	constructor: Timeliner.Controller,
+
+	init: function( timeliner ) {
+
+		this.timeliner = timeliner;
+
+		this.channelKeyTimes[ 'test1' ] = [];
+		this.channelKeyTimes[ 'test2' ] = [];
+
+	},
+
+	serialize: function() {
+
+		return this.channelKeyTimes;
+
+	},
+
+	deserialize: function(structs) {
+
+		this.channelKeyTimes = structs;
+
+	},
+
+	setDisplayTime: function( time ) {
+
+		//console.log( "setDisplayTime(%f)", time );
+		this.time = time;
+
+	},
+
+	setKeyframe: function( channelName, time ) {
+
+		console.log( "setKeyframe('%s',%f)", channelName, time );
+
+		var keyTimes = this.channelKeyTimes[ channelName ];
+
+		keyTimes.push( time );
+		keyTimes.sort();
+
+	},
+
+	delKeyframe: function( channelName, time ) {
+
+		console.log( "delKeyframe('%s',%f)", channelName, time );
+
+		var keyTimes = this.channelKeyTimes[ channelName ];
+
+		var index = keyTimes.indexOf( time ); // TODO binary search
+
+		if ( index !== -1 ) {
+
+			keyTimes[ index ] = keyTimes[ keyTimes.length - 1 ];
+			keyTimes.pop();
+			keyTimes.sort();
+
+		}
+
+	},
+
+	hasKeyframe: function( channelName, time ) {
+
+		var keyTimes = this.channelKeyTimes[ channelName ];
+		return keyTimes.indexOf( time ) >= 0; // TODO binary search
+
+	}
+
+};
+
+
+
 
 window.Timeliner = Timeliner;

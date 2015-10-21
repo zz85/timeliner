@@ -2,9 +2,7 @@ var
 	Settings = require('./settings'),
 	Theme = require('./theme'),
 	utils = require('./utils'),
-	proxy_ctx = utils.proxy_ctx,
-	Tweens = require('./tween'),
-	handleDrag = require('./handle_drag');
+	proxy_ctx = utils.proxy_ctx;
 
 	var 
 		LINE_HEIGHT = Settings.LINE_HEIGHT,
@@ -43,13 +41,23 @@ time_scaled();
 // Timeline Panel
 /**************************/
 
-function TimelinePanel(data, dispatcher) {
+function TimelinePanel(context) {
+
+	var dispatcher = context.dispatcher;
+
+	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
 
 	var dpr = window.devicePixelRatio;
 	var canvas = document.createElement('canvas');
-	
-	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
-	var layers = data.get('layers').value;
+
+	var layers;
+
+	this.updateState = function() {
+		layers = Object.keys( context.controller.channelKeyTimes );
+		repaint();
+	};
+
+	this.updateState();
 
 	this.scrollTo = function(s, y) {
 		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
@@ -81,49 +89,7 @@ function TimelinePanel(data, dispatcher) {
 	var needsRepaint = false;
 	var renderItems = [];
 
-	function EasingRect(x1, y1, x2, y2, frame, frame2, values, layer, j) {
-		var self = this;
-
-		this.path = function() {
-			ctx_wrap.beginPath()
-			.rect(x1, y1, x2-x1, y2-y1)
-			.closePath();
-		};
-		
-		this.paint = function() {
-			this.path();
-			ctx.fillStyle = frame._color;
-			ctx.fill();
-		};
-
-		this.mouseover = function() {
-			canvas.style.cursor = 'pointer'; // pointer move ew-resize
-		};
-
-		this.mouseout = function() {
-			canvas.style.cursor = 'default';
-		};
-
-		this.mousedrag = function(e) {
-			var t1 = x_to_time(x1 + e.dx);
-			t1 = Math.max(0, t1);
-			// TODO limit moving to neighbours
-			frame.time = t1;
-
-			var t2 = x_to_time(x2 + e.dx);
-			t2 = Math.max(0, t2);
-			frame2.time = t2;
-
-			dispatcher.fire('time.update', t1);
-		};
-	}
-
-	function Diamond(frame, y) {
-		var x, y2;
-
-		x = time_to_x(frame.time);
-		y2 = y + LINE_HEIGHT * 0.5  - DIAMOND_SIZE / 2;
-
+	function Diamond(x, y) {
 		var self = this;
 
 		var isOver = false;
@@ -131,10 +97,10 @@ function TimelinePanel(data, dispatcher) {
 		this.path = function(ctx_wrap) {
 			ctx_wrap
 				.beginPath()
-				.moveTo(x, y2)
-				.lineTo(x + DIAMOND_SIZE / 2, y2 + DIAMOND_SIZE / 2)
-				.lineTo(x, y2 + DIAMOND_SIZE)
-				.lineTo(x - DIAMOND_SIZE / 2, y2 + DIAMOND_SIZE / 2)
+				.moveTo(x, y)
+				.lineTo(x + DIAMOND_SIZE / 2, y + DIAMOND_SIZE / 2)
+				.lineTo(x, y + DIAMOND_SIZE)
+				.lineTo(x - DIAMOND_SIZE / 2, y + DIAMOND_SIZE / 2)
 				.closePath();
 		};
 
@@ -164,8 +130,7 @@ function TimelinePanel(data, dispatcher) {
 		this.mousedrag = function(e) {
 			var t = x_to_time(x + e.dx);
 			t = Math.max(0, t);
-			// TODO limit moving to neighbours
-			frame.time = t;
+			// TODO implement
 			dispatcher.fire('time.update', t);
 			// console.log('frame', frame);
 			// console.log(s, format_friendly_seconds(s), this);
@@ -180,7 +145,9 @@ function TimelinePanel(data, dispatcher) {
 
 
 	function drawLayerContents() {
-		renderItems = [];
+
+		renderItems.length = 0;
+
 		// horizontal Layer lines
 		for (i = 0, il = layers.length; i <= il; i++) {
 			ctx.strokeStyle = Theme.b;
@@ -193,63 +160,28 @@ function TimelinePanel(data, dispatcher) {
 			.lineTo(width, y)
 			.stroke();
 		}
-		
 
-		var frame, frame2, j;
-
-		// Draw Easing Rects
+		// Draw Diamonds
 		for (i = 0; i < il; i++) {
 			// check for keyframes
 			var layer = layers[i];
-			var values = layer.values;
+			var times = context.controller.channelKeyTimes[ layer ];
 
 			y = i * LINE_HEIGHT;
 
-			for (j = 0; j < values.length - 1; j++) {
-				frame = values[j];
-				frame2 = values[j + 1];
-				
-				// Draw Tween Rect
-				x = time_to_x(frame.time);
-				x2 = time_to_x(frame2.time);
+			// TODO use upper and lower bound here
 
-				if (!frame.tween || frame.tween == 'none') continue;
-				
-				var y1 = y + 2;
-				var y2 = y + LINE_HEIGHT - 2;
+			for (var j = 0; j < times.length; j++) {
 
-				renderItems.push(new EasingRect(x, y1, x2, y2, frame, frame2));
-
-				// // draw easing graph
-				// var color = parseInt(frame._color.substring(1,7), 16);
-				// color = 0xffffff ^ color;
-				// color = color.toString(16);           // convert to hex
-				// color = '#' + ('000000' + color).slice(-6); 
-
-				// ctx.strokeStyle = color;
-				// var x3;
-				// ctx.beginPath();
-				// ctx.moveTo(x, y2);
-				// var dy = y1 - y2;
-				// var dx = x2 - x;
-
-				// for (x3=x; x3 < x2; x3++) {
-				// 	ctx.lineTo(x3, y2 + Tweens[frame.tween]((x3 - x)/dx) * dy);
-				// }
-				// ctx.stroke();
-			}
-
-			for (j = 0; j < values.length; j++) {
-				// Dimonds
-				frame = values[j];
-				renderItems.push(new Diamond(frame, y));
+				renderItems.push(new Diamond(
+						time_to_x( times[ j ] ), 
+						y + LINE_HEIGHT * 0.5 - DIAMOND_SIZE / 2));
 			}
 		}
 
-		// render items
-		var item;
+		// render
 		for (i = 0, il = renderItems.length; i < il; i++) {
-			item = renderItems[i];
+			var item = renderItems[i];
 			item.paint(ctx_wrap);
 		}
 	}
@@ -265,10 +197,8 @@ function TimelinePanel(data, dispatcher) {
 	function drawScroller() {
 		var w = width;
 
-		var totalTime = data.get('ui:totalTime').value;
-		var pixels_per_second = data.get('ui:timeScale').value;
-
-		var viewTime = w / pixels_per_second;
+		var totalTime = context.totalTime;
+		var viewTime = w / time_scale;
 
 
 		var k = w / totalTime; // pixels per seconds
@@ -282,7 +212,7 @@ function TimelinePanel(data, dispatcher) {
 		scroller.grip_length = viewTime * k;
 		var h = TOP_SCROLL_TRACK;
 
-		scroller.left = data.get('ui:scrollTime').value * k;
+		scroller.left = context.scrollTime * k;
 		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
 
 		ctx.beginPath();
@@ -314,14 +244,15 @@ function TimelinePanel(data, dispatcher) {
 	}
 
 
-	function setTimeScale() {
+	function setTimeScale(v) {
 
-		var v = data.get('ui:timeScale').value;
 		if (time_scale !== v) {
 			time_scale = v;
 			time_scaled();
 		}
 	}
+
+	this.setTimeScale = setTimeScale;
 
 	var over = null;
 	var mousedownItem = null;
@@ -383,10 +314,10 @@ function TimelinePanel(data, dispatcher) {
 			return;
 		}
 
-		setTimeScale();
+		setTimeScale(context.timeScale);
 
-		current_frame = data.get('ui:currentTime').value;
-		frame_start =  data.get('ui:scrollTime').value;
+		current_frame = context.currentTime;
+		frame_start =  context.scrollTime;
 
 		/**************************/
 		// background
@@ -579,7 +510,7 @@ function TimelinePanel(data, dispatcher) {
 	});
 
 	var mousedown2 = false, mouseDownThenMove = false;
-	handleDrag(canvas, function down(e) {
+	utils.handleDrag(canvas, function down(e) {
 			mousedown2 = true;
 			pointer = {
 				x: e.offsetx,
@@ -608,19 +539,14 @@ function TimelinePanel(data, dispatcher) {
 		}
 	);
 
-	this.setState = function(state) {
-		layers = state.value;
-		repaint();
-	};
-
 	/** Handles dragging for scroll bar **/
 
 	var draggingx;
 
-	handleDrag(canvas, function down(e) {
+	utils.handleDrag(canvas, function down(e) {
 			draggingx = scroller.left;
 		}, function move(e) {
-			data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
+			context.scrollTime = Math.max(0, (draggingx + e.dx) / scroller.k);
 			repaint();
 		}, function up() {
 		}, function(e) {

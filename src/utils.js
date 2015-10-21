@@ -1,6 +1,3 @@
-var
-	Tweens = require('./tween');
-
 module.exports = {
 	STORAGE_PREFIX: 'timeliner-',
 	Z_INDEX: 999,
@@ -8,14 +5,117 @@ module.exports = {
 	saveToFile: saveToFile,
 	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
-	findTimeinLayer: findTimeinLayer,
-	timeAtLayer: timeAtLayer,
-	proxy_ctx: proxy_ctx
+	proxy_ctx: proxy_ctx,
+	handleDrag: handleDrag
 };
 
 /**************************/
 // Utils
 /**************************/
+
+function handleDrag(element, ondown, onmove, onup, down_criteria) {
+	var pointer = null;
+	var bounds = element.getBoundingClientRect();
+	
+	element.addEventListener('mousedown', onMouseDown);
+
+	function onMouseDown(e) {
+		handleStart(e);
+
+		if (down_criteria && !down_criteria(pointer)) {
+			pointer = null;
+			return;
+		}
+
+		
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+		
+		ondown(pointer);
+
+		e.preventDefault();
+	}
+	
+	function onMouseMove(e) {
+		handleMove(e);
+		pointer.moved = true;
+		onmove(pointer);
+	}
+
+	function handleStart(e) {
+		bounds = element.getBoundingClientRect();
+		var currentx = e.clientX, currenty = e.clientY;
+		pointer = {
+			startx: currentx,
+			starty: currenty,
+			x: currentx,
+			y: currenty,
+			dx: 0,
+			dy: 0,
+			offsetx: currentx - bounds.left,
+			offsety: currenty - bounds.top,
+			moved: false
+		};
+	}
+	
+	function handleMove(e) {
+		bounds = element.getBoundingClientRect();
+		var currentx = e.clientX,
+		currenty = e.clientY,
+		offsetx = currentx - bounds.left,
+		offsety = currenty - bounds.top;
+		pointer.x = currentx;
+		pointer.y = currenty;
+		pointer.dx = e.clientX - pointer.startx;
+		pointer.dy = e.clientY - pointer.starty;
+		pointer.offsetx = offsetx;
+		pointer.offsety = offsety;
+	}
+	
+	function onMouseUp(e) {
+		handleMove(e);
+		onup(pointer);
+		pointer = null;
+		
+		document.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
+	}
+
+	element.addEventListener('touchstart', onTouchStart);
+
+	function onTouchStart(te) {
+		
+		if (te.touches.length == 1) {
+			
+			var e = te.touches[0];
+			if (down_criteria && !down_criteria(e)) return;
+			te.preventDefault();
+			handleStart(e);
+			ondown(pointer);
+		}
+		
+		element.addEventListener('touchmove', onTouchMove);
+		element.addEventListener('touchend', onTouchEnd);
+	}
+	
+	function onTouchMove(te) {
+		var e = te.touches[0];
+		onMouseMove(e);
+	}
+
+	function onTouchEnd(e) {
+		// var e = e.touches[0];
+		onMouseUp(e);
+		element.removeEventListener('touchmove', onTouchMove);
+		element.removeEventListener('touchend', onTouchEnd);
+	}
+
+
+	this.release = function() {
+		element.removeEventListener('mousedown', onMouseDown);
+		element.removeEventListener('touchstart', onTouchStart);
+	};
+}
 
 function style(element, var_args) {
 	for (var i = 1; i < arguments.length; ++i) {
@@ -127,117 +227,6 @@ function format_friendly_seconds(s, type) {
 	}
 	return str;	
 }
-
-// get object at time
-function findTimeinLayer(layer, time) {
-	var values = layer.values;
-	var i, il;
-
-	// TODO optimize by checking time / binary search
-
-	for (i=0, il=values.length; i<il; i++) {
-		var value = values[i];
-		if (value.time === time) {
-			return {
-				index: i,
-				object: value
-			};
-		} else if (value.time > time) {
-			return i;
-		}
-	}
-
-	return i;
-}
-
-
-function timeAtLayer(layer, t) {
-	// Find the value of layer at t seconds.
-	// this expect layer to be sorted
-	// not the most optimized for now, but would do.
-
-	var values = layer.values;
-	var i, il, entry, prev_entry;
-
-	il = values.length;
-
-	// can't do anything
-	if (il === 0) return;
-
-	// find boundary cases
-	entry = values[0];
-	if (t < entry.time) {
-		return {
-			value: entry.value,
-			can_tween: false, // cannot tween
-			keyframe: false // not on keyframe
-		};
-	}
-
-	for (i=0; i<il; i++) {
-		prev_entry = entry;
-		entry = values[i];
-
-		if (t === entry.time) {
-			// only exception is on the last KF, where we display tween from prev entry
-			if (i === il - 1) {
-				return {
-					// index: i,
-					entry: prev_entry,
-					tween: prev_entry.tween,
-					can_tween: il > 1,
-					value: entry.value,
-					keyframe: true
-				};
-			}
-			return {
-				// index: i,
-				entry: entry,
-				tween: entry.tween,
-				can_tween: il > 1,
-				value: entry.value,
-				keyframe: true // il > 1
-			};
-		}
-		if (t < entry.time) {
-			// possibly a tween
-			if (!prev_entry.tween) { // or if value is none
-				return {
-					value: prev_entry.value,
-					tween: false,
-					entry: prev_entry,
-					can_tween: true,
-					keyframe: false
-				};
-			}
-
-			// calculate tween
-			var time_diff = entry.time - prev_entry.time;
-			var value_diff = entry.value - prev_entry.value;
-			var tween = prev_entry.tween;
-
-			var dt = t - prev_entry.time;
-			var k = dt / time_diff;
-			var new_value = prev_entry.value + Tweens[tween](k) * value_diff;
-
-			return {
-				entry: prev_entry,
-				value: new_value,
-				tween: prev_entry.tween,
-				can_tween: true,
-				keyframe: false
-			};
-		}
-	}
-	// time is after all entries
-	return {
-		value: entry.value,
-		can_tween: false,
-		keyframe: false
-	}; 
-
-}
-
 
 function proxy_ctx(ctx) {
 	// Creates a proxy 2d context wrapper which 
