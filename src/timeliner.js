@@ -343,8 +343,12 @@ function Timeliner( controller ) {
 	*/
 
 	var div = document.createElement('div');
-	div.style.cssText = 'position: absolute;';
-	div.style.top = '22px';
+	style(div, {
+		textAlign: 'left',
+		lineHeight: '1em',
+		position: 'absolute',
+		top: '22px'
+	});
 
 	var pane = document.createElement('div');
 

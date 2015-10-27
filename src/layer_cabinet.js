@@ -80,7 +80,7 @@ function LayerCabinet(context) {
 	range.step = 0.125;
 
 	style(range, {
-		width: '90px',
+		width: '80px',
 		margin: '0px',
 		marginLeft: '2px',
 		marginRight: '2px'
