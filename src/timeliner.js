@@ -38,12 +38,6 @@ function Timeliner( controller ) {
 
 	var dispatcher = new Dispatcher();
 
-	if ( ! controller ) {
-
-		controller = new Timeliner.Controller();
-
-	}
-
 	controller.timeliner = this;
 	controller.init( this );
 
@@ -295,7 +289,7 @@ function Timeliner( controller ) {
 	}
 
 	function repaintAll() {
-		var layers = Object.keys( context.controller.channelKeyTimes );
+		var layers = context.controller.getChannelNames();
 		var content_height = layers.length * Settings.LINE_HEIGHT;
 		scrollbar.setLength(Settings.TIMELINE_SCROLL_HEIGHT / content_height);
 
@@ -1030,86 +1024,5 @@ function Timeliner( controller ) {
 	})();
 
 }
-
-Timeliner.Controller = function ControllerInterface() {
-
-	this.time = 0;
-	this.timeliner = null;
-	this.channelKeyTimes = {};
-
-};
-
-Timeliner.Controller.prototype = {
-
-	constructor: Timeliner.Controller,
-
-	init: function( timeliner ) {
-
-		this.timeliner = timeliner;
-
-		this.channelKeyTimes[ 'test1' ] = [];
-		this.channelKeyTimes[ 'test2' ] = [];
-
-	},
-
-	serialize: function() {
-
-		return this.channelKeyTimes;
-
-	},
-
-	deserialize: function(structs) {
-
-		this.channelKeyTimes = structs;
-
-	},
-
-	setDisplayTime: function( time ) {
-
-		//console.log( "setDisplayTime(%f)", time );
-		this.time = time;
-
-	},
-
-	setKeyframe: function( channelName, time ) {
-
-		console.log( "setKeyframe('%s',%f)", channelName, time );
-
-		var keyTimes = this.channelKeyTimes[ channelName ];
-
-		keyTimes.push( time );
-		keyTimes.sort();
-
-	},
-
-	delKeyframe: function( channelName, time ) {
-
-		console.log( "delKeyframe('%s',%f)", channelName, time );
-
-		var keyTimes = this.channelKeyTimes[ channelName ];
-
-		var index = keyTimes.indexOf( time ); // TODO binary search
-
-		if ( index !== -1 ) {
-
-			keyTimes[ index ] = keyTimes[ keyTimes.length - 1 ];
-			keyTimes.pop();
-			keyTimes.sort();
-
-		}
-
-	},
-
-	hasKeyframe: function( channelName, time ) {
-
-		var keyTimes = this.channelKeyTimes[ channelName ];
-		return keyTimes.indexOf( time ) >= 0; // TODO binary search
-
-	}
-
-};
-
-
-
 
 window.Timeliner = Timeliner;

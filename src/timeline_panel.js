@@ -53,7 +53,7 @@ function TimelinePanel(context) {
 	var layers;
 
 	this.updateState = function() {
-		layers = Object.keys( context.controller.channelKeyTimes );
+		layers = context.controller.getChannelNames();
 		repaint();
 	};
 
@@ -131,7 +131,7 @@ function TimelinePanel(context) {
 			var t = x_to_time(x + e.dx);
 			t = Math.max(0, t);
 			// TODO implement
-			dispatcher.fire('time.update', t);
+			//dispatcher.fire('time.update', t);
 			// console.log('frame', frame);
 			// console.log(s, format_friendly_seconds(s), this);
 		};
@@ -165,7 +165,7 @@ function TimelinePanel(context) {
 		for (i = 0; i < il; i++) {
 			// check for keyframes
 			var layer = layers[i];
-			var times = context.controller.channelKeyTimes[ layer ];
+			var times = context.controller.getChannelKeyTimes( layer );
 
 			y = i * LINE_HEIGHT;
 

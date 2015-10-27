@@ -352,7 +352,7 @@ function LayerCabinet(context) {
 
 	this.updateState = function() {
 
-		var layers = Object.keys( context.controller.channelKeyTimes );
+		var layers = context.controller.getChannelNames();
 
 		console.log(layer_uis.length, layers);
 		var i, layer;
@@ -382,7 +382,7 @@ function LayerCabinet(context) {
 
 	function repaint() {
 
-		var layers = Object.keys( context.controller.channelKeyTimes );
+		var layers = context.controller.getChannelNames();
 		var time = context.currentTime;
 		currentTime.setValue(time);
 		totalTime.setValue(context.totalTime);

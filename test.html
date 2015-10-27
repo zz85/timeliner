@@ -1,18 +1,105 @@
+<!doctype html>
 <html>
 <head>
 </head>
 <body>
-<style>
-body {
-	overflow: hidden;
-	font-family: monospace;
-}
-
-</style>
-
 <script src="timeliner_gui.js"></script>
 <script>
-var timeliner = new Timeliner();
+
+
+Controller = function ControllerInterface() {
+
+	this._time = 0;
+	this._timeliner = null;
+	this._channelKeyTimes = {};
+
+};
+
+Controller.prototype = {
+
+	constructor: Controller,
+
+	init: function( timeliner ) {
+
+		this._timeliner = timeliner;
+
+		this._channelKeyTimes[ 'test1' ] = [];
+		this._channelKeyTimes[ 'test2' ] = [];
+
+	},
+
+	serialize: function() {
+
+		return this._channelKeyTimes;
+
+	},
+
+	deserialize: function(structs) {
+
+		this._channelKeyTimes = structs;
+
+	},
+
+	setDisplayTime: function( time ) {
+
+		//console.log( "setDisplayTime(%f)", time );
+		this._time = time;
+
+	},
+
+	getChannelNames: function() {
+
+		return Object.keys( this._channelKeyTimes );
+
+	},
+
+	getChannelKeyTimes: function( channelName ) {
+
+		return this._channelKeyTimes[ channelName ];
+
+	},
+
+	setKeyframe: function( channelName, time ) {
+
+		console.log( "setKeyframe('%s',%f)", channelName, time );
+
+		var keyTimes = this._channelKeyTimes[ channelName ];
+
+		keyTimes.push( time );
+		keyTimes.sort();
+
+	},
+
+	delKeyframe: function( channelName, time ) {
+
+		console.log( "delKeyframe('%s',%f)", channelName, time );
+
+		var keyTimes = this._channelKeyTimes[ channelName ];
+
+		var index = keyTimes.indexOf( time ); // TODO binary search
+
+		if ( index !== -1 ) {
+
+			keyTimes[ index ] = keyTimes[ keyTimes.length - 1 ];
+			keyTimes.pop();
+			keyTimes.sort();
+
+		}
+
+	},
+
+	hasKeyframe: function( channelName, time ) {
+
+		var keyTimes = this._channelKeyTimes[ channelName ];
+		return keyTimes.indexOf( time ) >= 0; // TODO binary search
+
+	}
+
+};
+
+var timeliner = new Timeliner( new Controller() );
+
+
 </script>
 </body>
 </html>
