@@ -408,7 +408,7 @@ function Timeliner( controller ) {
 	// top_right_bar.appendChild(resize_small.dom);
 
 	// resize full
-	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
+	var resize_full = new IconButton(10, 'resize_full', 'Maximize', dispatcher);
 	style(resize_full.dom, button_styles, { marginRight: '2px' });
 	top_right_bar.appendChild(resize_full.dom);
 

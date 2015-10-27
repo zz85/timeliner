@@ -342,11 +342,11 @@ function LayerCabinet(context) {
 		playing = v;
 		if (playing) {
 			play_button.setIcon('pause');
-			play_button.setTip('pause');
+			play_button.setTip('Pause');
 		}
 		else {
 			play_button.setIcon('play');
-			play_button.setTip('play');
+			play_button.setTip('Play');
 		}
 	};
 
