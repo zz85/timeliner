@@ -495,7 +495,7 @@ function Timeliner( controller ) {
 		var name = prompt('Layer name?');
 		addLayer(name);
 
-		undo_manager.save(new UndoState(data, 'Layer added'));
+		// undo_manager.save(new UndoState(data, 'Layer added'));
 
 		repaintAll();
 	});
@@ -657,6 +657,7 @@ function Timeliner( controller ) {
 		right.style.left = Settings.LEFT_PANE_WIDTH + 'px';
 	}
 
+/*
 	function addLayer(name) {
 		var layer = new LayerProp(name);
 
@@ -667,6 +668,7 @@ function Timeliner( controller ) {
 	}
 
 	this.addLayer = addLayer;
+*/
 
 	this.dispose = function dispose() {
 
@@ -674,10 +676,6 @@ function Timeliner( controller ) {
 		domParent.removeChild(pane);
 		domParent.removeChild(ghostpane);
 
-	};
-
-	this.setTarget = function(t) {
-		timeline = t;
 	};
 
 	(function DockingWindow() {
