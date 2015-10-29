@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tschw/timeliner.git"
+    "url": "https://github.com/tschw/timeliner_gui.git"
   },
   "keywords": [
     "timeline",
@@ -27,9 +27,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tschw/timeliner/issues"
+    "url": "https://github.com/tschw/timeliner_gui/issues"
   },
-  "homepage": "https://github.com/tschw/timeliner",
+  "homepage": "https://github.com/tschw/timeliner_gui",
   "devDependencies": {
     "do.js": "^1.0.0",
     "uglifyify": "^2.6.0"
