@@ -59,7 +59,7 @@ function TimelinePanel(context) {
 
 	this.updateState();
 
-	this.scrollTo = function(s, y) {
+	this.scrollTo = function(s) {
 		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
 		repaint();
 	};
