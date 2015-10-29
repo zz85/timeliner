@@ -55,9 +55,6 @@ function Timeliner( controller ) {
 
 	};
 
-	window.dbgTimelinerContext = context; // DEBUG
-
-
 	var timeline = new TimelinePanel(context);
 	var layer_panel = new LayerCabinet(context);
 
@@ -531,7 +528,7 @@ function Timeliner( controller ) {
 	*/
 
 	var ghostpane = document.createElement('div');
-	ghostpane.id = 'ghostpane';
+	//ghostpane.id = 'ghostpane';
 	style(ghostpane, {
 		background: '#999',
 		opacity: 0.2,
@@ -670,6 +667,14 @@ function Timeliner( controller ) {
 	}
 
 	this.addLayer = addLayer;
+
+	this.dispose = function dispose() {
+
+		var domParent = pane.parentElement;
+		domParent.removeChild(pane);
+		domParent.removeChild(ghostpane);
+
+	};
 
 	this.setTarget = function(t) {
 		timeline = t;
