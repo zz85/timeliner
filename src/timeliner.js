@@ -140,6 +140,12 @@ function Timeliner( controller ) {
 
 	dispatcher.on('time.update', setCurrentTime);
 
+	dispatcher.on('totalTime.update', function(value) {
+		context.totalTime = value;
+		controller.setDuration(value);
+		timeline.repaint();
+	});
+
 	dispatcher.on('target.notify', function(name, value) {
 		console.log(name, "=", value);
 		//if (target) target[name] = value;

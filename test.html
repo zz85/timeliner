@@ -47,6 +47,12 @@ Controller.prototype = {
 
 	},
 
+	setDuration: function( duration ) {
+
+		console.log( "setDuration(%f)", duration );
+
+	},
+
 	getChannelNames: function() {
 
 		return Object.keys( this._channelKeyTimes );

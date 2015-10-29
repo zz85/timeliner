@@ -113,12 +113,12 @@ function LayerCabinet(context) {
 
 	currentTime.onChange.do(function(value, done) {
 		dispatcher.fire('time.update', value);
-		// repaint();
+		currentTime.paint();
 	});
 
 	totalTime.onChange.do(function(value, done) {
-		context.totalTime = value;
-		// repaint();
+		dispatcher.fire('totalTime.update', value);
+		totalTime.paint();
 	});
 
 	// Play Controls
