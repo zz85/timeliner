@@ -153,7 +153,7 @@ var input, openCallback;
 function handleFileSelect(evt) {
 	var files = evt.target.files; // FileList object
 
-	console.log('handle file select', files.length);
+	//console.log('handle file select', files.length);
 
 	var f = files[0];
 	if (!f) return;
@@ -161,7 +161,7 @@ function handleFileSelect(evt) {
 	// if (!f.type.match('application/json')) {
 	//   return;
 	// }
-	console.log('match', f.type);
+	//console.log('match', f.type);
 
 	var reader = new FileReader();
 
@@ -178,7 +178,7 @@ function handleFileSelect(evt) {
 
 
 function openAs(callback, target) {
-	console.log('openfile...');
+	//console.log('openfile...');
 	openCallback = callback;
 
 	if (!input) {

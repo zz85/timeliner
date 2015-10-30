@@ -1,6 +1,5 @@
 var SimpleEvent = require('do.js');
 var utils = require('../utils');
-console.log(utils);
 
 // ********** class: ScrollBar ****************** //
 /*

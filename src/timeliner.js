@@ -146,13 +146,7 @@ function Timeliner( controller ) {
 		timeline.repaint();
 	});
 
-	dispatcher.on('target.notify', function(name, value) {
-		console.log(name, "=", value);
-		//if (target) target[name] = value;
-	});
-
 	dispatcher.on('update.scale', function(v) {
-		console.log('range', v);
 		context.timeScale = v;
 		timeline.setTimeScale(v);
 		timeline.repaint();
@@ -303,7 +297,7 @@ function Timeliner( controller ) {
 	function promptImport() {
 		var json = prompt('Paste JSON in here to Load');
 		if (!json) return;
-		console.log('Loading.. ', json);
+		//console.log('Loading.. ', json);
 		loadJSONString(json);
 	}
 
@@ -618,7 +612,7 @@ function Timeliner( controller ) {
 			// Esc = stop. FIXME: should rewind head to last played from or Last pointed from?
 			dispatcher.fire('controls.pause');
 		}
-		else console.log(e.keyCode);
+		//else console.log(e.keyCode);
 	});
 
 	var needsResize = true;

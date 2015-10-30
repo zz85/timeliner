@@ -328,7 +328,7 @@ function LayerCabinet(context) {
 	}
 
 	function changeRange() {
-		console.log("range.value", range.value);
+		//console.log("range.value", range.value);
 
 		dispatcher.fire('update.scale', 6 * Math.pow(100, range.value));
 	}
@@ -354,7 +354,7 @@ function LayerCabinet(context) {
 
 		var layers = context.controller.getChannelNames();
 
-		console.log(layer_uis.length, layers);
+		//console.log(layer_uis.length, layers);
 		var i, layer;
 		for (i = 0; i < layers.length; i++) {
 			layer = layers[i];
@@ -375,8 +375,8 @@ function LayerCabinet(context) {
 			layer_uis[i].setState(layer);
 		}
 
-		console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
-			layer_uis.length + unused_layers.length);
+		//console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
+		//	layer_uis.length + unused_layers.length);
 
 	};
 

@@ -63,7 +63,7 @@ function IconButton(size, icon, tooltip, dp) {
 	this.setIcon = function(icon) {
 		me.icon = icon;
 
-		if (!font.fonts[icon]) console.warn('Font icon not found!');
+		if (!font.fonts[icon]) console.error('Font icon not found!');
 		this.resize();
 	};
 
@@ -81,7 +81,7 @@ function IconButton(size, icon, tooltip, dp) {
 			e.stopPropagation();
 			longHoldTimer = setTimeout(function() {
 				if (longHoldTimer) {
-					console.log('LONG HOLD-ED!');
+					//console.log('LONG HOLD-ED!');
 					f();
 				}
 			}, LONG_HOLD_DURATION);

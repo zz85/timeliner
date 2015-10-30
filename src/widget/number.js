@@ -41,7 +41,7 @@ function NumberUI(config) {
 	this.onChange = new Do();
 
 	span.addEventListener('change', function(e) {
-		console.log('input changed', span.value);
+		//console.log('input changed', span.value);
 		value = parseFloat(span.value, 10);
 
 		fireChange();
