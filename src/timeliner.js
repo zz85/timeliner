@@ -763,6 +763,8 @@ function Timeliner( controller ) {
 
 		// Mouse events
 		pane.addEventListener('mousedown', onMouseDown);
+		pane.addEventListener('mouseover', onMouseOver);
+		pane.addEventListener('mouseout',onMouseOut);
 		document.addEventListener('mousemove', onMove);
 		document.addEventListener('mouseup', onUp);
 
@@ -771,6 +773,9 @@ function Timeliner( controller ) {
 		document.addEventListener('touchmove', onTouchMove);
 		document.addEventListener('touchend', onTouchEnd);
 
+		var mouseOver = false;
+		function onMouseOver(e) { mouseOver = true; }
+		function onMouseOut(e) { mouseOver = false; }
 
 		function onTouchDown(e) {
 			onDown(e.touches[0]);
@@ -812,8 +817,8 @@ function Timeliner( controller ) {
 
 			if (isResizing || isMoving) {
 				e.preventDefault();
-				e.stopPropagation();
 			}
+			e.stopPropagation();
 		}
 
 		function canMove() {
@@ -840,6 +845,10 @@ function Timeliner( controller ) {
 			calc(e);
 
 			redraw = true;
+
+			if (mouseOver) {
+				e.stopPropagation();
+			}
 		}
 
 		function animate() {
@@ -1027,6 +1036,9 @@ function Timeliner( controller ) {
 
 			clicked = null;
 
+			if (mouseOver) {
+				e.stopPropagation();
+			}
 		}
 	})();
 
