@@ -677,22 +677,28 @@ function Timeliner( controller ) {
 		"use strict";
 
 		// Minimum resizable area
-		var minWidth = 100;
-		var minHeight = 80;
+		var minWidth = 120;
+		var minHeight = 100;
 
 		// Thresholds
 		var FULLSCREEN_MARGINS = 2;
-		var SNAP_MARGINS = 8;
+		var SNAP_MARGINS = 12;
 		var MARGINS = 2;
+
+		var DEFAULT_SNAP = 'snap-bottom-edge';
 
 		// End of what's configurable.
 
 		var clicked = null;
 		var onRightEdge, onBottomEdge, onLeftEdge, onTopEdge;
 
-		var preSnapped;
+		var preSnapped = {
+			width: LayoutConstants.WIDTH,
+			height: LayoutConstants.HEIGHT
+		};
+		var snapType = DEFAULT_SNAP;
 
-		var b, x, y;
+		var x, y, b = pane.getBoundingClientRect();
 
 		var redraw = false;
 
@@ -700,7 +706,6 @@ function Timeliner( controller ) {
 		// var ghostpane = document.getElementById('ghostpane');
 
 		var mouseOnTitle = false;
-		var snapType;
 
 		pane_title.addEventListener('mouseover', function() {
 			mouseOnTitle = true;
@@ -753,8 +758,8 @@ function Timeliner( controller ) {
 			ghostpane.style.opacity = 0;
 		}
 
-		setBounds(pane, 0, 0, Settings.width, Settings.height);
-		setBounds(ghostpane, 0, 0, Settings.width, Settings.height);
+		setBounds(pane, 0, 0, context.width, context.height);
+		setBounds(ghostpane, 0, 0, context.width, context.height);
 
 		// Mouse events
 		pane.addEventListener('mousedown', onMouseDown);
@@ -890,19 +895,19 @@ function Timeliner( controller ) {
 						ghostpane.style.opacity = 0.2;
 						break;
 					case 'snap-top-edge':
-						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight / 2);
+						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight * 0.25);
 						ghostpane.style.opacity = 0.2;
 						break;
 					case 'snap-left-edge':
-						setBounds(ghostpane, 0, 0, window.innerWidth / 2, window.innerHeight);
+						setBounds(ghostpane, 0, 0, window.innerWidth * 0.35, window.innerHeight);
 						ghostpane.style.opacity = 0.2;
 						break;
 					case 'snap-right-edge':
-						setBounds(ghostpane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+						setBounds(ghostpane, window.innerWidth * 0.65, 0, window.innerWidth * 0.35, window.innerHeight);
 						ghostpane.style.opacity = 0.2;
 						break;
 					case 'snap-bottom-edge':
-						setBounds(ghostpane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
+						setBounds(ghostpane, 0, window.innerHeight * 0.75, window.innerWidth, window.innerHeight * 0.25);
 						ghostpane.style.opacity = 0.2;
 						break;
 					default:
@@ -987,26 +992,28 @@ function Timeliner( controller ) {
 		animate();
 
 		function resizeEdges() {
+			var x, y, w, h;
 			switch(snapType) {
 				case 'full-screen':
-					// hintFull();
-					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
+					x = 0, y = 0, w = window.innerWidth, h = window.innerHeight;
 					break;
 				case 'snap-top-edge':
-					// hintTop();
-					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
+					x = 0, y = 0, w = window.innerWidth, h = window.innerHeight * 0.25;
 					break;
 				case 'snap-left-edge':
-					// hintLeft();
-					setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
+					x = 0, y = 0, w = window.innerWidth * 0.35, h = window.innerHeight;
 					break;
 				case 'snap-right-edge':
-					setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+					x = window.innerWidth * 0.65, y = 0, w = window.innerWidth * 0.35, h = window.innerHeight;
 					break;
 				case 'snap-bottom-edge':
-					setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
+					x = 0, y = window.innerHeight * 0.75, w = window.innerWidth, h = window.innerHeight * 0.25;
 					break;
+				default:
+					return;
 			}
+			setBounds(pane, x, y, w, h);
+			setBounds(ghostpane, x, y, w, h);
 		}
 
 		function onUp(e) {
@@ -1035,6 +1042,9 @@ function Timeliner( controller ) {
 				e.stopPropagation();
 			}
 		}
+
+		resizeEdges();
+
 	})();
 
 }
