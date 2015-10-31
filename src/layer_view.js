@@ -1,8 +1,5 @@
-var
-	Theme = require('./theme'),
-	Settings = require('./settings'),
-	utils = require('./utils') // TODO
-;
+var Theme = require('./theme'),
+	LayoutConstants = require('./layout_constants');
 
 function LayerView(context, channelName) {
 
@@ -11,7 +8,7 @@ function LayerView(context, channelName) {
 	
 	label.style.cssText = 'font-size: 12px; padding: 4px;';
 
-	var height = (Settings.LINE_HEIGHT - 1);
+	var height = (LayoutConstants.LINE_HEIGHT - 1);
 
 	var keyframe_button = document.createElement('button');
 	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672

@@ -7,7 +7,7 @@ var undo = require('./undo'),
 	Theme = require('./theme'),
 	UndoManager = undo.UndoManager,
 	UndoState = undo.UndoState,
-	Settings = require('./settings'),
+	LayoutConstants = require('./layout_constants'),
 	utils = require('./utils'),
 	LayerCabinet = require('./layer_cabinet'),
 	TimelinePanel = require('./timeline_panel'),
@@ -43,6 +43,10 @@ function Timeliner( controller ) {
 
 	var context = {
 
+		width: LayoutConstants.WIDTH,
+		height: LayoutConstants.HEIGHT,
+		scrollHeight: 0,
+
 		totalTime: 20.0,
 		timeScale: 6,
 
@@ -59,6 +63,11 @@ function Timeliner( controller ) {
 	var layer_panel = new LayerCabinet(context);
 
 	var undo_manager = new UndoManager(dispatcher);
+
+	var scrollbar = new ScrollBar(0, 10);
+
+	var div = document.createElement('div');
+
 /*
 	setTimeout(function() {
 		// hack!
@@ -175,6 +184,7 @@ function Timeliner( controller ) {
 		Paint Routines
 	*/
 
+	var needsResize = true;
 	function paint() {
 		requestAnimationFrame(paint);
 
@@ -190,8 +200,8 @@ function Timeliner( controller ) {
 		}
 
 		if (needsResize) {
-			div.style.width = width + 'px';
-			div.style.height = height + 'px';
+			div.style.width = context.width + 'px';
+			div.style.height = context.height + 'px';
 
 			restyle(layer_panel.dom, timeline.dom);
 
@@ -287,8 +297,8 @@ function Timeliner( controller ) {
 
 	function repaintAll() {
 		var layers = context.controller.getChannelNames();
-		var content_height = layers.length * Settings.LINE_HEIGHT;
-		scrollbar.setLength(Settings.TIMELINE_SCROLL_HEIGHT / content_height);
+		var content_height = layers.length * LayoutConstants.LINE_HEIGHT;
+		scrollbar.setLength(context.scrollHeight / content_height);
 
 		layer_panel.repaint();
 		timeline.repaint();
@@ -339,7 +349,6 @@ function Timeliner( controller ) {
 		Start DOM Stuff (should separate file)
 	*/
 
-	var div = document.createElement('div');
 	style(div, {
 		textAlign: 'left',
 		lineHeight: '1em',
@@ -548,7 +557,6 @@ function Timeliner( controller ) {
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
 
-	var scrollbar = new ScrollBar(200, 10);
 	div.appendChild(scrollbar.dom);
 
 	// percentages
@@ -615,46 +623,33 @@ function Timeliner( controller ) {
 		//else console.log(e.keyCode);
 	});
 
-	var needsResize = true;
-
-	function resize(width, height) {
-		// data.get('ui:bounds').value = {
-		// 	width: width,
-		// 	height: height
-		// };
+	function resize(newWidth, newHeight) {
 		// TODO: remove ugly hardcodes
-		width -= 4;
-		height -= 44;
-
-		Settings.width = width - Settings.LEFT_PANE_WIDTH;
-		Settings.height = height;
-
-		Settings.TIMELINE_SCROLL_HEIGHT = height - Settings.MARKER_TRACK_HEIGHT;
-		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
-
-		scrollbar.setHeight(scrollable_height - 2);
-		// scrollbar.setThumb
+		context.width = newWidth - LayoutConstants.LEFT_PANE_WIDTH - 4;
+		context.height = newHeight - 44;
+		context.scrollHeight = context.height - LayoutConstants.MARKER_TRACK_HEIGHT;
+		scrollbar.setHeight(context.scrollHeight - 2);
 
 		style(scrollbar.dom, {
-			top: Settings.MARKER_TRACK_HEIGHT + 'px',
-			left: (width - 16) + 'px',
+			top: LayoutConstants.MARKER_TRACK_HEIGHT + 'px',
+			left: (newWidth - 16 - 4) + 'px',
 		});
 
 		needsResize = true;
 	}
 
 	function restyle(left, right) {
-		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + Settings.height + 'px;';
+		left.style.cssText = 'position: absolute; left: 0px; top: 0px; height: ' + context.height + 'px;';
 		style(left, {
 			// background: Theme.a,
 			overflow: 'hidden'
 		});
-		left.style.width = Settings.LEFT_PANE_WIDTH + 'px';
+		left.style.width = LayoutConstants.LEFT_PANE_WIDTH + 'px';
 
 		// right.style.cssText = 'position: absolute; top: 0px;';
 		right.style.position = 'absolute';
 		right.style.top = '0px';
-		right.style.left = Settings.LEFT_PANE_WIDTH + 'px';
+		right.style.left = LayoutConstants.LEFT_PANE_WIDTH + 'px';
 	}
 
 /*

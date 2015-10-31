@@ -1,4 +1,4 @@
-var Settings = require('./settings'),
+var LayoutConstants = require('./layout_constants'),
 	LayerUI = require('./layer_view'),
 	IconButton = require('./widget/icon_button'),
 	style = require('./utils').style,
@@ -12,14 +12,14 @@ function LayerCabinet(context) {
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
-	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
+	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + LayoutConstants.MARKER_TRACK_HEIGHT + 'px';
 	// top.style.textAlign = 'right';
 
 	var layer_scroll = document.createElement('div');
 	style(layer_scroll, {
 		position: 'absolute',
-		top: Settings.MARKER_TRACK_HEIGHT + 'px',
-		// height: (Settings.height - Settings.MARKER_TRACK_HEIGHT) + 'px'
+		top: LayoutConstants.MARKER_TRACK_HEIGHT + 'px',
+		// height: (height - LayoutConstants.MARKER_TRACK_HEIGHT) + 'px'
 		left: 0,
 		right: 0,
 		bottom: 0,
