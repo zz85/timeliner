@@ -6,12 +6,39 @@ module.exports = {
 	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
 	proxy_ctx: proxy_ctx,
-	handleDrag: handleDrag
+	handleDrag: handleDrag,
+	binarySearch: binarySearch
 };
 
 /**************************/
 // Utils
 /**************************/
+
+function binarySearch(arr, num) {
+
+	var l = 0, r = arr.length, found = false;
+
+	while ( l <  r ) {
+
+		var m = ( l + r ) >> 1;
+
+		if ( arr[ m ] < num ) {
+
+			l = m + 1;
+
+		} else {
+
+			r = m;
+
+			found = arr[ m ] === num;
+
+		}
+
+	}
+
+	return found ? l : ~l;
+
+}
 
 function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	var pointer = null;
@@ -22,7 +49,7 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	function onMouseDown(e) {
 		handleStart(e);
 
-		if (down_criteria && !down_criteria(pointer)) {
+		if (down_criteria && !down_criteria(pointer,e)) {
 			pointer = null;
 			return;
 		}
@@ -31,7 +58,7 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 		document.addEventListener('mousemove', onMouseMove);
 		document.addEventListener('mouseup', onMouseUp);
 		
-		ondown(pointer);
+		ondown(pointer,e);
 
 		e.preventDefault();
 	}
@@ -39,7 +66,7 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	function onMouseMove(e) {
 		handleMove(e);
 		pointer.moved = true;
-		onmove(pointer);
+		onmove(pointer, e);
 	}
 
 	function handleStart(e) {
@@ -74,7 +101,7 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	
 	function onMouseUp(e) {
 		handleMove(e);
-		onup(pointer);
+		onup(pointer,e);
 		pointer = null;
 		
 		document.removeEventListener('mousemove', onMouseMove);
@@ -91,7 +118,7 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 			if (down_criteria && !down_criteria(e)) return;
 			te.preventDefault();
 			handleStart(e);
-			ondown(pointer);
+			ondown(pointer,e);
 		}
 		
 		element.addEventListener('touchmove', onTouchMove);

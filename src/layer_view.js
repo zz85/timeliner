@@ -1,5 +1,6 @@
 var Theme = require('./theme'),
-	LayoutConstants = require('./layout_constants');
+	LayoutConstants = require('./layout_constants'),
+	utils = require('./utils');
 
 function LayerView(context, channelName) {
 
@@ -43,9 +44,11 @@ function LayerView(context, channelName) {
 
 		keyframe_button.style.color = Theme.b;
 
-		if (time == null) return;
+		if (time == null || context.draggingKeyframe || channelName == null ) return;
 
-		if (context.controller.hasKeyframe(channelName, time)) {
+		var keyTimes = context.controller.getChannelKeyTimes(channelName);
+
+		if ( utils.binarySearch( keyTimes, time ) >= 0 ) {
 
 			keyframe_button.style.color = Theme.c;
 		}

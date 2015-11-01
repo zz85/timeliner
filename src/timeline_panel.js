@@ -26,7 +26,7 @@ function time_scaled() {
 
 	tickMark1 = time_scale / div;
 	tickMark2 = 2 * tickMark1;
-	tickMark3 = 10 * tickMark1;
+	tickMark3 = 8 * tickMark1;
 
 }
 
@@ -85,10 +85,16 @@ function TimelinePanel(context) {
 	var needsRepaint = false;
 	var renderItems = [];
 
-	function Diamond(x, y) {
+	var timeDrag = 0;
+	var channelDrag;
+
+	function Diamond(t, x, y) {
+
 		var self = this;
 
 		var isOver = false;
+
+		this.time = t;
 
 		this.path = function(ctx_wrap) {
 			ctx_wrap
@@ -123,13 +129,27 @@ function TimelinePanel(context) {
 			self.paint(ctx_wrap);
 		};
 
-		this.mousedrag = function(e) {
-			var t = x_to_time(x + e.dx);
-			t = Math.max(0, t);
-			// TODO implement
-			//dispatcher.fire('time.update', t);
-			// console.log('frame', frame);
-			// console.log(s, format_friendly_seconds(s), this);
+		this.mousedrag = function(e, domEvent) {
+
+			if ( channelDrag !== undefined ) {
+
+				var t = x_to_time(e.offsetx),
+					delta = Math.max(t - timeDrag, - timeDrag),
+					shift = domEvent.shiftKey;
+
+				if ( delta ) {
+
+					context.draggingKeyframe = true;
+
+					context.controller.moveKeyframe( channelDrag, timeDrag, delta, shift );
+
+					timeDrag += delta;
+					repaint();
+
+				}
+
+			}
+
 		};
 
 	}
@@ -169,8 +189,10 @@ function TimelinePanel(context) {
 
 			for (var j = 0; j < times.length; j++) {
 
+				var time = times[ j ];
+
 				renderItems.push(new Diamond(
-						time_to_x( times[ j ] ),
+						time, time_to_x( time ),
 						y + LINE_HEIGHT * 0.5 - DIAMOND_SIZE / 2));
 			}
 		}
@@ -284,12 +306,11 @@ function TimelinePanel(context) {
 			}
 		}
 
-
-
 		// console.log(pointer)
 	}
 
 	function pointerEvents() {
+
 		if (!pointer) return;
 
 		ctx_wrap
@@ -305,7 +326,8 @@ function TimelinePanel(context) {
 	}
 
 	function _paint() {
-		if (!needsRepaint) {
+
+		if (! needsRepaint) {
 			pointerEvents();
 			return;
 		}
@@ -513,14 +535,19 @@ function TimelinePanel(context) {
 				y: e.offsety
 			};
 			pointerEvents();
+			if (mousedownItem instanceof Diamond) {
+				timeDrag = mousedownItem.time;
+				channelDrag = layers[ y_to_track(e.offsety) ];
+				if (!channelDrag) mousedownItem = null;
+			}
 			dispatcher.fire('time.update', x_to_time(e.offsetx));
 			// Hit criteria
-		}, function move(e) {
+		}, function move(e, domEvent) {
 			mousedown2 = false;
 			if (mousedownItem) {
 				mouseDownThenMove = true;
 				if (mousedownItem.mousedrag) {
-					mousedownItem.mousedrag(e);
+					mousedownItem.mousedrag(e,domEvent);
 				}
 			} else {
 				dispatcher.fire('time.update', x_to_time(e.offsetx));
@@ -532,6 +559,8 @@ function TimelinePanel(context) {
 			mousedown2 = false;
 			mousedownItem = null;
 			mouseDownThenMove = false;
+			context.draggingKeyframe = false;
+			repaint();
 		}
 	);
 

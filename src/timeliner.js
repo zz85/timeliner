@@ -68,6 +68,8 @@ function Timeliner( controller ) {
 
 	var div = document.createElement('div');
 
+	controller.setDuration(context.totalTime);
+
 /*
 	setTimeout(function() {
 		// hack!
@@ -75,9 +77,14 @@ function Timeliner( controller ) {
 	});
 */
 	dispatcher.on('keyframe', function(channelName) {
+
 		var time = context.currentTime;
 
-		if ( ! controller.hasKeyframe( channelName, time ) ) {
+		if ( time == null || channelName == null ) return;
+
+		var keyTimes = controller.getChannelKeyTimes( channelName, time );
+
+		if ( utils.binarySearch( keyTimes, time ) < 0 ) {
 
 			controller.setKeyframe( channelName, time );
 
@@ -1048,5 +1055,7 @@ function Timeliner( controller ) {
 	})();
 
 }
+
+Timeliner.binarySearch = utils.binarySearch;
 
 window.Timeliner = Timeliner;

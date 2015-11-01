@@ -69,10 +69,17 @@ Controller.prototype = {
 
 		console.log( "setKeyframe('%s',%f)", channelName, time );
 
-		var keyTimes = this._channelKeyTimes[ channelName ];
+		var keyTimes = this._channelKeyTimes[ channelName ],
+			index = Timeliner.binarySearch( keyTimes, time );
 
-		keyTimes.push( time );
-		keyTimes.sort();
+		if ( index < 0 ) {
+
+			// Note: Can use ~index to insert - we simply push & sort
+
+			keyTimes.push( time );
+			keyTimes.sort( Controller._compare );
+
+		}
 
 	},
 
@@ -80,28 +87,37 @@ Controller.prototype = {
 
 		console.log( "delKeyframe('%s',%f)", channelName, time );
 
-		var keyTimes = this._channelKeyTimes[ channelName ];
+		var keyTimes = this._channelKeyTimes[ channelName ],
+			index = Timeliner.binarySearch( keyTimes, time );
 
-		var index = keyTimes.indexOf( time ); // TODO binary search
-
-		if ( index !== -1 ) {
+		if ( index >= 0 ) {
 
 			keyTimes[ index ] = keyTimes[ keyTimes.length - 1 ];
 			keyTimes.pop();
-			keyTimes.sort();
+			keyTimes.sort( Controller._compare );
 
 		}
 
 	},
 
-	hasKeyframe: function( channelName, time ) {
+	moveKeyframe: function( channelName, time, delta, moveRemaining ) {
 
-		var keyTimes = this._channelKeyTimes[ channelName ];
-		return keyTimes.indexOf( time ) >= 0; // TODO binary search
+		var keyTimes = this._channelKeyTimes[ channelName ],
+			index = Timeliner.binarySearch( keyTimes, time );
+
+		if ( index >= 0 ) {
+
+			var endAt = moveRemaining ? keyTimes.length : index + 1;
+			while ( index !== endAt ) keyTimes[ index ++ ] += delta;
+			keyTimes.sort( Controller._compare );
+
+		}
 
 	}
 
 };
+
+Controller._compare = function( a, b ) { return a - b; };
 
 var timeliner = new Timeliner( new Controller() );
 
