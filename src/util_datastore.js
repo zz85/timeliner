@@ -1,5 +1,6 @@
 var package_json = require('../package.json'),
-Do = require('do.js');
+	Settings = require('./settings'),
+	Do = require('do.js');
 
 // Data Store with a source of truth
 function DataStore() {
@@ -24,6 +25,13 @@ DataStore.prototype.blank = function() {
 	data.version = package_json.version;
 	data.modified = new Date().toString();
 	data.title = 'Untitled';
+
+	data.ui = {
+		currentTime: 0,
+		totalTime: Settings.default_length,
+		scrollTime: 0,
+		timeScale: Settings.time_scale
+	};
 
 	data.layers = [];
 
