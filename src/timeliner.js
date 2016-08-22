@@ -333,9 +333,9 @@ function Timeliner(target) {
 		if (data.getValue('ui') === undefined) {
 			data.setValue('ui', {
 				currentTime: 0,
-				totalTime: 20,
+				totalTime: Settings.default_length,
 				scrollTime: 0,
-				timeScale: 40
+				timeScale: Settings.time_scale
 			});
 		}
 
