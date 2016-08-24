@@ -12,10 +12,18 @@ var Theme = require('./theme'),
 function NumberUI(config) {
 	config = config || {};
 	var min = config.min === undefined ? -Infinity : config.min;
+
+	// config.xstep and config.ystep allow configuring adjustment
+	// speed across each axis.
+	// config.wheelStep and config.wheelStepFine allow configuring
+	// adjustment speed for mousewheel, and mousewheel while holding <alt>
+
+	// If only config.step is specified, all other adjustment speeds
+	// are set to the same value.
 	var xstep = firstDefined(config.xstep, config.step, 0.001);
 	var ystep = firstDefined(config.ystep, config.step, 0.1);
-	var wheelStep = firstDefined(config.wheelStep, config.ystep, 0.1);
-	var wheelStepFine = firstDefined(config.wheelStepFine, config.xstep, 0.001);
+	var wheelStep = firstDefined(config.wheelStep, ystep);
+	var wheelStepFine = firstDefined(config.wheelStepFine, xstep);
 
 	var precision = config.precision || 3;
 	// Range
