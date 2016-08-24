@@ -23,7 +23,6 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	
 	function onMouseMove(e) {
 		handleMove(e);
-		pointer.moved = true;
 		onmove(pointer);
 	}
 
@@ -55,6 +54,9 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 		pointer.dy = e.clientY - pointer.starty;
 		pointer.offsetx = offsetx;
 		pointer.offsety = offsety;
+
+		// If the pointer dx/dy is _ever_ non-zero, then it's moved
+		pointer.moved = pointer.moved || pointer.dx !== 0 || pointer.dy !== 0;
 	}
 	
 	function onMouseUp(e) {

@@ -4,6 +4,7 @@ var
 module.exports = {
 	STORAGE_PREFIX: 'timeliner-',
 	Z_INDEX: 999,
+	firstDefined: firstDefined,
 	style: style,
 	saveToFile: saveToFile,
 	openAs: openAs,
@@ -16,6 +17,15 @@ module.exports = {
 /**************************/
 // Utils
 /**************************/
+
+function firstDefined() {
+	for(var i = 0; i < arguments.length; i++) {
+		if(typeof arguments[i] !== 'undefined') {
+			return arguments[i];
+		}
+	}
+	return (function(x) { return x; })();
+}
 
 function style(element, var_args) {
 	for (var i = 1; i < arguments.length; ++i) {
