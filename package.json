@@ -4,9 +4,9 @@
   "description": "simple js animation timeline library",
   "main": "timeliner.js",
   "scripts": {
-    "build": "browserify src/*.js --full-path=false -o timeliner.js",
-    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.min.js",
-    "watch": "watchify src/*.js -o timeliner.js -v",
+    "build": "browserify src/timeliner.js --full-paths=false -t package-json-versionify -o timeliner.js",
+    "mini": "browserify src/timeliner.js -g uglifyify -t package-json-versionify  --full-paths=false -o timeliner.min.js",
+    "watch": "watchify src/timeliner.js --full-paths=false -t package-json-versionify --debug -o timeliner.js -v",
     "start": "npm run watch",
     "test": "echo \"Error: no tests :(\" && exit 1"
   },
@@ -31,6 +31,7 @@
   "homepage": "https://github.com/zz85/timeliner",
   "devDependencies": {
     "do.js": "^1.0.0",
+    "package-json-versionify": "^1.0.2",
     "uglifyify": "^2.6.0"
   }
 }
