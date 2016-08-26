@@ -24,7 +24,7 @@ function firstDefined() {
 			return arguments[i];
 		}
 	}
-	return (function(x) { return x; })();
+	return undefined;
 }
 
 function style(element, var_args) {
