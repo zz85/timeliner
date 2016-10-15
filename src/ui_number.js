@@ -1,7 +1,8 @@
 var Theme = require('./theme'),
 	Do = require('do.js'),
 	handleDrag = require('./util_handle_drag'),
-	style = require('./utils').style
+	style = require('./utils').style,
+	firstDefined = require('./utils').firstDefined
 	;
 
 /**************************/
@@ -11,7 +12,19 @@ var Theme = require('./theme'),
 function NumberUI(config) {
 	config = config || {};
 	var min = config.min === undefined ? -Infinity : config.min;
-	var step = config.step || 0.1;
+
+	// config.xstep and config.ystep allow configuring adjustment
+	// speed across each axis.
+	// config.wheelStep and config.wheelStepFine allow configuring
+	// adjustment speed for mousewheel, and mousewheel while holding <alt>
+
+	// If only config.step is specified, all other adjustment speeds
+	// are set to the same value.
+	var xstep = firstDefined(config.xstep, config.step, 0.001);
+	var ystep = firstDefined(config.ystep, config.step, 0.1);
+	var wheelStep = firstDefined(config.wheelStep, ystep);
+	var wheelStepFine = firstDefined(config.wheelStepFine, xstep);
+
 	var precision = config.precision || 3;
 	// Range
 	// Max
@@ -47,7 +60,33 @@ function NumberUI(config) {
 		fireChange();
 	});
 
+	// Allow keydown presses in inputs, don't allow parent to block them
+	span.addEventListener('keydown', function(e) {
+		e.stopPropagation();
+	})
+
+	span.addEventListener('focus', function(e) {
+		span.setSelectionRange(0, span.value.length);
+	})
+
+	span.addEventListener('wheel', function(e) {
+		// Disregard pixel/line/page scrolling and just
+		// use event direction.
+		var inc = e.deltaY > 0? 1 : -1;
+		if(e.altKey) {
+			inc *= wheelStepFine;
+		} else {
+			inc *= wheelStep;
+		}
+		value = clamp(value + inc);
+		fireChange();
+	})
+
 	handleDrag(span, onDown, onMove, onUp);
+
+	function clamp(value) {
+		return Math.max(min, value);
+	}
 
 	function onUp(e) {
 		if (e.moved) fireChange();
@@ -61,11 +100,9 @@ function NumberUI(config) {
 		var dx = e.dx;
 		var dy = e.dy;
 	
-		var stepping = 1 * step;
-		// value = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
-		value = unchanged_value + dx * stepping + dy * -stepping;
+		value = unchanged_value + (dx * xstep) + (dy * -ystep);
 
-		value = Math.max(min, value);
+		value = clamp(value);
 
 		// value = +value.toFixed(precision); // or toFixed toPrecision
 		me.onChange.fire(value, true);
@@ -84,10 +121,13 @@ function NumberUI(config) {
 	// public
 	this.setValue = function(v) {
 		value = v;
+		span.value = value.toFixed(precision);
 	};
 
 	this.paint = function() {
-		if (value) span.value = value.toFixed(precision);
+		if (value && document.activeElement !== span) {
+			span.value = value.toFixed(precision);
+		}
 	};
 }
 
