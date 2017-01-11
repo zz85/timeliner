@@ -8,6 +8,7 @@
     "mini": "browserify src/timeliner.js -g uglifyify -t package-json-versionify  --full-paths=false -o timeliner.min.js",
     "watch": "watchify src/timeliner.js --full-paths=false -t package-json-versionify --debug -o timeliner.js -v",
     "start": "npm run watch",
+    "lint": "eslint src/",
     "test": "echo \"Error: no tests :(\" && exit 1"
   },
   "repository": {

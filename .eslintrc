@@ -1,0 +1,11 @@
+{
+    "env": {
+        "browser": true,
+        "node": true
+    },
+    "rules": {
+        "no-unused-expressions": "error",
+		"no-nested-ternary": "error",
+		"no-unreachable": "error"
+    }
+}

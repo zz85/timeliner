@@ -380,7 +380,7 @@ function TimelinePanel(data, dispatcher) {
 
 		ctx.lineWidth = 1; // .5, 1, 2
 
-		width = Settings.width,
+		width = Settings.width;
 		height = Settings.height;
 
 		var units = time_scale / tickMark1;

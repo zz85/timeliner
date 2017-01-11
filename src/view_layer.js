@@ -69,7 +69,7 @@ function LayerView(layer, dispatcher) {
 			background: '#fff'
 		});
 
-		this.pressed = false;''
+		this.pressed = false;
 
 		button.onclick = function() {
 			this.pressed = !this.pressed;
