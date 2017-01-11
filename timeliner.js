@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 function Do(parent) {
 	var listeners = [];
 	this.do = function(callback) {
@@ -16,172 +16,10 @@ function Do(parent) {
 
 if (typeof(module) === 'object') module.exports = Do;
 
-},{}],"/Users/joshua/dev/gits/timeliner/package.json":[function(require,module,exports){
+},{}],2:[function(require,module,exports){
+module.exports={"version":"1.5.0"}
+},{}],3:[function(require,module,exports){
 module.exports={
-  "name": "timeliner",
-  "version": "1.4.0",
-  "description": "simple js animation timeline library",
-  "main": "timeliner.js",
-  "scripts": {
-    "build": "browserify src/*.js --full-path=false -o timeliner.js",
-    "mini": "browserify src/*.js -g uglifyify --full-path=false -o timeliner.min.js",
-    "watch": "watchify src/*.js -o timeliner.js -v",
-    "start": "npm run watch",
-    "test": "echo \"Error: no tests :(\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zz85/timeliner.git"
-  },
-  "keywords": [
-    "timeline",
-    "animation",
-    "keyframe",
-    "tween",
-    "ease",
-    "controls",
-    "gui"
-  ],
-  "author": "joshua koo",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/zz85/timeliner/issues"
-  },
-  "homepage": "https://github.com/zz85/timeliner",
-  "devDependencies": {
-    "uglifyify": "^2.6.0"
-  }
-}
-
-},{}],"/Users/joshua/dev/gits/timeliner/src/datastore.js":[function(require,module,exports){
-var package_json = require('../package.json'),
-Do = require('do.js');
-
-// Data Store with a source of truth
-function DataStore() {
-	this.DELIMITER = ':';
-	this.blank();
-	this.onOpen = new Do();
-	this.onSave = new Do();
-}
-
-DataStore.prototype.blank = function() {
-	var data = {};
-
-	data.version = package_json.version;
-	data.modified = new Date().toString();
-	data.title = 'Untitled';
-
-	data.layers = [];
-
-	this.data = data;
-};
-
-DataStore.prototype.update = function() {
-	var data = this.data;
-
-	data.version = package_json.version;
-	data.modified = new Date().toString();
-};
-
-DataStore.prototype.setJSONString = function(data) {
-	this.data = JSON.parse(data);
-};
-
-DataStore.prototype.setJSON = function(data) {
-	this.data = data;
-};
-
-DataStore.prototype.getJSONString = function(format) {
-	return JSON.stringify(this.data, null, format);
-};
-
-DataStore.prototype.getValue = function(paths) {
-	var descend = paths.split(this.DELIMITER);
-	var reference = this.data;
-	for (var i = 0, il = descend.length; i < il; i++) {
-		var path = descend[i];
-		if (reference[path] === undefined) {
-			console.warn('Cant find ' + paths);
-			return;
-		}
-		reference = reference[path];
-	}
-	return reference;
-};
-
-DataStore.prototype.setValue = function(paths, value) {
-	var descend = paths.split(this.DELIMITER);
-	var reference = this.data;
-	for (var i = 0, il = descend.length - 1; path = descend[i], i < il ; i++) {
-		reference = reference[path];
-	}
-
-	reference[path] = value;
-};
-
-DataStore.prototype.get = function(path, suffix) {
-	if (suffix) path = suffix + this.DELIMITER + path;
-	return new DataProx(this, path);
-};
-
-function DataProx(store, path) {
-	this.path = path;
-	this.store = store;
-}
-
-DataProx.prototype = {
-	get value() {
-		return this.store.getValue(this.path);
-	},
-	set value(val) {
-		this.store.setValue(this.path, val);
-	}
-};
-
-DataProx.prototype.get = function(path) {
-	return this.store.get(path, this.path);
-};
-
-module.exports = DataStore;
-},{"../package.json":"/Users/joshua/dev/gits/timeliner/package.json","do.js":"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js"}],"/Users/joshua/dev/gits/timeliner/src/dispatcher.js":[function(require,module,exports){
-/**************************/
-// Dispatcher
-/**************************/
-
-function Dispatcher() {
-
-	var event_listeners = {
-
-	};
-
-	function on(type, listener) {
-		if (!(type in event_listeners)) {
-			event_listeners[type] = [];
-		}
-		var listeners = event_listeners[type];
-		listeners.push(listener);
-	}
-
-	function fire(type) {
-		var args = Array.prototype.slice.call(arguments);
-		args.shift();
-		var listeners = event_listeners[type];
-		if (!listeners) return;
-		for (var i = 0; i < listeners.length; i++) {
-			var listener = listeners[i];
-			listener.apply(listener, args);
-		}
-	}
-
-	this.on = on;
-	this.fire = fire;
-
-}
-
-module.exports = Dispatcher;
-},{}],"/Users/joshua/dev/gits/timeliner/src/font.json":[function(require,module,exports){
-module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
 	"unitsPerEm": 1792,
 	"ascender": 1536,
 	"descender": -256,
@@ -296,807 +134,24 @@ module.exports=module.exports=module.exports=module.exports=module.exports=modul
 		}
 	}
 }
-},{}],"/Users/joshua/dev/gits/timeliner/src/handle_drag.js":[function(require,module,exports){
-function handleDrag(element, ondown, onmove, onup, down_criteria) {
-	var pointer = null;
-	var bounds = element.getBoundingClientRect();
-	
-	element.addEventListener('mousedown', onMouseDown);
-
-	function onMouseDown(e) {
-		handleStart(e);
-
-		if (down_criteria && !down_criteria(pointer)) {
-			pointer = null;
-			return;
-		}
-
-		
-		document.addEventListener('mousemove', onMouseMove);
-		document.addEventListener('mouseup', onMouseUp);
-		
-		ondown(pointer);
-
-		e.preventDefault();
-	}
-	
-	function onMouseMove(e) {
-		handleMove(e);
-		pointer.moved = true;
-		onmove(pointer);
-	}
-
-	function handleStart(e) {
-		bounds = element.getBoundingClientRect();
-		var currentx = e.clientX, currenty = e.clientY;
-		pointer = {
-			startx: currentx,
-			starty: currenty,
-			x: currentx,
-			y: currenty,
-			dx: 0,
-			dy: 0,
-			offsetx: currentx - bounds.left,
-			offsety: currenty - bounds.top,
-			moved: false
-		};
-	}
-	
-	function handleMove(e) {
-		bounds = element.getBoundingClientRect();
-		var currentx = e.clientX,
-		currenty = e.clientY,
-		offsetx = currentx - bounds.left,
-		offsety = currenty - bounds.top;
-		pointer.x = currentx;
-		pointer.y = currenty;
-		pointer.dx = e.clientX - pointer.startx;
-		pointer.dy = e.clientY - pointer.starty;
-		pointer.offsetx = offsetx;
-		pointer.offsety = offsety;
-	}
-	
-	function onMouseUp(e) {
-		handleMove(e);
-		onup(pointer);
-		pointer = null;
-		
-		document.removeEventListener('mousemove', onMouseMove);
-		document.removeEventListener('mouseup', onMouseUp);
-	}
-
-	element.addEventListener('touchstart', onTouchStart);
-
-	function onTouchStart(te) {
-		
-		if (te.touches.length == 1) {
-			
-			var e = te.touches[0];
-			if (down_criteria && !down_criteria(e)) return;
-			te.preventDefault();
-			handleStart(e);
-			ondown(pointer);
-		}
-		
-		element.addEventListener('touchmove', onTouchMove);
-		element.addEventListener('touchend', onTouchEnd);
-	}
-	
-	function onTouchMove(te) {
-		var e = te.touches[0];
-		onMouseMove(e);
-	}
-
-	function onTouchEnd(e) {
-		// var e = e.touches[0];
-		onMouseUp(e);
-		element.removeEventListener('touchmove', onTouchMove);
-		element.removeEventListener('touchend', onTouchEnd);
-	}
-
-
-	this.release = function() {
-		element.removeEventListener('mousedown', onMouseDown);
-		element.removeEventListener('touchstart', onTouchStart);
-	};
-}
-
-module.exports = handleDrag;
-},{}],"/Users/joshua/dev/gits/timeliner/src/icon_button.js":[function(require,module,exports){
-var font = require('./font.json'),
-	Theme = require('./theme'),
-	style = require('./utils').style;
-
-var dp;
-
-function IconButton(size, icon, tooltip, dp) {
-	var iconStyle = {
-		padding: '0.2em 0.4em',
-		margin: '0em',
-		background: 'none',
-		outline: 'none',
-		fontSize: '16px',
-		border: 'none',
-		borderRadius: '0.2em',
-	};
-
-	var button = document.createElement('button');
-	style(button, iconStyle);
-
-	var canvas = document.createElement('canvas');
-	var ctx = canvas.getContext('2d');
-
-	button.appendChild(canvas);
-
-	this.ctx = ctx;
-	this.dom = button;
-	this.canvas = canvas;
-
-	var me = this;
-	this.size = size;
-
-	this.resize = function() {
-		var dpr = window.devicePixelRatio;
-		var height = size;
-
-		var glyph = font.fonts[icon];
-
-		canvas.height = height * dpr;
-		canvas.style.height = height + 'px';
-
-		var scale = height / font.unitsPerEm;
-		var width = glyph.advanceWidth * scale + 0.5 | 0;
-
-		width += 2;
-		height += 2;
-
-		canvas.width = width * dpr;
-		canvas.style.width = width + 'px';
-
-		ctx.fillStyle = Theme.c;
-		me.draw();
-	};
-
-	if (dp) dp.on('resize', this.resize);
-
-	this.setSize = function(s) {
-		size = s;
-		this.resize();
-	};
-
-	this.setIcon = function(icon) {
-		me.icon = icon;
-
-		if (!font.fonts[icon]) console.warn('Font icon not found!');
-		this.resize();
-	};
-
-	this.onClick = function(e) {
-		button.addEventListener('click', e);
-	};
-
-	var LONG_HOLD_DURATION = 500;
-	var longHoldTimer;
-
-	this.onLongHold = function(f) {
-		// not most elagent but oh wells.
-		function startHold(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			longHoldTimer = setTimeout(function() {
-				if (longHoldTimer) {
-					console.log('LONG HOLD-ED!');
-					f();
-				}
-			}, LONG_HOLD_DURATION);
-		}
-
-		function clearLongHoldTimer() {
-			clearTimeout(longHoldTimer);
-		}
-		
-		button.addEventListener('mousedown', startHold);
-		button.addEventListener('touchstart', startHold);
-		button.addEventListener('mouseup', clearLongHoldTimer);
-		button.addEventListener('mouseout', clearLongHoldTimer);
-		button.addEventListener('touchend', clearLongHoldTimer);
-	};
-
-	this.setTip = function(tip) {
-		tooltip = tip;
-	};
-
-	var borders = {
-		border: '1px solid ' + Theme.b,
-		// boxShadow: Theme.b + ' 1px 1px'
-	};
-
-	var no_borders = {
-		border: '1px solid transparent',
-		// boxShadow: 'none'
-	};
-
-	var normal = 'none'; // Theme.b;
-	var up = Theme.c;
-	var down = Theme.b;
-
-	button.style.background = normal;
-	style(button, no_borders);
-
-	button.addEventListener('mouseover', function() {
-		// button.style.background = up;
-		style(button, borders);
-		
-		ctx.fillStyle = Theme.d;
-		me.dropshadow = true;
-		me.draw();
-
-		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
-	});
-
-	button.addEventListener('mousedown', function() {
-		button.style.background = down;
-		// ctx.fillStyle = Theme.b;
-		// me.draw();
-	});
-
-	button.addEventListener('mouseup', function() {
-		// ctx.fillStyle = Theme.d;
-		button.style.background = normal;
-		style(button, borders);
-		// me.draw();
-	});
-
-	button.addEventListener('mouseout', function() {
-		// ctx.fillStyle = Theme.c;
-		
-
-		button.style.background = normal;
-		style(button, no_borders);
-		me.dropshadow = false;
-		ctx.fillStyle = Theme.c;
-		me.draw();
-	});
-
-	if (icon) this.setIcon(icon);
-}
-
-IconButton.prototype.CMD_MAP = {
-	M: 'moveTo',
-	L: 'lineTo',
-	Q: 'quadraticCurveTo',
-	C: 'bezierCurveTo',
-	Z: 'closePath'
-};
-
-IconButton.prototype.draw = function() {
-	if (!this.icon) return;
-
-	var ctx = this.ctx;
-
-	var glyph = font.fonts[this.icon];
-
-	var height = this.size;
-	var dpr = window.devicePixelRatio;
-	var scale = height / font.unitsPerEm * dpr;
-	var path_commands =  glyph.commands.split(' ');
-
-	ctx.save();
-	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
-
-	if (this.dropshadow) {
-		ctx.save();
-		ctx.fillStyle = Theme.b;
-		ctx.translate(1.5 * dpr, 1.5 * dpr);
-		ctx.scale(scale, -scale);
-		ctx.translate(0 , -font.ascender);
-		ctx.beginPath();
-
-		for (var i = 0, il = path_commands.length; i < il; i++) {
-			var cmds = path_commands[i].split(',');
-			var params = cmds.slice(1);
-
-			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
-		}
-		ctx.fill();
-		ctx.restore();
-	}
-
-	ctx.scale(scale, -scale);
-	ctx.translate(0, -font.ascender);
-	ctx.beginPath();
-
-	for (var i = 0, il = path_commands.length; i < il; i++) {
-		var cmds = path_commands[i].split(',');
-		var params = cmds.slice(1);
-
-		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
-	}
-	ctx.fill();
-	ctx.restore();
-
-	/*
-	var triangle = height / 3 * dpr;
-	ctx.save();
-	// ctx.translate(dpr * 2, 0);
-	// ctx.fillRect(this.canvas.width - triangle, this.canvas.height - triangle, triangle, triangle);
-	ctx.beginPath();
-	ctx.moveTo(this.canvas.width - triangle, this.canvas.height - triangle / 2);
-	ctx.lineTo(this.canvas.width, this.canvas.height - triangle / 2);
-	ctx.lineTo(this.canvas.width - triangle / 2, this.canvas.height);
-	ctx.fill();
-	ctx.restore();
-	*/
-};
-
-module.exports = IconButton;
-},{"./font.json":"/Users/joshua/dev/gits/timeliner/src/font.json","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/layer_cabinet.js":[function(require,module,exports){
-var Settings = require('./settings'),
-	LayerUI = require('./ui/layer_view'),
-	IconButton = require('./icon_button'),
-	style = require('./utils').style,
-	Theme = require('./theme'),
-	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
-	NumberUI = require('./ui/number')
-	;
-
-function LayerCabinet(data, dispatcher) {
-	var layer_store = data.get('layers');
-	
-	var div = document.createElement('div');
-
-	var top = document.createElement('div');
-	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
-	// top.style.textAlign = 'right';
-
-	var layer_scroll = document.createElement('div');
-	style(layer_scroll, {
-		position: 'absolute',
-		top: Settings.MARKER_TRACK_HEIGHT + 'px',
-		// height: (Settings.height - Settings.MARKER_TRACK_HEIGHT) + 'px'
-		left: 0,
-		right: 0,
-		bottom: 0,
-		overflow: 'hidden'
-	});
-
-	div.appendChild(layer_scroll);
-
-	var playing = false;
-
-	var play_button = new IconButton(16, 'play', 'play', dispatcher);
-	play_button.onClick(function(e) {
-		e.preventDefault();
-		dispatcher.fire('controls.toggle_play');
-	});
-
-	var stop_button = new IconButton(16, 'stop', 'stop', dispatcher);
-	stop_button.onClick(function(e) {
-		dispatcher.fire('controls.stop');
-	});
-
-	var undo_button = new IconButton(16, 'undo', 'undo', dispatcher);
-	undo_button.onClick(function() {
-		dispatcher.fire('controls.undo');
-	});
-
-	var redo_button = new IconButton(16, 'repeat', 'redo', dispatcher);
-	redo_button.onClick(function() {
-		dispatcher.fire('controls.redo');
-	});
-
-	var range = document.createElement('input');
-	range.type = "range";
-	range.min = 1;
-	range.value = Settings.time_scale;
-	range.max = 600;
-	range.step = 1;
-	style(range, {
-		width: '70px'
-	});
-	
-
-	var draggingRange = 0;
-
-	range.addEventListener('mousedown', function() {
-		draggingRange = 1;
-	});
-
-	range.addEventListener('mouseup', function() {
-		draggingRange = 0;
-		changeRange();
-	});
-
-	range.addEventListener('mousemove', function() {
-		if (!draggingRange) return;
-		changeRange();
-	});
-
-	div.appendChild(top);
-
-	var time_options = {
-		min: 0,
-		step: 0.01
-	};
-	var currentTime = new NumberUI(time_options);
-	var totalTime = new NumberUI(time_options);
-
-	var currentTimeStore = data.get('ui:currentTime');
-	var totalTimeStore = data.get('ui:totalTime');
-
-	// UI2StoreBind(view, datastore) {
-	// 	view.onChange.do(function(v) {
-	// 		datastore.value = view;
-	// 	})
-
-	// 	datastore.onChange.do(function(v) {
-	// 		view.setValue = v;
-	// 	})
-	// }
-
-	currentTime.onChange.do(function(value, done) {
-		dispatcher.fire('time.update', value);
-		// repaint();
-	});
-
-	totalTime.onChange.do(function(value, done) {
-		totalTimeStore.value = value;
-		// repaint();
-	});
-
-	// Play Controls
-	top.appendChild(currentTime.dom);
-	top.appendChild(document.createTextNode('/')); // 0:00:00 / 0:10:00
-	top.appendChild(totalTime.dom)
-	top.appendChild(play_button.dom);
-	top.appendChild(stop_button.dom);
-	top.appendChild(range);
-	
-
-	var operations_div = document.createElement('div');
-	style(operations_div, {
-		marginTop: '4px',
-		// borderBottom: '1px solid ' + Theme.b
-	});
-	top.appendChild(operations_div);
-	// top.appendChild(document.createElement('br'));
-
-	// open _alt
-	var file_open = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
-	operations_div.appendChild(file_open.dom);
-
-	function populateOpen() {
-		while (dropdown.length) {
-			dropdown.remove(0);
-		}
-
-		var option;
-		option = document.createElement('option');
-		option.text = 'New';
-		option.value = '*new*';
-		dropdown.add(option);
-
-		option = document.createElement('option');
-		option.text = 'Import JSON';
-		option.value = '*import*';
-		dropdown.add(option);
-
-		// Doesn't work
-		// option = document.createElement('option');
-		// option.text = 'Select File';
-		// option.value = '*select*';
-		// dropdown.add(option);
-
-		option = document.createElement('option');
-		option.text = '==Open==';
-		option.disabled = true;
-		option.selected = true;
-		dropdown.add(option);
-
-		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
-		for (var key in localStorage) {
-			// console.log(key);
-
-			var match = regex.exec(key);
-			if (match) {
-				option = document.createElement('option');
-				option.text = match[1];
-
-				dropdown.add(option);
-			}
-		}
-
-	}
-
-	// listen on other tabs
-	window.addEventListener('storage', function(e) {
-		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
-		if (regex.exec(e.key)) {
-			populateOpen();
-		}
-	});
-
-	dispatcher.on('save:done', populateOpen);
-
-	var dropdown = document.createElement('select');
-		
-	style(dropdown, {
-		position: 'absolute',
-		// right: 0,
-		// margin: 0,
-		opacity: 0,
-		width: '16px',
-		height: '16px',
-		// zIndex: 1,
-	});
-
-	dropdown.addEventListener('change', function(e) {
-		// console.log('changed', dropdown.length, dropdown.value);
-
-		switch (dropdown.value) {
-			case '*new*':
-				dispatcher.fire('new');
-				break;
-			case '*import*':
-				dispatcher.fire('import');
-				break;
-			case '*select*':
-				dispatcher.fire('openfile');
-				break;
-			default:
-				dispatcher.fire('open', dropdown.value);
-				break;
-		}
-	});
-
-	file_open.dom.insertBefore(dropdown, file_open.dom.firstChild);
-
-	populateOpen();
-
-	// // json import
-	// var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
-	// operations_div.appendChild(import_json.dom);
-	// import_json.onClick(function() {
-	// 	dispatcher.fire('import');
-	// });
-
-	// // new
-	// var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
-	// operations_div.appendChild(file_alt.dom);
-
-	// save
-	var save = new IconButton(16, 'save', 'Save', dispatcher);
-	operations_div.appendChild(save.dom);
-	save.onClick(function() {
-		dispatcher.fire('save');
-	});
-
-	// save as 
-	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
-	operations_div.appendChild(save_as.dom);
-	save_as.onClick(function() {
-		dispatcher.fire('save_as');
-	});
-
-	// download json (export)
-	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);
-	operations_div.appendChild(download_alt.dom);
-	download_alt.onClick(function() {
-		dispatcher.fire('export');
-	});
-
-	var upload_alt = new IconButton(16, 'upload_alt', 'Load from file', dispatcher);
-	operations_div.appendChild(upload_alt.dom);
-	upload_alt.onClick(function() {
-		dispatcher.fire('openfile');
-	});
-
-	var span = document.createElement('span');
-	span.style.width = '20px';
-	span.style.display = 'inline-block';
-	operations_div.appendChild(span);
-
-	operations_div.appendChild(undo_button.dom);
-	operations_div.appendChild(redo_button.dom);
-	operations_div.appendChild(document.createElement('br'));
-
-	// Cloud Download / Upload edit pencil
-	
-	/*
-	// // show layer
-	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
-	// operations_div.appendChild(eye_open.dom);
-
-	// // hide / disable layer
-	// var eye_close = new IconButton(16, 'eye_close', 'eye_close', dispatcher);
-	// operations_div.appendChild(eye_close.dom);
-
-
-	// remove layer
-	var minus = new IconButton(16, 'minus', 'minus', dispatcher);
-	operations_div.appendChild(minus.dom);
-
-	// check
-	var ok = new IconButton(16, 'ok', 'ok', dispatcher);
-	operations_div.appendChild(ok.dom);
-
-	// cross
-	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
-	operations_div.appendChild(remove.dom);
-
-	*/
-
-
-	// range.addEventListener('change', changeRange);
-
-	function changeRange() {
-		// var v = range.max - range.value;
-		var v = range.value;
-		dispatcher.fire('update.scale', v);
-	}		
-
-	var layer_uis = [], visible_layers = 0;
-	var unused_layers = [];
-
-	this.layers = layer_uis;
-
-	this.setControlStatus = function(v) {
-		playing = v;
-		if (playing) {
-			play_button.setIcon('pause');
-			play_button.setTip('pause');
-		}
-		else {
-			play_button.setIcon('play');
-			play_button.setTip('play');
-		}
-	};
-
-	this.setState = function(state) {
-
-		layer_store = state;
-		layers = layer_store.value;
-		// layers = state;
-		console.log(layer_uis.length, layers);
-		var i, layer;
-		for (i = 0; i < layers.length; i++) {
-			layer = layers[i];
-
-			if (!layer_uis[i]) {
-				var layer_ui;
-				if (unused_layers.length) {
-					layer_ui = unused_layers.pop();
-					layer_ui.dom.style.display = 'block';
-				} else {
-					// new
-					layer_ui = new LayerUI(layer, dispatcher);
-					layer_scroll.appendChild(layer_ui.dom);
-				}
-				layer_uis.push(layer_ui);
-			}
-
-			// layer_uis[i].setState(layer);
-		}
-
-		console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
-			layer_uis.length + unused_layers.length);
-
-	};
-
-	function repaint(s) {
-
-		s = currentTimeStore.value;
-		currentTime.setValue(s);
-		totalTime.setValue(totalTimeStore.value);
-		currentTime.paint();
-		totalTime.paint();
-
-		var i;
-
-		s = s || 0;
-		for (i = layer_uis.length; i-- > 0;) {
-			// quick hack
-			if (i >= layers.length) {
-				layer_uis[i].dom.style.display = 'none';
-				unused_layers.push(layer_uis.pop());
-				continue;
-			}
-			
-			// console.log('yoz', states.get(i).value);
-			layer_uis[i].setState(layers[i], layer_store.get(i));
-			// layer_uis[i].setState('layers'+':'+i);
-			layer_uis[i].repaint(s);
-		}
-
-		visible_layers = layer_uis.length;
-
-	}
-
-	this.repaint = repaint;
-	this.setState(layer_store);
-
-	this.scrollTo = function(x) {
-		layer_scroll.scrollTop = x * (layer_scroll.scrollHeight - layer_scroll.clientHeight);
-	};
-
-	this.dom = div;
-
-	repaint();
-}
-
-module.exports = LayerCabinet;
-},{"./icon_button":"/Users/joshua/dev/gits/timeliner/src/icon_button.js","./settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./ui/layer_view":"/Users/joshua/dev/gits/timeliner/src/ui/layer_view.js","./ui/number":"/Users/joshua/dev/gits/timeliner/src/ui/number.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/save_format.js":[function(require,module,exports){
-/* Layer Schema */
-/*
-var layer_1 = [
-	{
-		name: 'abc',
-		props: {
-			min:
-			max:
-			step:
-			real_step:
-		},
-		values: [
-			[t, v, ''],
-			{time: t, value: v, tween: bla, _color: 'red'},
-			{time: t, value: v, tween: bla},
-			{time: t, value: v, tween: bla},
-			{time: t, value: v, tween: bla},
-			{time: t, value: v},
-		],
-		ui: {
-			mute: true, // mute
-			solo: true,
-
-		},
-		tmp: {
-			value: value,
-			_color:
-		}
-	}
-	,...
-] currently_playing, scale.
-*/
-
-/* Timeline Data Schema */
-
-var sample = {
-	version: '1.2.0',
-	modified: new Date,
-
-	name: 'sample',
-	title: 'Sample Title',
-
-	ui: {
-		current_time: 1,
-		duration: 100,
-
-		position: '0:0:0',
-		bounds: '10 10 100 100',
-		snap: 'full | left-half | top-half | right-half | bottom-half'
-	},
-
-	layers: [{
-
-	}]
-};
-},{}],"/Users/joshua/dev/gits/timeliner/src/settings.js":[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 var DEFAULT_TIME_SCALE = 60;
 
 // Dimensions
 module.exports = {
 	LINE_HEIGHT: 26,
-	DIAMOND_SIZE: 12,
+	DIAMOND_SIZE: 10,
 	MARKER_TRACK_HEIGHT: 60,
 	width: 600,
 	height: 200,
 	TIMELINE_SCROLL_HEIGHT: 0,
 	LEFT_PANE_WIDTH: 250,
-	time_scale: DEFAULT_TIME_SCALE // number of pixels to 1 secon,
+	time_scale: DEFAULT_TIME_SCALE, // number of pixels to 1 second
+    default_length: 20, // seconds
 };
-},{}],"/Users/joshua/dev/gits/timeliner/src/theme.js":[function(require,module,exports){
+
+},{}],5:[function(require,module,exports){
 module.exports = {
 	// photoshop colors
 	a: '#343434',
@@ -1104,597 +159,28 @@ module.exports = {
 	c: '#b8b8b8',
 	d: '#d6d6d6',
 };
-},{}],"/Users/joshua/dev/gits/timeliner/src/timeline_panel.js":[function(require,module,exports){
-var
-	Settings = require('./settings'),
-	Theme = require('./theme'),
-	utils = require('./utils'),
-	Tweens = require('./tween'),
-	handleDrag = require('./handle_drag');
-
-	var 
-		LINE_HEIGHT = Settings.LINE_HEIGHT,
-		DIAMOND_SIZE = Settings.DIAMOND_SIZE,
-		MARKER_TRACK_HEIGHT = Settings.MARKER_TRACK_HEIGHT,
-		
-		LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
-		time_scale = Settings.time_scale;
-
-
-	var frame_start = 0; // this is the current scroll position.
-/*
-Aka. Subdivison LOD
-// Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
-*/
-// TODO: refactor to use a nicer scale
-
-var subds, subd_type, subd1, subd2, subd3;
-
-function time_scaled() {
-	if (time_scale > 350) {
-		subds = [12, 12, 60, 'frames'];
-	} else if (time_scale > 250) {
-		subds = [6, 12, 60, 'frames'];
-	} else if (time_scale > 200) {
-		subds = [6, 6, 30, 'frames'];
-	} else if (time_scale > 150) {
-		subds = [4, 4, 20, 'frames'];
-	} else if (time_scale > 100) {
-		subds = [4, 4, 8, 'frames'];
-	} else if (time_scale > 90) {
-		subds = [4, 4, 8, 'seconds'];
-	} else if (time_scale > 60) {
-		subds = [2, 4, 8, 'seconds'];
-	} else if (time_scale > 40) {
-		subds = [1, 2, 10, 'seconds'];
-	} else if (time_scale > 30) {
-		subds = [1, 2, 10, 'seconds'];
-	} else if (time_scale > 10) {
-		subds = [1, 1, 4, 'seconds'];
-	} else if (time_scale > 4) {
-		subds = [1/5, 1/5, 1/5, 'seconds'];
-	} else if (time_scale > 3) {
-		subds = [1/10, 1/10, 1/5, 'seconds'];
-	} else if (time_scale > 1) {
-		subds = [1/20, 1/20, 1/10, 'seconds'];
-	} else if (time_scale >= 1) {
-		subds = [1/30, 1/30, 1/15, 'seconds'];
-	} else { // 1s per pixel
-		subds = [1/60, 1/60, 1/15, 'seconds'];
-	}
-
-	console.log(subds);
-
-
-	subd1 = subds[0]; // big ticks / labels
-	subd2 = subds[1]; // medium ticks
-	subd3 = subds[2]; // small ticks
-	subd_type = subds[3];
-}
-
-time_scaled();
-
-
-/**************************/
-// Timeline Panel
-/**************************/
-
-function TimelinePanel(data, dispatcher) {
-
-	var dpr = window.devicePixelRatio;
-	var canvas = document.createElement('canvas');
-	
-	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
-	var layers = data.get('layers').value;
-
-	this.scrollTo = function(s, y) {
-		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
-		repaint();
-	};
-
-	this.resize = function() {
-		dpr = window.devicePixelRatio;
-		canvas.width = Settings.width * dpr;
-		canvas.height = Settings.height * dpr;
-		canvas.style.width = Settings.width + 'px';
-		canvas.style.height = Settings.height + 'px';
-		SCROLL_HEIGHT = Settings.height - MARKER_TRACK_HEIGHT;
-	};
-
-	this.dom = canvas;
-	this.resize();
-
-	var ctx = canvas.getContext('2d');
-
-	var current_frame; // currently in seconds
-	// var currentTime = 0; // in frames? could have it in string format (0:00:00:1-60)
-
-	
-	var LEFT_GUTTER = 20;
-	var i, x, y, il, j;
-
-	var needsRepaint = false;
-
-	function repaint() {
-		needsRepaint = true;
-	}
-
-
-	function drawLayerContents() {
-		// horizontal Layer lines
-		for (i = 0, il = layers.length; i <= il; i++) {
-			ctx.strokeStyle = Theme.b;
-			ctx.beginPath();
-			y = i * LINE_HEIGHT;
-			y = ~~y - 0.5;
-
-			ctx.moveTo(0, y);
-			ctx.lineTo(width, y);
-			ctx.stroke();
-		}
-		
-		// Draw Easing Rects
-		for (i = 0; i < il; i++) {
-			// check for keyframes
-			var layer = layers[i];
-			var values = layer.values;
-
-			y = i * LINE_HEIGHT;
-
-			for (var j = 0; j < values.length - 1; j++) {
-				var frame = values[j];
-				var frame2 = values[j + 1];
-				ctx.fillStyle = frame._color; // Theme.c
-
-				// Draw Tween Rect
-				x = time_to_x(frame.time);
-				x2 = time_to_x(frame2.time);
-
-				if (!frame.tween || frame.tween == 'none') continue;
-				
-				var y1 = y + 2;
-				var y2 = y + LINE_HEIGHT - 2;
-				// console.log('concert', frame.time, '->', x, y2);
-				ctx.beginPath();
-				ctx.moveTo(x, y1);
-				ctx.lineTo(x2, y1);
-				ctx.lineTo(x2, y2);
-				ctx.lineTo(x, y2);
-				ctx.closePath();
-				ctx.fill();
-
-				// draw easing graph
-				var color = parseInt(frame._color.substring(1,7), 16);
-				color = 0xffffff ^ color;
-				color = color.toString(16);           // convert to hex
-				color = '#' + ('000000' + color).slice(-6); 
-
-				ctx.strokeStyle = color;
-				var x3;
-				ctx.beginPath();
-				ctx.moveTo(x, y2);
-				var dy = y1 - y2;
-				var dx = x2 - x;
-
-				for (x3=x; x3 < x2; x3++) {
-					ctx.lineTo(x3, y2 + Tweens[frame.tween]((x3 - x)/dx) * dy);
-				}
-				ctx.stroke();
-			}
-
-			ctx.fillStyle = Theme.d;
-			ctx.strokeStyle = Theme.b;
-
-			var j, frame;
-
-			for (j = 0; j < values.length; j++) {
-				frame = values[j];
-				
-				// Draw Diamond
-				x = time_to_x(frame.time);
-				
-				y2 = y + LINE_HEIGHT * 0.5  - DIAMOND_SIZE / 2;
-				// console.log('concert', frame.time, '->', x, y2);
-				ctx.beginPath();
-				ctx.moveTo(x, y2);
-				ctx.lineTo(x + DIAMOND_SIZE / 2, y2 + DIAMOND_SIZE / 2);
-				ctx.lineTo(x, y2 + DIAMOND_SIZE);
-				ctx.lineTo(x - DIAMOND_SIZE / 2, y2 + DIAMOND_SIZE / 2);
-				ctx.closePath();
-				ctx.fill();
-				
-			}
-
-		}
-	}
-
-	var TOP_SCROLL_TRACK = 20;
-	var scroller = {
-		left: 0,
-		grip_length: 0,
-		k: 1
-	};
-	var left;
-
-	function drawScroller() {
-		var w = width;
-
-		var totalTime = data.get('ui:totalTime').value;
-		var pixels_per_second = data.get('ui:timeScale').value;
-
-		var viewTime = w / pixels_per_second;
-
-
-		var k = w / totalTime; // pixels per seconds
-		scroller.k = k;
-
-		// 800 / 5 = 180
-
-		// var k = Math.min(viewTime / totalTime, 1);
-		// var grip_length = k * w;
-
-		scroller.grip_length = viewTime * k;
-		var h = TOP_SCROLL_TRACK;
-
-		scroller.left = data.get('ui:scrollTime').value * k;
-		scroller.left = Math.min(Math.max(0, scroller.left), w - scroller.grip_length);
-
-		ctx.beginPath();
-		ctx.fillStyle = Theme.b; // 'cyan';
-		ctx.rect(0, 5, w, h);
-		ctx.fill();
-
-		ctx.fillStyle = Theme.c; // 'yellow';
-
-		ctx.beginPath();
-		ctx.rect(scroller.left, 5, scroller.grip_length, h);
-		ctx.fill();
-
-		var r = current_frame * k;		
-
-		// ctx.fillStyle = Theme.a; // 'yellow';
-		// ctx.fillRect(0, 5, w, 2);
-
-		ctx.fillStyle = 'red';
-		ctx.fillRect(0, 5, r, 2);
-
-		// ctx.strokeStyle = 'red';
-		// ctx.lineWidth = 2;
-		// ctx.beginPath();
-		// ctx.moveTo(r, 5);
-		// ctx.lineTo(r, 15);
-		// ctx.stroke();
-
-	}
-
-
-	function setTimeScale() {
-		var v = data.get('ui:timeScale').value;
-		if (time_scale !== v) {
-			time_scale = v;
-			time_scaled();
-		}
-	}
-
-	function _paint() {
-		if (!needsRepaint) return;
-
-		setTimeScale();
-
-		current_frame = data.get('ui:currentTime').value;
-		frame_start =  data.get('ui:scrollTime').value;
-
-		/**************************/
-		// background
-
-		ctx.fillStyle = Theme.a;
-		//ctx.fillRect(0, 0, canvas.width, canvas.height);
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.save();
-		ctx.scale(dpr, dpr);
-
-		// 
-
-		ctx.lineWidth = 1; // .5, 1, 2
-
-		width = Settings.width,
-		height = Settings.height;
-
-		var units = time_scale / subd1;
-		var offsetUnits = (frame_start * time_scale) % units;
-
-		var count = (width - LEFT_GUTTER + offsetUnits) / units;
-
-		// console.log('time_scale', time_scale, 'subd1', subd1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
-		
-		// time_scale = pixels to 1 second (40)
-		// subd1 = marks per second (marks / s)
-		// units = pixels to every mark (40)
-	
-		// labels only
-		for (i = 0; i < count; i++) {
-			x = i * units + LEFT_GUTTER - offsetUnits;
-
-			// vertical lines
-			ctx.strokeStyle = Theme.b;
-			ctx.beginPath();
-			ctx.moveTo(x, 0);
-			ctx.lineTo(x, height);
-			ctx.stroke();
-
-			ctx.fillStyle = Theme.d;
-			ctx.textAlign = 'center';
-
-			var t = (i * units - offsetUnits) / time_scale + frame_start;
-			t = utils.format_friendly_seconds(t, subd_type);
-			ctx.fillText(t, x, 38);
-		}
-
-		units = time_scale / subd2;
-		count = (width - LEFT_GUTTER + offsetUnits) / units;
-
-		// marker lines - main
-		for (i = 0; i < count; i++) {
-			ctx.strokeStyle = Theme.c;
-			ctx.beginPath();
-			x = i * units + LEFT_GUTTER - offsetUnits;
-			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
-			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
-			ctx.stroke();
-		}
-
-		var mul = subd3 / subd2;
-		units = time_scale / subd3;
-		count = (width - LEFT_GUTTER + offsetUnits) / units;
-		
-		// small ticks
-		for (i = 0; i < count; i++) {
-			if (i % mul === 0) continue;
-			ctx.strokeStyle = Theme.c;
-			ctx.beginPath();
-			x = i * units + LEFT_GUTTER - offsetUnits;
-			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
-			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
-			ctx.stroke();
-		}
-		
-		// Encapsulate a scroll rect for the layers
-		ctx.save();
-		ctx.translate(0, MARKER_TRACK_HEIGHT);
-		ctx.beginPath();
-		ctx.rect(0, 0, Settings.width, SCROLL_HEIGHT);
-		ctx.translate(-scrollLeft, -scrollTop);
-		ctx.clip();
-		drawLayerContents();
-		ctx.restore();
-
-
-		drawScroller();
-
-		// Current Marker / Cursor
-		ctx.strokeStyle = 'red'; // Theme.c
-		x = (current_frame - frame_start) * time_scale + LEFT_GUTTER;
-
-		var txt = utils.format_friendly_seconds(current_frame);
-		var textWidth = ctx.measureText(txt).width;
-
-		var base_line = MARKER_TRACK_HEIGHT- 5, half_rect = textWidth / 2 + 4;
-
-		ctx.beginPath();
-		ctx.moveTo(x, base_line);
-		ctx.lineTo(x, height);
-		ctx.stroke();
-		
-		ctx.fillStyle = 'red'; // black
-		ctx.textAlign = 'center';
-		ctx.beginPath();
-		ctx.moveTo(x, base_line + 5);
-		ctx.lineTo(x + 5, base_line);
-		ctx.lineTo(x + half_rect, base_line);
-		ctx.lineTo(x + half_rect, base_line - 14);
-		ctx.lineTo(x - half_rect, base_line - 14);
-		ctx.lineTo(x - half_rect, base_line);
-		ctx.lineTo(x - 5, base_line);
-		ctx.closePath();
-		ctx.fill();
-
-		ctx.fillStyle = 'white';
-		ctx.fillText(txt, x, base_line - 4);
-
-		ctx.restore();
-
-		needsRepaint = false;
-
-	}
-
-	function y_to_track(y) {
-		if (y - MARKER_TRACK_HEIGHT < 0) return -1;
-		return (y - MARKER_TRACK_HEIGHT + scrollTop) / LINE_HEIGHT | 0;
-	}
-
-
-	function x_to_time(x) {
-
-		var units = time_scale / subd3;
-
-		// return frame_start + (x - LEFT_GUTTER) / time_scale;
-
-		return frame_start + ((x - LEFT_GUTTER) / units | 0) / subd3;
-	}
-
-	function time_to_x(s) {
-		var ds = s - frame_start;
-		ds *= time_scale;
-		ds += LEFT_GUTTER;
-
-		return ds;
-	}
-
-
-	var me = this;
-	this.repaint = repaint;
-	this._paint = _paint;
-
-	repaint();
-
-	var mousedown = false, selection = false;
-
-	var dragObject;
-	var canvasBounds;
-
-	canvas.addEventListener('touchstart', function(ev) {
-		e = ev.touches[0];
-		pointerStart(e);
-		ev.preventDefault();
-	});
-
-	canvas.addEventListener('touchmove', function(ev) {
-		e = ev.touches[0];
-		onMouseMove(e);
-	});
-
-	function pointerStart(e) {
-		canvasBounds = canvas.getBoundingClientRect();
-		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-
-		if (my <= TOP_SCROLL_TRACK) return false;
-
-		mousedown = true;
-
-		var track = y_to_track(my);
-		var s = x_to_time(mx);
-
-		dragObject = null;
-
-		console.log('track', track, 't', s, layers[track]);
-		
-		if (layers[track]) {
-			var tmp = utils.findTimeinLayer(layers[track], s);
-			var tmp2 = utils.timeAtLayer(layers[track], s);
-
-			console.log('drag start', tmp, tmp2);
-
-		 	if (typeof(tmp) !== 'number') dragObject = tmp;
-		}
-
-		onPointerDrag(mx, my);
-		return true;
-	}
-
-	canvas.addEventListener('mousedown', function(e) {
-
-		var hit = pointerStart(e);
-		if (!hit) return;
-		
-
-		e.preventDefault();
-
-		document.addEventListener('mousemove', onMouseMove);
-		document.addEventListener('mouseup', onMouseUp);
-	});
-
-	canvas.addEventListener('dblclick', function(e) {
-		console.log('dblclick!');
-		// canvasBounds = canvas.getBoundingClientRect();
-		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-
-
-		var track = y_to_track(my);
-		var s = x_to_time(mx);
-
-
-		dispatcher.fire('keyframe', layers[track], current_frame);
-		
-	});
-
-
-	var draggingx;
-	handleDrag(canvas, function down(e) {
-			draggingx = scroller.left;
-		}, function move(e) {
-			data.get('ui:scrollTime').value = Math.max(0, (draggingx + e.dx) / scroller.k);
-			repaint();
-		}, function up() {
-		}, function(e) {
-			var bar = e.offsetx >= scroller.left && e.offsetx <= scroller.left + scroller.grip_length;
-			return e.offsety <= TOP_SCROLL_TRACK && bar;
-		}
-	);
-
-	function onMouseUp(e) {		
-		// canvasBounds = canvas.getBoundingClientRect();
-		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-
-		onPointerDrag(mx, my);
-		if (dragObject) {
-			dispatcher.fire('keyframe.move');
-		}
-		mousedown = false;
-		dragObject = null;
-
-		document.removeEventListener('mousemove', onMouseMove);
-		document.removeEventListener('mouseup', onMouseUp);
-	}
-
-	function onMouseMove(e) {
-		// canvasBounds = canvas.getBoundingClientRect();
-		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
-
-		// offsetY d.getBoundingClientRect()  d.offsetLeft
-		// console.log('...', mx, my, div.offsetLeft);
-		onPointerDrag(mx, my);
-
-	}
-
-	function onPointerDrag(x, y) {
-
-		if (x < LEFT_GUTTER) x = LEFT_GUTTER;
-		if (x > width) return;
-		current = x; // <---- ??!??!!
-
-		var s = x_to_time(x);
-		if (dragObject) {
-			dragObject.object.time = s; // hack! // needs reorder upon mouse up!
-		} else {
-			
-		}
-
-		// Move the cursor;
-		dispatcher.fire('time.update', s);
-		
-		// console.log(s, format_friendly_seconds(s), this);
-	}
-
-	this.setState = function(state) {
-		layers = state.value;
-		repaint();
-	};
-
-}
-
-module.exports = TimelinePanel;
-},{"./handle_drag":"/Users/joshua/dev/gits/timeliner/src/handle_drag.js","./settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./tween":"/Users/joshua/dev/gits/timeliner/src/tween.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/timeliner.js":[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /*
  * @author Joshua Koo http://joshuakoo.com
  */
 
-var undo = require('./undo'),
-	Dispatcher = require('./dispatcher'),
+var undo = require('./util_undo'),
+	Dispatcher = require('./util_dispatcher'),
 	Theme = require('./theme'),
 	UndoManager = undo.UndoManager,
 	UndoState = undo.UndoState,
 	Settings = require('./settings'),
 	utils = require('./utils'),
-	LayerCabinet = require('./layer_cabinet'),
-	TimelinePanel = require('./timeline_panel'),
+	LayerCabinet = require('./view_layer_cabinet'),
+	TimelinePanel = require('./view_panel'),
 	package_json = require('../package.json'),
-	IconButton = require('./icon_button'),
+	IconButton = require('./ui_icon_button'),
 	style = utils.style,
 	saveToFile = utils.saveToFile,
 	openAs = utils.openAs,
 	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./ui/scrollbar'),
-	DataStore = require('./datastore')
+	ScrollBar = require('./ui_scrollbar'),
+	DataStore = require('./util_datastore')
 	;
 
 var Z_INDEX = 999;
@@ -1714,21 +200,22 @@ function LayerProp(name) {
 }
 
 function Timeliner(target) {
-	// Aka Layer Manager / Controller
+	// Dispatcher for coordination
+	var dispatcher = new Dispatcher();
 
-	// Should persist current time too.
+	// Data
 	var data = new DataStore();
 	var layer_store = data.get('layers');
 	var layers = layer_store.value;
 
-	window._data = data;
+	window._data = data; // expose it for debugging
 
-	var dispatcher = new Dispatcher();
+	// Undo manager
+	var undo_manager = new UndoManager(dispatcher);
 
+	// Views
 	var timeline = new TimelinePanel(data, dispatcher);
 	var layer_panel = new LayerCabinet(data, dispatcher);
-
-	var undo_manager = new UndoManager(dispatcher);
 
 	setTimeout(function() {
 		// hack!
@@ -1737,7 +224,7 @@ function Timeliner(target) {
 
 	dispatcher.on('keyframe', function(layer, value) {
 		var index = layers.indexOf(layer);
-		
+
 		var t = data.get('ui:currentTime').value;
 		var v = utils.findTimeinLayer(layer, t);
 
@@ -1769,11 +256,12 @@ function Timeliner(target) {
 
 	// dispatcher.fire('value.change', layer, me.value);
 	dispatcher.on('value.change', function(layer, value, dont_save) {
+		if (layer._mute) return;
+
 		var t = data.get('ui:currentTime').value;
-		
 		var v = utils.findTimeinLayer(layer, t);
 
-		console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
+		// console.log(v, 'value.change', layer, value, utils.format_friendly_seconds(t), typeof(v));
 		if (typeof(v) === 'number') {
 			layer.values.splice(v, 0, {
 				time: t,
@@ -1787,6 +275,29 @@ function Timeliner(target) {
 		}
 
 		repaintAll();
+	});
+
+	dispatcher.on('action:solo', function(layer, solo) {
+		layer._solo = solo;
+
+		console.log(layer, solo);
+
+		// When a track is solo-ed, playback only changes values
+		// of that layer.
+	});
+
+	dispatcher.on('action:mute', function(layer, mute) {
+		layer._mute = mute;
+
+		// When a track is mute, playback does not play
+		// frames of those muted layers.
+
+		// also feels like hidden feature in photoshop
+
+		// when values are updated, eg. from slider,
+		// no tweens will be created.
+		// we can decide also to "lock in" layers
+		// no changes to tween will be made etc.
 	});
 
 	dispatcher.on('ease', function(layer, ease_type) {
@@ -1804,7 +315,7 @@ function Timeliner(target) {
 
 	var start_play = null,
 		played_from = 0; // requires some more tweaking
-	
+
 	dispatcher.on('controls.toggle_play', function() {
 		if (start_play) {
 			pausePlaying();
@@ -1845,7 +356,15 @@ function Timeliner(target) {
 	var currentTimeStore = data.get('ui:currentTime');
 	dispatcher.on('time.update', setCurrentTime);
 
+	dispatcher.on('update.scrollTime', function(v) {
+		v = Math.max(0, v);
+		data.get('ui:scrollTime').value = v;
+		repaintAll();
+	});
+
+
 	function setCurrentTime(value) {
+		value = Math.max(0, value);
 		currentTimeStore.value = value;
 
 		if (start_play) start_play = performance.now() - value * 1000;
@@ -1860,7 +379,7 @@ function Timeliner(target) {
 	dispatcher.on('update.scale', function(v) {
 		console.log('range', v);
 		data.get('ui:timeScale').value = v;
-		// timeline.setTimeScale(v);
+
 		timeline.repaint();
 	});
 
@@ -1868,14 +387,14 @@ function Timeliner(target) {
 	dispatcher.on('controls.undo', function() {
 		var history = undo_manager.undo();
 		data.setJSONString(history.state);
-		
+
 		updateState();
 	});
 
 	dispatcher.on('controls.redo', function() {
 		var history = undo_manager.redo();
 		data.setJSONString(history.state);
-		
+
 		updateState();
 	});
 
@@ -1885,7 +404,7 @@ function Timeliner(target) {
 
 	function paint() {
 		requestAnimationFrame(paint);
-		
+
 		if (start_play) {
 			var t = (performance.now() - start_play) / 1000;
 			setCurrentTime(t);
@@ -1953,6 +472,8 @@ function Timeliner(target) {
 	function exportJSON() {
 		var json = data.getJSONString();
 		var ret = prompt('Hit OK to download otherwise Copy and Paste JSON', json);
+
+		console.log(JSON.stringify(data.data, null, '\t'));
 		if (!ret) return;
 
 		// make json downloadable
@@ -1970,19 +491,19 @@ function Timeliner(target) {
 
 	function load(o) {
 		data.setJSON(o);
-		// 
+		//
 		if (data.getValue('ui') === undefined) {
 			data.setValue('ui', {
 				currentTime: 0,
-				totalTime: 20,
+				totalTime: Settings.default_length,
 				scrollTime: 0,
-				timeScale: 40
+				timeScale: Settings.time_scale
 			});
 		}
 
 		undo_manager.clear();
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
-		
+
 		updateState();
 	}
 
@@ -2015,6 +536,8 @@ function Timeliner(target) {
 		}
 	}
 
+	this.openLocalSave = open;
+
 	dispatcher.on('import', function() {
 		promptImport();
 	}.bind(this));
@@ -2023,7 +546,7 @@ function Timeliner(target) {
 		data.blank();
 		updateState();
 	});
-	
+
 	dispatcher.on('openfile', function() {
 		openAs(function(data) {
 			// console.log('loaded ' + data);
@@ -2037,7 +560,7 @@ function Timeliner(target) {
 	dispatcher.on('save', saveSimply);
 	dispatcher.on('save_as', saveAs);
 
-	// Expose API	
+	// Expose API
 	this.save = save;
 	this.load = load;
 
@@ -2047,34 +570,59 @@ function Timeliner(target) {
 
 	var div = document.createElement('div');
 	div.style.cssText = 'position: absolute;';
-	div.style.top = '16px';
+	div.style.top = '22px';
 
 	var pane = document.createElement('div');
-	
+
 	style(pane, {
 		position: 'fixed',
-		margin: 0,
-		padding: 0,
-		fontFamily: 'monospace',
-		zIndex: Z_INDEX,
-		border: '2px solid ' + Theme.a,
-		fontSize: '12px',
-		color: Theme.d,
-		overflow: 'hidden',
 		top: '20px',
-		left: '20px'
+		left: '20px',
+		margin: 0,
+		border: '1px solid ' + Theme.a,
+		padding: 0,
+		overflow: 'hidden',
+		backgroundColor: Theme.a,
+		color: Theme.d,
+		zIndex: Z_INDEX,
+		fontFamily: 'monospace',
+		fontSize: '12px'
 	});
 
-	pane.style.backgroundColor = Theme.a;
+
+	var header_styles = {
+		position: 'absolute',
+		top: '0px',
+		width: '100%',
+		height: '22px',
+		lineHeight: '22px',
+		overflow: 'hidden'
+	};
+
+	var button_styles = {
+		width: '20px',
+		height: '20px',
+		padding: '2px',
+		marginRight: '2px'
+	};
 
 	var pane_title = document.createElement('div');
+	style(pane_title, header_styles, {
+		borderBottom: '1px solid ' + Theme.b,
+		textAlign: 'center'
+	});
 
 	var title_bar = document.createElement('span');
 	pane_title.appendChild(title_bar);
 
+	title_bar.innerHTML = 'Timeliner ' + package_json.version;
+	pane_title.appendChild(title_bar);
 
-	var top_right_bar = document.createElement('span');
-	top_right_bar.style.float = 'right';
+	var top_right_bar = document.createElement('div');
+	style(top_right_bar, header_styles, {
+		textAlign: 'right'
+	});
+
 	pane_title.appendChild(top_right_bar);
 
 	// resize minimize
@@ -2083,40 +631,29 @@ function Timeliner(target) {
 
 	// resize full
 	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
+	style(resize_full.dom, button_styles, { marginRight: '2px' });
 	top_right_bar.appendChild(resize_full.dom);
-	
-	style(pane_title, {
-		position: 'absolute',
-		width: '100%',
-		textAlign: 'left',
-		top: '0px',
-		height: '15px',
-		borderBottom: '1px solid ' + Theme.b,
-		overflow: 'hidden'
-	});
-
-	title_bar.innerHTML = 'Timeliner ' + package_json.version;
 
 	var pane_status = document.createElement('div');
 
-	style(pane_status, {
+	var footer_styles = {
 		position: 'absolute',
-		height: '15px',
-		bottom: '0',
 		width: '100%',
+		height: '22px',
+		lineHeight: '22px',
+		bottom: '0',
 		// padding: '2px',
 		background: Theme.a,
-		borderTop: '1px solid ' + Theme.b,
 		fontSize: '11px'
+	};
+
+	style(pane_status, footer_styles, {
+		borderTop: '1px solid ' + Theme.b,
 	});
 
 	pane.appendChild(div);
 	pane.appendChild(pane_status);
 	pane.appendChild(pane_title);
-
-	var button_styles = {
-		padding: '2px'
-	};
 
 	var label_status = document.createElement('span');
 	label_status.textContent = 'hello!';
@@ -2132,6 +669,12 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('status', this.setStatus);
+
+	var bottom_right = document.createElement('div');
+	style(bottom_right, footer_styles, {
+		textAlign: 'right'
+	});
+
 
 	// var button_save = document.createElement('button');
 	// style(button_save, button_styles);
@@ -2155,11 +698,9 @@ function Timeliner(target) {
 	// bottom_right.appendChild(button_save);
 	// bottom_right.appendChild(button_open);
 
-	var bottom_right = document.createElement('span');
-	bottom_right.style.float = 'right';
-
 	pane_status.appendChild(label_status);
 	pane_status.appendChild(bottom_right);
+
 
 	/**/
 	// zoom in
@@ -2167,7 +708,7 @@ function Timeliner(target) {
 	// zoom out
 	var zoom_out = new IconButton(12, 'zoom_out', 'zoom out', dispatcher);
 	// settings
-	var cog = new IconButton(12, 'cog', 'settings', dispatcher);	
+	var cog = new IconButton(12, 'cog', 'settings', dispatcher);
 
 	// bottom_right.appendChild(zoom_in.dom);
 	// bottom_right.appendChild(zoom_out.dom);
@@ -2183,6 +724,7 @@ function Timeliner(target) {
 
 		repaintAll();
 	});
+	style(plus.dom, button_styles);
 	bottom_right.appendChild(plus.dom);
 
 
@@ -2199,6 +741,7 @@ function Timeliner(target) {
 			}
 		}
 	});
+	style(trash.dom, button_styles, { marginRight: '2px' });
 	bottom_right.appendChild(trash.dom);
 
 
@@ -2223,8 +766,24 @@ function Timeliner(target) {
 		transitionTimingFunction: 'ease-in-out'
 	});
 
-	document.body.appendChild(pane);
-	document.body.appendChild(ghostpane);
+
+	//
+	// Handle DOM Views
+	//
+
+	// Shadow Root
+	var root = document.createElement('timeliner');
+	document.body.appendChild(root);
+	if (root.createShadowRoot) root = root.createShadowRoot();
+
+	window.r = root;
+
+	// var iframe = document.createElement('iframe');
+	// document.body.appendChild(iframe);
+	// root = iframe.contentDocument.body;
+
+	root.appendChild(pane);
+	root.appendChild(ghostpane);
 
 	div.appendChild(layer_panel.dom);
 	div.appendChild(timeline.dom);
@@ -2271,13 +830,13 @@ function Timeliner(target) {
 
 	document.addEventListener('keydown', function(e) {
 		var play = e.keyCode == 32; // space
-		var enter = e.keyCode == 13; // 
+		var enter = e.keyCode == 13; //
 		var undo = e.metaKey && e.keyCode == 91 && !e.shiftKey;
 
 		var active = document.activeElement;
 		// console.log( active.nodeName );
 
-		if (active.nodeName.match(/(INPUT|BUTTON|SELECT)/)) {
+		if (active.nodeName.match(/(INPUT|BUTTON|SELECT|TIMELINER)/)) {
 			active.blur();
 		}
 
@@ -2293,7 +852,7 @@ function Timeliner(target) {
 			// Esc = stop. FIXME: should rewind head to last played from or Last pointed from?
 			dispatcher.fire('controls.pause');
 		}
-		else console.log(e.keyCode);
+		else console.log('keydown', e.keyCode);
 	});
 
 	var needsResize = true;
@@ -2305,7 +864,7 @@ function Timeliner(target) {
 		// };
 		// TODO: remove ugly hardcodes
 		width -= 4;
-		height -= 32;
+		height -= 44;
 
 		Settings.width = width - Settings.LEFT_PANE_WIDTH;
 		Settings.height = height;
@@ -2315,7 +874,7 @@ function Timeliner(target) {
 
 		scrollbar.setHeight(scrollable_height - 2);
 		// scrollbar.setThumb
-		
+
 		style(scrollbar.dom, {
 			top: Settings.MARKER_TRACK_HEIGHT + 'px',
 			left: (width - 16) + 'px',
@@ -2367,7 +926,7 @@ function Timeliner(target) {
 			var o = {};
 
 			for (var l = 0; l < layers.length; l++) {
-				var layer = layers[l];		
+				var layer = layers[l];
 				var m = utils.timeAtLayer(layer, t + u * interval);
 				o[layer.name] = m.value;
 			}
@@ -2469,7 +1028,7 @@ function Timeliner(target) {
 		document.addEventListener('mousemove', onMove);
 		document.addEventListener('mouseup', onUp);
 
-		// Touch events	
+		// Touch events
 		pane.addEventListener('touchstart', onTouchDown);
 		document.addEventListener('touchmove', onTouchMove);
 		document.addEventListener('touchend', onTouchEnd);
@@ -2481,7 +1040,7 @@ function Timeliner(target) {
 		}
 
 		function onTouchMove(e) {
-			onMove(e.touches[0]);		
+			onMove(e.touches[0]);
 		}
 
 		function onTouchEnd(e) {
@@ -2562,7 +1121,7 @@ function Timeliner(target) {
 					var currentWidth = Math.max(clicked.cx - e.clientX  + clicked.w, minWidth);
 					if (currentWidth > minWidth) {
 						pane.style.width = currentWidth + 'px';
-						pane.style.left = e.clientX + 'px';	
+						pane.style.left = e.clientX + 'px';
 					}
 				}
 
@@ -2570,7 +1129,7 @@ function Timeliner(target) {
 					var currentHeight = Math.max(clicked.cy - e.clientY  + clicked.h, minHeight);
 					if (currentHeight > minHeight) {
 						pane.style.height = currentHeight + 'px';
-						pane.style.top = e.clientY + 'px';	
+						pane.style.top = e.clientY + 'px';
 					}
 				}
 
@@ -2736,178 +1295,352 @@ function Timeliner(target) {
 }
 
 window.Timeliner = Timeliner;
-},{"../package.json":"/Users/joshua/dev/gits/timeliner/package.json","./datastore":"/Users/joshua/dev/gits/timeliner/src/datastore.js","./dispatcher":"/Users/joshua/dev/gits/timeliner/src/dispatcher.js","./icon_button":"/Users/joshua/dev/gits/timeliner/src/icon_button.js","./layer_cabinet":"/Users/joshua/dev/gits/timeliner/src/layer_cabinet.js","./settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","./theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","./timeline_panel":"/Users/joshua/dev/gits/timeliner/src/timeline_panel.js","./ui/scrollbar":"/Users/joshua/dev/gits/timeliner/src/ui/scrollbar.js","./undo":"/Users/joshua/dev/gits/timeliner/src/undo.js","./utils":"/Users/joshua/dev/gits/timeliner/src/utils.js"}],"/Users/joshua/dev/gits/timeliner/src/tween.js":[function(require,module,exports){
-/**************************/
-// Tweens
-/**************************/
 
-var Tweens = {
-	none: function(k) {
-		return 0;
-	},
-	linear: function(k) {
-		return k;
-	},
-	quadEaseIn: function(k) {
-		return k * k;
-	},
-	quadEaseOut: function(k) {
-		return - k * ( k - 2 );
-	},
-	quadEaseInOut: function(k) {
-		if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
-		return - 0.5 * ( --k * ( k - 2 ) - 1 );
-	}
-};
+},{"../package.json":2,"./settings":4,"./theme":5,"./ui_icon_button":8,"./ui_scrollbar":10,"./util_datastore":11,"./util_dispatcher":12,"./util_undo":15,"./utils":16,"./view_layer_cabinet":18,"./view_panel":19}],7:[function(require,module,exports){
+var handleDrag = require('./util_handle_drag');
 
-module.exports = Tweens;
-},{}],"/Users/joshua/dev/gits/timeliner/src/ui/layer_view.js":[function(require,module,exports){
-var
-	Theme = require('../theme'),
-	NumberUI = require('./number'),
-	Tweens = require('../tween'),
-	Settings = require('../settings'),
-	utils = require('../utils')
-;
+function Canvas(w, h) {
 
-// TODO - tagged by index instead, work off layers.
+	var canvas, ctx, width, height, dpr;
 
-function LayerView(layer, dispatcher) {
-	var dom = document.createElement('div');
+	var canvasItems = [];
+	var child;
 
-	var label = document.createElement('span');
-	
-	label.style.cssText = 'font-size: 12px; padding: 4px;';
-
-	var dropdown = document.createElement('select');
-	var option;
-	dropdown.style.cssText = 'font-size: 10px; width: 60px; margin: 0; float: right; text-align: right;';
-
-	for (var k in Tweens) {
-		option = document.createElement('option');
-		option.text = k;
-		dropdown.appendChild(option);
+	function create() {
+		canvas = document.createElement('canvas');
+		ctx = canvas.getContext('2d');
 	}
 
-	dropdown.addEventListener('change', function(e) {
-		dispatcher.fire('ease', layer, dropdown.value);
-	});
+	function setSize(w, h) {
+		width = w;
+		height = h;
+		dpr = window.devicePixelRatio;
+		canvas.width = width * dpr;
+		canvas.height = height * dpr;
+		canvas.style.width = width + 'px';
+		canvas.style.height = height + 'px';
 
-	var keyframe_button = document.createElement('button');
-	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
-	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; border-style:none; outline: none;'; //  border-style:inset;
-	
-	keyframe_button.addEventListener('click', function(e) {
-		console.log('clicked:keyframing...', state.get('_value').value);
-		dispatcher.fire('keyframe', layer, state.get('_value').value);
-	});
+		if (child) child.setSize(w, h);
+	}
 
-	/*
-	// Prev Keyframe
-	var button = document.createElement('button');
-	button.textContent = '<';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
+	function paint(ctx) {
+		if (child) {
+			if (!child.paint) console.warn('implement repaint()')
+			child.paint(ctx);
+		}
 
-	// Next Keyframe
-	button = document.createElement('button');
-	button.textContent = '>';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
+		var item;
+		for (var i = 0; i < canvasItems.length; i++) {
+			item = canvasItems[i];
+			item.paint()
+		}
+	}
 
-	// Mute
-	button = document.createElement('button');
-	button.textContent = 'M';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
+	function repaint() {
+		paint(ctx);
+	}
 
-	// Solo
-	button = document.createElement('button');
-	button.textContent = 'S';
-	button.style.cssText = 'font-size: 12px; padding: 1px; ';
-	dom.appendChild(button);
-	*/
+	function add(item) {
+		canvasItems.push(item)
+	}
 
-	var number = new NumberUI(layer, dispatcher);
+	function remove(item) {
+		canvasItems.splice(canvasItems.indexOf(item), 1);
+	}
 
-	number.onChange.do(function(value, done) {
-		state.get('_value').value = value;
-		dispatcher.fire('value.change', layer, value, done);
-	});
+	function uses(c) {
+		child = c;
+		child.add = this.add;
+		child.remove = this.remove;
+	}
 
-	utils.style(number.dom, {
-		float: 'right'
-	});
-
-	dom.appendChild(label);
-	dom.appendChild(keyframe_button);
-	dom.appendChild(number.dom);
-	dom.appendChild(dropdown);
-	
-	dom.style.cssText = 'margin: 0px; border-bottom:1px solid ' + Theme.b + '; top: 0; left: 0; height: ' + (Settings.LINE_HEIGHT - 1 ) + 'px; color: ' + Theme.c;
-	this.dom = dom;
-
+	create();
+	setSize(w, h);
+	this.setSize = setSize;
 	this.repaint = repaint;
-	var state;
+	this.uses = uses;
 
-	this.setState = function(l, s) {
-		layer = l;
-		state = s;
+	this.dom = canvas;
 
-		var tmp_value = state.get('_value');
-		if (tmp_value.value === undefined) {
-			tmp_value.value = 0;
+	handleDrag(canvas,
+		function down(e) {
+			if (child.onDown) { child.onDown(e) };
+		},
+		function move(e) {
+			if (child.onMove) { child.onMove(e) };
+		},
+		function up(e) {
+			if (child.onUp) { child.onUp(e) };
 		}
-
-		number.setValue(tmp_value.value);
-		label.textContent = state.get('name').value;
-
-		repaint();
-	};
-
-	function repaint(s) {
-
-		dropdown.style.opacity = 0;
-		dropdown.disabled = true;
-		keyframe_button.style.color = Theme.b;
-		// keyframe_button.disabled = false;
-		// keyframe_button.style.borderStyle = 'solid';
-
-		var tween = null;
-		var o = utils.timeAtLayer(layer, s);
-
-		if (!o) return;
-
-		if (o.can_tween) {
-			dropdown.style.opacity = 1;
-			dropdown.disabled = false;
-			// if (o.tween)
-			dropdown.value = o.tween ? o.tween : 'none';
-			if (dropdown.value === 'none') dropdown.style.opacity = 0.5;
-		}
-
-		if (o.keyframe) {
-			keyframe_button.style.color = Theme.c;
-			// keyframe_button.disabled = true;
-			// keyframe_button.style.borderStyle = 'inset';
-		}
-
-		state.get('_value').value = o.value;
-		number.setValue(o.value);
-		number.paint();
-
-		dispatcher.fire('target.notify', layer.name, o.value);
-	}
-
+		// function hit(e) {
+		// 	if (child.onHit) { child.onHit(e) };
+		// }
+	);
 }
 
-module.exports = LayerView;
 
-},{"../settings":"/Users/joshua/dev/gits/timeliner/src/settings.js","../theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","../tween":"/Users/joshua/dev/gits/timeliner/src/tween.js","../utils":"/Users/joshua/dev/gits/timeliner/src/utils.js","./number":"/Users/joshua/dev/gits/timeliner/src/ui/number.js"}],"/Users/joshua/dev/gits/timeliner/src/ui/number.js":[function(require,module,exports){
-var Theme = require('../theme'),
+module.exports = Canvas;
+
+/*
+ * Usage: canvas = new Canvas(width, height);
+ * canvas.resize();
+ */
+
+// children
+// 1: override repaint
+// 2: add objects
+// Canvas.uses(CanvasChild);
+// CanvasItem
+// width, height, x, y
+// allow Drag
+// allow Click
+// mouseOver
+// 
+
+
+},{"./util_handle_drag":13}],8:[function(require,module,exports){
+var font = require('./font.json'),
+	Theme = require('./theme'),
+	style = require('./utils').style;
+
+var dp;
+
+function IconButton(size, icon, tooltip, dp) {
+	var iconStyle = {
+		padding: '0.2em 0.4em',
+		margin: '0em',
+		background: 'none',
+		outline: 'none',
+		fontSize: '16px',
+		border: 'none',
+		borderRadius: '0.2em',
+	};
+
+	var button = document.createElement('button');
+	style(button, iconStyle);
+
+	var canvas = document.createElement('canvas');
+	var ctx = canvas.getContext('2d');
+
+	button.appendChild(canvas);
+
+	this.ctx = ctx;
+	this.dom = button;
+	this.canvas = canvas;
+
+	var me = this;
+	this.size = size;
+	var dpr = 1;
+
+	this.resize = function() {
+		dpr = window.devicePixelRatio;
+		var height = size;
+
+		var glyph = font.fonts[icon];
+
+		canvas.height = height * dpr;
+		canvas.style.height = height + 'px';
+
+		var scale = height / font.unitsPerEm;
+		var width = glyph.advanceWidth * scale + 0.5 | 0;
+
+		width += 2;
+		height += 2;
+
+		canvas.width = width * dpr;
+		canvas.style.width = width + 'px';
+
+		ctx.fillStyle = Theme.c;
+		me.draw();
+	};
+
+	if (dp) dp.on('resize', this.resize);
+
+	this.setSize = function(s) {
+		size = s;
+		this.resize();
+	};
+
+	this.setIcon = function(icon) {
+		me.icon = icon;
+
+		if (!font.fonts[icon]) console.warn('Font icon not found!');
+		this.resize();
+	};
+
+	this.onClick = function(e) {
+		button.addEventListener('click', e);
+	};
+
+	var LONG_HOLD_DURATION = 500;
+	var longHoldTimer;
+
+	this.onLongHold = function(f) {
+		// not most elagent but oh wells.
+		function startHold(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			longHoldTimer = setTimeout(function() {
+				if (longHoldTimer) {
+					console.log('LONG HOLD-ED!');
+					f();
+				}
+			}, LONG_HOLD_DURATION);
+		}
+
+		function clearLongHoldTimer() {
+			clearTimeout(longHoldTimer);
+		}
+		
+		button.addEventListener('mousedown', startHold);
+		button.addEventListener('touchstart', startHold);
+		button.addEventListener('mouseup', clearLongHoldTimer);
+		button.addEventListener('mouseout', clearLongHoldTimer);
+		button.addEventListener('touchend', clearLongHoldTimer);
+	};
+
+	this.setTip = function(tip) {
+		tooltip = tip;
+	};
+
+	var borders = {
+		border: '1px solid ' + Theme.b,
+		// boxShadow: Theme.b + ' 1px 1px'
+	};
+
+	var no_borders = {
+		border: '1px solid transparent',
+		// boxShadow: 'none'
+	};
+
+	var normal = 'none'; // Theme.b;
+	var up = Theme.c;
+	var down = Theme.b;
+
+	button.style.background = normal;
+	style(button, no_borders);
+
+	button.addEventListener('mouseover', function() {
+		// button.style.background = up;
+		style(button, borders);
+		
+		ctx.fillStyle = Theme.d;
+		// me.dropshadow = true;
+		ctx.shadowColor = Theme.b;
+		ctx.shadowBlur = 0.5 * dpr;
+		ctx.shadowOffsetX = 1 * dpr;
+		ctx.shadowOffsetY = 1 * dpr;
+		me.draw();
+
+		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
+	});
+
+	button.addEventListener('mousedown', function() {
+		button.style.background = down;
+		// ctx.fillStyle = Theme.b;
+		// me.draw();
+	});
+
+	button.addEventListener('mouseup', function() {
+		// ctx.fillStyle = Theme.d;
+		button.style.background = normal;
+		style(button, borders);
+		// me.draw();
+	});
+
+	button.addEventListener('mouseout', function() {
+		// ctx.fillStyle = Theme.c;
+		
+
+		button.style.background = normal;
+		style(button, no_borders);
+		me.dropshadow = false;
+		ctx.fillStyle = Theme.c;
+		ctx.shadowColor = null;
+		ctx.shadowBlur = 0;
+		ctx.shadowOffsetX = 0;
+		ctx.shadowOffsetY = 0;
+		me.draw();
+	});
+
+	if (icon) this.setIcon(icon);
+}
+
+IconButton.prototype.CMD_MAP = {
+	M: 'moveTo',
+	L: 'lineTo',
+	Q: 'quadraticCurveTo',
+	C: 'bezierCurveTo',
+	Z: 'closePath'
+};
+
+IconButton.prototype.draw = function() {
+	if (!this.icon) return;
+
+	var ctx = this.ctx;
+
+	var glyph = font.fonts[this.icon];
+
+	var height = this.size;
+	var dpr = window.devicePixelRatio;
+	var scale = height / font.unitsPerEm * dpr;
+	var path_commands =  glyph.commands.split(' ');
+
+	ctx.save();
+	ctx.clearRect(0, 0, this.canvas.width * dpr, this.canvas.height * dpr);
+
+	if (this.dropshadow) {
+		ctx.save();
+		ctx.fillStyle = Theme.b;
+		ctx.translate(1.5 * dpr, 1.5 * dpr);
+		ctx.scale(scale, -scale);
+		ctx.translate(0 , -font.ascender);
+		ctx.beginPath();
+
+		for (var i = 0, il = path_commands.length; i < il; i++) {
+			var cmds = path_commands[i].split(',');
+			var params = cmds.slice(1);
+
+			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+		}
+		ctx.fill();
+		ctx.restore();
+	}
+
+	ctx.scale(scale, -scale);
+	ctx.translate(0, -font.ascender);
+	ctx.beginPath();
+
+	for (var i = 0, il = path_commands.length; i < il; i++) {
+		var cmds = path_commands[i].split(',');
+		var params = cmds.slice(1);
+
+		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
+	}
+	ctx.fill();
+	ctx.restore();
+
+	/*
+	var triangle = height / 3 * dpr;
+	ctx.save();
+	// ctx.translate(dpr * 2, 0);
+	// ctx.fillRect(this.canvas.width - triangle, this.canvas.height - triangle, triangle, triangle);
+	ctx.beginPath();
+	ctx.moveTo(this.canvas.width - triangle, this.canvas.height - triangle / 2);
+	ctx.lineTo(this.canvas.width, this.canvas.height - triangle / 2);
+	ctx.lineTo(this.canvas.width - triangle / 2, this.canvas.height);
+	ctx.fill();
+	ctx.restore();
+	*/
+};
+
+module.exports = IconButton;
+},{"./font.json":3,"./theme":5,"./utils":16}],9:[function(require,module,exports){
+var Theme = require('./theme'),
 	Do = require('do.js'),
-	handleDrag = require('../handle_drag'),
-	style = require('../utils').style
+	handleDrag = require('./util_handle_drag'),
+	style = require('./utils').style,
+	firstDefined = require('./utils').firstDefined
 	;
 
 /**************************/
@@ -2917,7 +1650,19 @@ var Theme = require('../theme'),
 function NumberUI(config) {
 	config = config || {};
 	var min = config.min === undefined ? -Infinity : config.min;
-	var step = config.step || 0.1;
+
+	// config.xstep and config.ystep allow configuring adjustment
+	// speed across each axis.
+	// config.wheelStep and config.wheelStepFine allow configuring
+	// adjustment speed for mousewheel, and mousewheel while holding <alt>
+
+	// If only config.step is specified, all other adjustment speeds
+	// are set to the same value.
+	var xstep = firstDefined(config.xstep, config.step, 0.001);
+	var ystep = firstDefined(config.ystep, config.step, 0.1);
+	var wheelStep = firstDefined(config.wheelStep, ystep);
+	var wheelStepFine = firstDefined(config.wheelStepFine, xstep);
+
 	var precision = config.precision || 3;
 	// Range
 	// Max
@@ -2953,7 +1698,33 @@ function NumberUI(config) {
 		fireChange();
 	});
 
+	// Allow keydown presses in inputs, don't allow parent to block them
+	span.addEventListener('keydown', function(e) {
+		e.stopPropagation();
+	})
+
+	span.addEventListener('focus', function(e) {
+		span.setSelectionRange(0, span.value.length);
+	})
+
+	span.addEventListener('wheel', function(e) {
+		// Disregard pixel/line/page scrolling and just
+		// use event direction.
+		var inc = e.deltaY > 0? 1 : -1;
+		if(e.altKey) {
+			inc *= wheelStepFine;
+		} else {
+			inc *= wheelStep;
+		}
+		value = clamp(value + inc);
+		fireChange();
+	})
+
 	handleDrag(span, onDown, onMove, onUp);
+
+	function clamp(value) {
+		return Math.max(min, value);
+	}
 
 	function onUp(e) {
 		if (e.moved) fireChange();
@@ -2967,11 +1738,9 @@ function NumberUI(config) {
 		var dx = e.dx;
 		var dy = e.dy;
 	
-		var stepping = 1 * step;
-		// value = unchanged_value + dx * 0.000001 + dy * -10 * 0.01;
-		value = unchanged_value + dx * stepping + dy * -stepping;
+		value = unchanged_value + (dx * xstep) + (dy * -ystep);
 
-		value = Math.max(min, value);
+		value = clamp(value);
 
 		// value = +value.toFixed(precision); // or toFixed toPrecision
 		me.onChange.fire(value, true);
@@ -2990,18 +1759,21 @@ function NumberUI(config) {
 	// public
 	this.setValue = function(v) {
 		value = v;
+		span.value = value.toFixed(precision);
 	};
 
 	this.paint = function() {
-		if (value) span.value = value.toFixed(precision);
+		if (value && document.activeElement !== span) {
+			span.value = value.toFixed(precision);
+		}
 	};
 }
 
 module.exports = NumberUI;
-},{"../handle_drag":"/Users/joshua/dev/gits/timeliner/src/handle_drag.js","../theme":"/Users/joshua/dev/gits/timeliner/src/theme.js","../utils":"/Users/joshua/dev/gits/timeliner/src/utils.js","do.js":"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js"}],"/Users/joshua/dev/gits/timeliner/src/ui/scrollbar.js":[function(require,module,exports){
+
+},{"./theme":5,"./util_handle_drag":13,"./utils":16,"do.js":1}],10:[function(require,module,exports){
 var SimpleEvent = require('do.js');
-var utils = require('../utils');
-console.log(utils);
+var utils = require('./utils');
 
 // ********** class: ScrollBar ****************** //
 /*
@@ -3042,14 +1814,14 @@ function ScrollBar(h, w, dispatcher) {
 	utils.style(scrolltrack, scrolltrack_style);
 
 	var scrolltrackHeight = h - 2;
-	scrolltrack.style.height = scrolltrackHeight + 'px' ;
-	scrolltrack.style.width = SCROLL_WIDTH; //SCROLLBAR_WIDTH;
+	scrolltrack.style.height = scrolltrackHeight + 'px';
+	scrolltrack.style.width = SCROLL_WIDTH + 'px';;
 
 	// var scrollTop = 0;
 	var scrollbar = document.createElement('div');
 	// scrollbar.className = 'scrollbar';
 	utils.style(scrollbar, scrollbar_style);
-	scrollbar.style.width = SCROLLBAR_WIDTH;
+	scrollbar.style.width = SCROLLBAR_WIDTH + 'px';
 	scrollbar.style.height = h / 2;
 	scrollbar.style.top = 0;
 	scrollbar.style.left = SCROLLBAR_MARGIN + 'px'; // 0; //S
@@ -3066,7 +1838,7 @@ function ScrollBar(h, w, dispatcher) {
 		l = Math.max(Math.min(1, l), 0);
 		l *= scrolltrackHeight;
 		bar_length = Math.max(l, MIN_BAR_LENGTH);
-		scrollbar.style.height = bar_length;
+		scrollbar.style.height = bar_length + 'px';
 	};
 
 	this.setHeight = function(height) {
@@ -3081,7 +1853,7 @@ function ScrollBar(h, w, dispatcher) {
 		p = Math.max(Math.min(1, p), 0);
 		var emptyTrack = scrolltrackHeight - bar_length;
 		bar_y = p * emptyTrack;
-		scrollbar.style.top = bar_y;
+		scrollbar.style.top = bar_y + 'px';
 	};
 
 	this.setLength(1);
@@ -3134,7 +1906,290 @@ function ScrollBar(h, w, dispatcher) {
 }
 
 module.exports = ScrollBar;
-},{"../utils":"/Users/joshua/dev/gits/timeliner/src/utils.js","do.js":"/Users/joshua/dev/gits/timeliner/node_modules/do.js/do.js"}],"/Users/joshua/dev/gits/timeliner/src/undo.js":[function(require,module,exports){
+},{"./utils":16,"do.js":1}],11:[function(require,module,exports){
+var package_json = require('../package.json'),
+	Settings = require('./settings'),
+	Do = require('do.js');
+
+// Data Store with a source of truth
+function DataStore() {
+	this.DELIMITER = ':';
+	this.blank();
+	this.onOpen = new Do();
+	this.onSave = new Do();
+
+	this.listeners = [];
+}
+
+DataStore.prototype.addListener = function(path, cb) {
+	this.listeners.push({
+		path: path,
+		callback: cb
+	});
+};
+
+DataStore.prototype.blank = function() {
+	var data = {};
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+	data.title = 'Untitled';
+
+	data.ui = {
+		currentTime: 0,
+		totalTime: Settings.default_length,
+		scrollTime: 0,
+		timeScale: Settings.time_scale
+	};
+
+	data.layers = [];
+
+	this.data = data;
+};
+
+DataStore.prototype.update = function() {
+	var data = this.data;
+
+	data.version = package_json.version;
+	data.modified = new Date().toString();
+};
+
+DataStore.prototype.setJSONString = function(data) {
+	this.data = JSON.parse(data);
+};
+
+DataStore.prototype.setJSON = function(data) {
+	this.data = data;
+};
+
+DataStore.prototype.getJSONString = function(format) {
+	return JSON.stringify(this.data, null, format);
+};
+
+DataStore.prototype.getValue = function(paths) {
+	var descend = paths.split(this.DELIMITER);
+	var reference = this.data;
+	for (var i = 0, il = descend.length; i < il; i++) {
+		var path = descend[i];
+		if (reference[path] === undefined) {
+			console.warn('Cant find ' + paths);
+			return;
+		}
+		reference = reference[path];
+	}
+	return reference;
+};
+
+DataStore.prototype.setValue = function(paths, value) {
+	var descend = paths.split(this.DELIMITER);
+	var reference = this.data;
+	for (var i = 0, il = descend.length - 1; path = descend[i], i < il ; i++) {
+		reference = reference[path];
+	}
+
+	reference[path] = value;
+
+	this.listeners.forEach(function(l) {
+		if (paths.indexOf(l.path) > -1) l.callback();
+	})
+};
+
+DataStore.prototype.get = function(path, suffix) {
+	if (suffix) path = suffix + this.DELIMITER + path;
+	return new DataProx(this, path);
+};
+
+function DataProx(store, path) {
+	this.path = path;
+	this.store = store;
+}
+
+DataProx.prototype = {
+	get value() {
+		return this.store.getValue(this.path);
+	},
+	set value(val) {
+		this.store.setValue(this.path, val);
+	}
+};
+
+DataProx.prototype.get = function(path) {
+	return this.store.get(path, this.path);
+};
+
+module.exports = DataStore;
+
+},{"../package.json":2,"./settings":4,"do.js":1}],12:[function(require,module,exports){
+/**************************/
+// Dispatcher
+/**************************/
+
+function Dispatcher() {
+
+	var event_listeners = {
+
+	};
+
+	function on(type, listener) {
+		if (!(type in event_listeners)) {
+			event_listeners[type] = [];
+		}
+		var listeners = event_listeners[type];
+		listeners.push(listener);
+	}
+
+	function fire(type) {
+		var args = Array.prototype.slice.call(arguments);
+		args.shift();
+		var listeners = event_listeners[type];
+		if (!listeners) return;
+		for (var i = 0; i < listeners.length; i++) {
+			var listener = listeners[i];
+			listener.apply(listener, args);
+		}
+	}
+
+	this.on = on;
+	this.fire = fire;
+
+}
+
+module.exports = Dispatcher;
+},{}],13:[function(require,module,exports){
+function handleDrag(element, ondown, onmove, onup, down_criteria) {
+	var pointer = null;
+	var bounds = element.getBoundingClientRect();
+	
+	element.addEventListener('mousedown', onMouseDown);
+
+	function onMouseDown(e) {
+		handleStart(e);
+
+		if (down_criteria && !down_criteria(pointer)) {
+			pointer = null;
+			return;
+		}
+
+		
+		document.addEventListener('mousemove', onMouseMove);
+		document.addEventListener('mouseup', onMouseUp);
+		
+		ondown(pointer);
+
+		e.preventDefault();
+	}
+	
+	function onMouseMove(e) {
+		handleMove(e);
+		onmove(pointer);
+	}
+
+	function handleStart(e) {
+		bounds = element.getBoundingClientRect();
+		var currentx = e.clientX, currenty = e.clientY;
+		pointer = {
+			startx: currentx,
+			starty: currenty,
+			x: currentx,
+			y: currenty,
+			dx: 0,
+			dy: 0,
+			offsetx: currentx - bounds.left,
+			offsety: currenty - bounds.top,
+			moved: false
+		};
+	}
+	
+	function handleMove(e) {
+		bounds = element.getBoundingClientRect();
+		var currentx = e.clientX,
+		currenty = e.clientY,
+		offsetx = currentx - bounds.left,
+		offsety = currenty - bounds.top;
+		pointer.x = currentx;
+		pointer.y = currenty;
+		pointer.dx = e.clientX - pointer.startx;
+		pointer.dy = e.clientY - pointer.starty;
+		pointer.offsetx = offsetx;
+		pointer.offsety = offsety;
+
+		// If the pointer dx/dy is _ever_ non-zero, then it's moved
+		pointer.moved = pointer.moved || pointer.dx !== 0 || pointer.dy !== 0;
+	}
+	
+	function onMouseUp(e) {
+		handleMove(e);
+		onup(pointer);
+		pointer = null;
+		
+		document.removeEventListener('mousemove', onMouseMove);
+		document.removeEventListener('mouseup', onMouseUp);
+	}
+
+	element.addEventListener('touchstart', onTouchStart);
+
+	function onTouchStart(te) {
+		
+		if (te.touches.length == 1) {
+			
+			var e = te.touches[0];
+			if (down_criteria && !down_criteria(e)) return;
+			te.preventDefault();
+			handleStart(e);
+			ondown(pointer);
+		}
+		
+		element.addEventListener('touchmove', onTouchMove);
+		element.addEventListener('touchend', onTouchEnd);
+	}
+	
+	function onTouchMove(te) {
+		var e = te.touches[0];
+		onMouseMove(e);
+	}
+
+	function onTouchEnd(e) {
+		// var e = e.touches[0];
+		onMouseUp(e);
+		element.removeEventListener('touchmove', onTouchMove);
+		element.removeEventListener('touchend', onTouchEnd);
+	}
+
+
+	this.release = function() {
+		element.removeEventListener('mousedown', onMouseDown);
+		element.removeEventListener('touchstart', onTouchStart);
+	};
+}
+
+module.exports = handleDrag;
+
+},{}],14:[function(require,module,exports){
+/**************************/
+// Tweens
+/**************************/
+
+var Tweens = {
+	none: function(k) {
+		return 0;
+	},
+	linear: function(k) {
+		return k;
+	},
+	quadEaseIn: function(k) {
+		return k * k;
+	},
+	quadEaseOut: function(k) {
+		return - k * ( k - 2 );
+	},
+	quadEaseInOut: function(k) {
+		if ( ( k *= 2 ) < 1 ) return 0.5 * k * k;
+		return - 0.5 * ( --k * ( k - 2 ) - 1 );
+	}
+};
+
+module.exports = Tweens;
+},{}],15:[function(require,module,exports){
 /**************************/
 // Undo Manager
 /**************************/
@@ -3212,28 +2267,42 @@ module.exports = {
 	UndoState: UndoState,
 	UndoManager: UndoManager
 };
-},{}],"/Users/joshua/dev/gits/timeliner/src/utils.js":[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 var
-	Tweens = require('./tween');
+	Tweens = require('./util_tween');
 
 module.exports = {
 	STORAGE_PREFIX: 'timeliner-',
 	Z_INDEX: 999,
+	firstDefined: firstDefined,
 	style: style,
 	saveToFile: saveToFile,
 	openAs: openAs,
 	format_friendly_seconds: format_friendly_seconds,
 	findTimeinLayer: findTimeinLayer,
-	timeAtLayer: timeAtLayer
+	timeAtLayer: timeAtLayer,
+	proxy_ctx: proxy_ctx
 };
 
 /**************************/
 // Utils
 /**************************/
 
-function style(element, styles) {
-	for (var s in styles) {
-		element.style[s] = styles[s];
+function firstDefined() {
+	for(var i = 0; i < arguments.length; i++) {
+		if(typeof arguments[i] !== 'undefined') {
+			return arguments[i];
+		}
+	}
+	return undefined;
+}
+
+function style(element, var_args) {
+	for (var i = 1; i < arguments.length; ++i) {
+		var styles = arguments[i];
+		for (var s in styles) {
+			element.style[s] = styles[s];
+		}
 	}
 }
 
@@ -3375,6 +2444,8 @@ function timeAtLayer(layer, t) {
 	// can't do anything
 	if (il === 0) return;
 
+	if (layer._mute) return
+
 	// find boundary cases
 	entry = values[0];
 	if (t < entry.time) {
@@ -3433,7 +2504,6 @@ function timeAtLayer(layer, t) {
 
 			return {
 				entry: prev_entry,
-				target_tween: entry,
 				value: new_value,
 				tween: prev_entry.tween,
 				can_tween: true,
@@ -3450,4 +2520,1448 @@ function timeAtLayer(layer, t) {
 
 }
 
-},{"./tween":"/Users/joshua/dev/gits/timeliner/src/tween.js"}]},{},["/Users/joshua/dev/gits/timeliner/src/datastore.js","/Users/joshua/dev/gits/timeliner/src/dispatcher.js","/Users/joshua/dev/gits/timeliner/src/handle_drag.js","/Users/joshua/dev/gits/timeliner/src/icon_button.js","/Users/joshua/dev/gits/timeliner/src/layer_cabinet.js","/Users/joshua/dev/gits/timeliner/src/save_format.js","/Users/joshua/dev/gits/timeliner/src/settings.js","/Users/joshua/dev/gits/timeliner/src/theme.js","/Users/joshua/dev/gits/timeliner/src/timeline_panel.js","/Users/joshua/dev/gits/timeliner/src/timeliner.js","/Users/joshua/dev/gits/timeliner/src/tween.js","/Users/joshua/dev/gits/timeliner/src/undo.js","/Users/joshua/dev/gits/timeliner/src/utils.js"]);
+
+function proxy_ctx(ctx) {
+	// Creates a proxy 2d context wrapper which 
+	// allows the fluent / chaining API.
+	var wrapper = {};
+
+	function proxy_function(c) {
+		return function() {
+			// Warning: this doesn't return value of function call
+			ctx[c].apply(ctx, arguments);
+			return wrapper;
+		};
+	}
+
+	function proxy_property(c) {
+		return function(v) {
+			ctx[c] = v;
+			return wrapper;
+		};
+	}
+
+	wrapper.run = function(args) {
+		args(wrapper);
+		return wrapper;
+	};
+
+	for (var c in ctx) {
+		// if (!ctx.hasOwnProperty(c)) continue;
+		// console.log(c, typeof(ctx[c]), ctx.hasOwnProperty(c));
+		// string, number, boolean, function, object
+
+		var type = typeof(ctx[c]);
+		switch(type) {
+			case 'object':
+				break;
+			case 'function':
+				wrapper[c] = proxy_function(c);
+				break;
+			default:
+				wrapper[c] = proxy_property(c);
+				break;
+		}
+	}
+
+	return wrapper;
+}
+
+},{"./util_tween":14}],17:[function(require,module,exports){
+var
+	Theme = require('./theme'),
+	UINumber = require('./ui_number'),
+	Tweens = require('./util_tween'),
+	Settings = require('./settings'),
+	utils = require('./utils')
+;
+
+// TODO - tagged by index instead, work off layers.
+
+function LayerView(layer, dispatcher) {
+	var dom = document.createElement('div');
+
+	var label = document.createElement('span');
+	
+	label.style.cssText = 'font-size: 12px; padding: 4px;';
+
+	var dropdown = document.createElement('select');
+	var option;
+	dropdown.style.cssText = 'font-size: 10px; width: 60px; margin: 0; float: right; text-align: right;';
+
+	for (var k in Tweens) {
+		option = document.createElement('option');
+		option.text = k;
+		dropdown.appendChild(option);
+	}
+
+	dropdown.addEventListener('change', function(e) {
+		dispatcher.fire('ease', layer, dropdown.value);
+	});
+	var height = (Settings.LINE_HEIGHT - 1);
+
+	var keyframe_button = document.createElement('button');
+	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
+	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; height: ' + height + 'px; border-style:none; outline: none;'; //  border-style:inset;
+	
+	keyframe_button.addEventListener('click', function(e) {
+		console.log('clicked:keyframing...', state.get('_value').value);
+		dispatcher.fire('keyframe', layer, state.get('_value').value);
+	});
+
+	/*
+	// Prev Keyframe
+	var button = document.createElement('button');
+	button.textContent = '<';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+
+	// Next Keyframe
+	button = document.createElement('button');
+	button.textContent = '>';
+	button.style.cssText = 'font-size: 12px; padding: 1px; ';
+	dom.appendChild(button);
+
+	
+	*/
+
+	function ToggleButton(text) {
+		// for css based button see http://codepen.io/mallendeo/pen/eLIiG
+
+		var button = document.createElement('button');
+		button.textContent = text;
+
+		utils.style(button, {
+			fontSize: '12px',
+			padding: '1px',
+			borderSize: '2px',
+			outline: 'none',
+			background: '#fff'
+		});
+
+		this.pressed = false;
+
+		button.onclick = function() {
+			this.pressed = !this.pressed;
+
+			utils.style(button, {
+				borderStyle: this.pressed ? 'inset' : 'outset', // inset outset groove ridge
+			})
+
+			if (this.onClick) this.onClick();
+		}.bind(this);
+
+		this.dom = button;
+
+	}
+
+	// Solo
+	var solo_toggle = new ToggleButton('S');
+	dom.appendChild(solo_toggle.dom);
+
+	solo_toggle.onClick = function() {
+		dispatcher.fire('action:solo', layer, solo_toggle.pressed);
+	}
+
+	// Mute
+	var mute_toggle = new ToggleButton('M');
+	dom.appendChild(mute_toggle.dom);
+
+	mute_toggle.onClick = function() {
+		dispatcher.fire('action:mute', layer, mute_toggle.pressed);
+	}
+
+
+	var number = new UINumber(layer, dispatcher);
+
+	number.onChange.do(function(value, done) {
+		state.get('_value').value = value;
+		dispatcher.fire('value.change', layer, value, done);
+	});
+
+	utils.style(number.dom, {
+		float: 'right'
+	});
+
+	dom.appendChild(label);
+	dom.appendChild(keyframe_button);
+	dom.appendChild(number.dom);
+	dom.appendChild(dropdown);
+	
+
+	utils.style(dom, {
+		textAlign: 'left',
+		margin: '0px 0px 0px 5px',
+		borderBottom: '1px solid ' + Theme.b,
+		top: 0,
+		left: 0,
+		height: (Settings.LINE_HEIGHT - 1 ) + 'px',
+		color: Theme.c
+	});
+
+	this.dom = dom;
+
+	this.repaint = repaint;
+	var state;
+
+	this.setState = function(l, s) {
+		layer = l;
+		state = s;
+
+		var tmp_value = state.get('_value');
+		if (tmp_value.value === undefined) {
+			tmp_value.value = 0;
+		}
+
+		number.setValue(tmp_value.value);
+		label.textContent = state.get('name').value;
+
+		repaint();
+	};
+
+	function repaint(s) {
+
+		dropdown.style.opacity = 0;
+		dropdown.disabled = true;
+		keyframe_button.style.color = Theme.b;
+		// keyframe_button.disabled = false;
+		// keyframe_button.style.borderStyle = 'solid';
+
+		var tween = null;
+		var o = utils.timeAtLayer(layer, s);
+
+		if (!o) return;
+
+		if (o.can_tween) {
+			dropdown.style.opacity = 1;
+			dropdown.disabled = false;
+			// if (o.tween)
+			dropdown.value = o.tween ? o.tween : 'none';
+			if (dropdown.value === 'none') dropdown.style.opacity = 0.5;
+		}
+
+		if (o.keyframe) {
+			keyframe_button.style.color = Theme.c;
+			// keyframe_button.disabled = true;
+			// keyframe_button.style.borderStyle = 'inset';
+		}
+
+		state.get('_value').value = o.value;
+		number.setValue(o.value);
+		number.paint();
+
+		dispatcher.fire('target.notify', layer.name, o.value);
+	}
+
+}
+
+module.exports = LayerView;
+
+},{"./settings":4,"./theme":5,"./ui_number":9,"./util_tween":14,"./utils":16}],18:[function(require,module,exports){
+var Settings = require('./settings'),
+	ViewLayer = require('./view_layer'),
+	IconButton = require('./ui_icon_button'),
+	style = require('./utils').style,
+	Theme = require('./theme'),
+	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
+	UINumber = require('./ui_number')
+	;
+
+function LayerCabinet(data, dispatcher) {
+	var layer_store = data.get('layers');
+
+	var div = document.createElement('div');
+
+	var top = document.createElement('div');
+	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
+	// top.style.textAlign = 'right';
+
+	var layer_scroll = document.createElement('div');
+	style(layer_scroll, {
+		position: 'absolute',
+		top: Settings.MARKER_TRACK_HEIGHT + 'px',
+		// height: (Settings.height - Settings.MARKER_TRACK_HEIGHT) + 'px'
+		left: 0,
+		right: 0,
+		bottom: 0,
+		overflow: 'hidden'
+	});
+
+	div.appendChild(layer_scroll);
+
+	var playing = false;
+
+
+	var button_styles = {
+		width: '22px',
+		height: '22px',
+		padding: '2px'
+	};
+
+	var op_button_styles = {
+		width: '32px',
+		padding: '3px 4px 3px 4px'
+	};
+
+
+	var play_button = new IconButton(16, 'play', 'play', dispatcher);
+	style(play_button.dom, button_styles, { marginTop: '2px' } );
+	play_button.onClick(function(e) {
+		e.preventDefault();
+		dispatcher.fire('controls.toggle_play');
+	});
+
+	var stop_button = new IconButton(16, 'stop', 'stop', dispatcher);
+	style(stop_button.dom, button_styles, { marginTop: '2px' } );
+	stop_button.onClick(function(e) {
+		dispatcher.fire('controls.stop');
+	});
+
+
+	var undo_button = new IconButton(16, 'undo', 'undo', dispatcher);
+	style(undo_button.dom, op_button_styles);
+	undo_button.onClick(function() {
+		dispatcher.fire('controls.undo');
+	});
+
+	var redo_button = new IconButton(16, 'repeat', 'redo', dispatcher);
+	style(redo_button.dom, op_button_styles);
+	redo_button.onClick(function() {
+		dispatcher.fire('controls.redo');
+	});
+
+	var range = document.createElement('input');
+	range.type = "range";
+	range.value = 0;
+	range.min = -1;
+	range.max = +1;
+	range.step = 0.125;
+
+	style(range, {
+		width: '90px',
+		margin: '0px',
+		marginLeft: '2px',
+		marginRight: '2px'
+	});
+
+	var draggingRange = 0;
+
+	range.addEventListener('mousedown', function() {
+		draggingRange = 1;
+	});
+
+	range.addEventListener('mouseup', function() {
+		draggingRange = 0;
+		changeRange();
+	});
+
+	range.addEventListener('mousemove', function() {
+		if (!draggingRange) return;
+		changeRange();
+	});
+
+	div.appendChild(top);
+
+	var time_options = {
+		min: 0,
+		step: 0.125
+	};
+
+	var currentTime = new UINumber(time_options);
+	var totalTime = new UINumber(time_options);
+
+	var currentTimeStore = data.get('ui:currentTime');
+	var totalTimeStore = data.get('ui:totalTime');
+
+	// UI2StoreBind(view, datastore) {
+	// 	view.onChange.do(function(v) {
+	// 		datastore.value = view;
+	// 	})
+
+	// 	datastore.onChange.do(function(v) {
+	// 		view.setValue = v;
+	// 	})
+	// }
+
+	currentTime.onChange.do(function(value, done) {
+		dispatcher.fire('time.update', value);
+		// repaint();
+	});
+
+	totalTime.onChange.do(function(value, done) {
+		totalTimeStore.value = value;
+		repaint();
+	});
+
+	// Play Controls
+	top.appendChild(currentTime.dom);
+	top.appendChild(document.createTextNode('/')); // 0:00:00 / 0:10:00
+	top.appendChild(totalTime.dom)
+	top.appendChild(play_button.dom);
+	top.appendChild(stop_button.dom);
+	top.appendChild(range);
+
+
+	var operations_div = document.createElement('div');
+	style(operations_div, {
+		marginTop: '4px',
+		// borderBottom: '1px solid ' + Theme.b
+	});
+	top.appendChild(operations_div);
+	// top.appendChild(document.createElement('br'));
+
+
+	// open _alt
+	var file_open = new IconButton(16, 'folder_open_alt', 'Open', dispatcher);
+	style(file_open.dom, op_button_styles);
+	operations_div.appendChild(file_open.dom);
+
+	function populateOpen() {
+		while (dropdown.length) {
+			dropdown.remove(0);
+		}
+
+		var option;
+		option = document.createElement('option');
+		option.text = 'New';
+		option.value = '*new*';
+		dropdown.add(option);
+
+		option = document.createElement('option');
+		option.text = 'Import JSON';
+		option.value = '*import*';
+		dropdown.add(option);
+
+		// Doesn't work
+		// option = document.createElement('option');
+		// option.text = 'Select File';
+		// option.value = '*select*';
+		// dropdown.add(option);
+
+		option = document.createElement('option');
+		option.text = '==Open==';
+		option.disabled = true;
+		option.selected = true;
+		dropdown.add(option);
+
+		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
+		for (var key in localStorage) {
+			// console.log(key);
+
+			var match = regex.exec(key);
+			if (match) {
+				option = document.createElement('option');
+				option.text = match[1];
+
+				dropdown.add(option);
+			}
+		}
+
+	}
+
+	// listen on other tabs
+	window.addEventListener('storage', function(e) {
+		var regex = new RegExp(STORAGE_PREFIX + '(.*)');
+		if (regex.exec(e.key)) {
+			populateOpen();
+		}
+	});
+
+	dispatcher.on('save:done', populateOpen);
+
+	var dropdown = document.createElement('select');
+
+	style(dropdown, {
+		position: 'absolute',
+		// right: 0,
+		// margin: 0,
+		opacity: 0,
+		width: '16px',
+		height: '16px',
+		// zIndex: 1,
+	});
+
+	dropdown.addEventListener('change', function(e) {
+		// console.log('changed', dropdown.length, dropdown.value);
+
+		switch (dropdown.value) {
+			case '*new*':
+				dispatcher.fire('new');
+				break;
+			case '*import*':
+				dispatcher.fire('import');
+				break;
+			case '*select*':
+				dispatcher.fire('openfile');
+				break;
+			default:
+				dispatcher.fire('open', dropdown.value);
+				break;
+		}
+	});
+
+	file_open.dom.insertBefore(dropdown, file_open.dom.firstChild);
+
+	populateOpen();
+
+	// // json import
+	// var import_json = new IconButton(16, 'signin', 'Import JSON', dispatcher);
+	// operations_div.appendChild(import_json.dom);
+	// import_json.onClick(function() {
+	// 	dispatcher.fire('import');
+	// });
+
+	// // new
+	// var file_alt = new IconButton(16, 'file_alt', 'New', dispatcher);
+	// operations_div.appendChild(file_alt.dom);
+
+	// save
+	var save = new IconButton(16, 'save', 'Save', dispatcher);
+	style(save.dom, op_button_styles);
+	operations_div.appendChild(save.dom);
+	save.onClick(function() {
+		dispatcher.fire('save');
+	});
+
+	// save as
+	var save_as = new IconButton(16, 'paste', 'Save as', dispatcher);
+	style(save_as.dom, op_button_styles);
+	operations_div.appendChild(save_as.dom);
+	save_as.onClick(function() {
+		dispatcher.fire('save_as');
+	});
+
+	// download json (export)
+	var download_alt = new IconButton(16, 'download_alt', 'Download / Export JSON to file', dispatcher);
+	style(download_alt.dom, op_button_styles);
+	operations_div.appendChild(download_alt.dom);
+	download_alt.onClick(function() {
+		dispatcher.fire('export');
+	});
+
+	var upload_alt = new IconButton(16, 'upload_alt', 'Load from file', dispatcher);
+	style(upload_alt.dom, op_button_styles);
+	operations_div.appendChild(upload_alt.dom);
+	upload_alt.onClick(function() {
+		dispatcher.fire('openfile');
+	});
+
+	var span = document.createElement('span');
+	span.style.width = '20px';
+	span.style.display = 'inline-block';
+	operations_div.appendChild(span);
+
+	operations_div.appendChild(undo_button.dom);
+	operations_div.appendChild(redo_button.dom);
+	operations_div.appendChild(document.createElement('br'));
+
+	// Cloud Download / Upload edit pencil
+
+	/*
+	// // show layer
+	// var eye_open = new IconButton(16, 'eye_open', 'eye_open', dispatcher);
+	// operations_div.appendChild(eye_open.dom);
+
+	// // hide / disable layer
+	// var eye_close = new IconButton(16, 'eye_close', 'eye_close', dispatcher);
+	// operations_div.appendChild(eye_close.dom);
+
+
+	// remove layer
+	var minus = new IconButton(16, 'minus', 'minus', dispatcher);
+	operations_div.appendChild(minus.dom);
+
+	// check
+	var ok = new IconButton(16, 'ok', 'ok', dispatcher);
+	operations_div.appendChild(ok.dom);
+
+	// cross
+	var remove = new IconButton(16, 'remove', 'remove', dispatcher);
+	operations_div.appendChild(remove.dom);
+
+	*/
+
+
+	// range.addEventListener('change', changeRange);
+
+
+	function convertPercentToTime(t) {
+		var min_time = 10 * 60; // 10 minutes
+		min_time = data.get('ui:totalTime').value;
+		var max_time = 1;
+		var v = Settings.width * 0.8 / (t * (max_time - min_time) + min_time);
+		return v;
+	}
+
+	function convertTimeToPercent(v) {
+		var min_time = 10 * 60; // 10 minutes
+		min_time = data.get('ui:totalTime').value;
+		var max_time = 1;
+		var t  = ((Settings.width * 0.8 / v) - min_time)  / (max_time - min_time);
+		return t;
+	}
+
+	function changeRange() {
+
+		dispatcher.fire('update.scale', Math.pow(100, -range.value) );
+	}
+
+	var layer_uis = [], visible_layers = 0;
+	var unused_layers = [];
+
+	this.layers = layer_uis;
+
+	this.setControlStatus = function(v) {
+		playing = v;
+		if (playing) {
+			play_button.setIcon('pause');
+			play_button.setTip('pause');
+		}
+		else {
+			play_button.setIcon('play');
+			play_button.setTip('play');
+		}
+	};
+
+	this.setState = function(state) {
+
+		layer_store = state;
+		layers = layer_store.value;
+		// layers = state;
+		console.log(layer_uis.length, layers);
+		var i, layer;
+		for (i = 0; i < layers.length; i++) {
+			layer = layers[i];
+
+			if (!layer_uis[i]) {
+				var layer_ui;
+				if (unused_layers.length) {
+					layer_ui = unused_layers.pop();
+					layer_ui.dom.style.display = 'block';
+				} else {
+					// new
+					layer_ui = new ViewLayer(layer, dispatcher);
+					layer_scroll.appendChild(layer_ui.dom);
+				}
+				layer_uis.push(layer_ui);
+			}
+
+			// layer_uis[i].setState(layer);
+		}
+
+		console.log('Total layers (view, hidden, total)', layer_uis.length, unused_layers.length,
+			layer_uis.length + unused_layers.length);
+
+	};
+
+	function repaint(s) {
+
+		s = currentTimeStore.value;
+		currentTime.setValue(s);
+		totalTime.setValue(totalTimeStore.value);
+		currentTime.paint();
+		totalTime.paint();
+
+		var i;
+
+		s = s || 0;
+		for (i = layer_uis.length; i-- > 0;) {
+			// quick hack
+			if (i >= layers.length) {
+				layer_uis[i].dom.style.display = 'none';
+				unused_layers.push(layer_uis.pop());
+				continue;
+			}
+
+			layer_uis[i].setState(layers[i], layer_store.get(i));
+			// layer_uis[i].setState('layers'+':'+i);
+			layer_uis[i].repaint(s);
+		}
+
+		visible_layers = layer_uis.length;
+
+	}
+
+	this.repaint = repaint;
+	this.setState(layer_store);
+
+	this.scrollTo = function(x) {
+		layer_scroll.scrollTop = x * (layer_scroll.scrollHeight - layer_scroll.clientHeight);
+	};
+
+	this.dom = div;
+
+	repaint();
+}
+
+module.exports = LayerCabinet;
+
+},{"./settings":4,"./theme":5,"./ui_icon_button":8,"./ui_number":9,"./utils":16,"./view_layer":17}],19:[function(require,module,exports){
+var
+	Settings = require('./settings'),
+	Theme = require('./theme'),
+	utils = require('./utils'),
+	proxy_ctx = utils.proxy_ctx,
+	Tweens = require('./util_tween'),
+	handleDrag = require('./util_handle_drag'),
+	ScrollCanvas = require('./view_time_scroller'),
+	Canvas = require('./ui_canvas')
+	;
+
+var
+	LINE_HEIGHT = Settings.LINE_HEIGHT,
+	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
+	TIME_SCROLLER_HEIGHT = 35,
+	MARKER_TRACK_HEIGHT = 25,
+	LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
+	time_scale = Settings.time_scale,
+	TOP = 10;
+
+
+var frame_start = 0; // this is the current scroll position.
+
+
+/*
+ * This class contains the view for the right main section of timeliner
+ */
+
+
+// TODO
+// dirty rendering
+// drag block
+// DON'T use time.update for everything
+
+var tickMark1;
+var tickMark2;
+var tickMark3;
+
+function time_scaled() {
+	/*
+	 * Subdivison LOD
+	 * time_scale refers to number of pixels per unit
+	 * Eg. 1 inch - 60s, 1 inch - 60fps, 1 inch - 6 mins
+	 */
+	var div = 60;
+
+	tickMark1 = time_scale / div;
+	tickMark2 = 2 * tickMark1;
+	tickMark3 = 10 * tickMark1;
+
+}
+
+time_scaled();
+
+
+/**************************/
+// Timeline Panel
+/**************************/
+
+function TimelinePanel(data, dispatcher) {
+
+	var dpr = window.devicePixelRatio;
+	var canvas = document.createElement('canvas');
+
+	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
+	var layers = data.get('layers').value;
+
+	this.scrollTo = function(s, y) {
+		scrollTop = s * Math.max(layers.length * LINE_HEIGHT - SCROLL_HEIGHT, 0);
+		repaint();
+	};
+
+	this.resize = function() {
+		var h = (Settings.height - TIME_SCROLLER_HEIGHT);
+		dpr = window.devicePixelRatio;
+		canvas.width = Settings.width * dpr;
+		canvas.height = h * dpr;
+		canvas.style.width = Settings.width + 'px';
+		canvas.style.height = h + 'px';
+		SCROLL_HEIGHT = Settings.height - TIME_SCROLLER_HEIGHT;
+		scroll_canvas.setSize(Settings.width, TIME_SCROLLER_HEIGHT);
+	};
+
+	var div = document.createElement('div');
+
+	var scroll_canvas = new Canvas(Settings.width, TIME_SCROLLER_HEIGHT);
+	// data.addListener('ui', repaint );
+
+	utils.style(canvas, {
+		position: 'absolute',
+		top: TIME_SCROLLER_HEIGHT + 'px',
+		left: '0px'
+	});
+
+	utils.style(scroll_canvas.dom, {
+		position: 'absolute',
+		top: '0px',
+		left: '10px'
+	});
+
+	scroll_canvas.uses(new ScrollCanvas(dispatcher, data));
+
+
+	div.appendChild(canvas);
+	div.appendChild(scroll_canvas.dom);
+
+	// this.dom = canvas;
+	this.dom = div;
+	this.resize();
+
+	var ctx = canvas.getContext('2d');
+	var ctx_wrap = proxy_ctx(ctx);
+
+	var currentTime; // measured in seconds
+	// technically it could be in frames or  have it in string format (0:00:00:1-60)
+
+	var LEFT_GUTTER = 20;
+	var i, x, y, il, j;
+
+	var needsRepaint = false;
+	var renderItems = [];
+
+	function EasingRect(x1, y1, x2, y2, frame, frame2, values, layer, j) {
+		var self = this;
+
+		this.path = function() {
+			ctx_wrap.beginPath()
+			.rect(x1, y1, x2-x1, y2-y1)
+			.closePath();
+		};
+
+		this.paint = function() {
+			this.path();
+			ctx.fillStyle = frame._color;
+			ctx.fill();
+		};
+
+		this.mouseover = function() {
+			canvas.style.cursor = 'pointer'; // pointer move ew-resize
+		};
+
+		this.mouseout = function() {
+			canvas.style.cursor = 'default';
+		};
+
+		this.mousedrag = function(e) {
+			var t1 = x_to_time(x1 + e.dx);
+			t1 = Math.max(0, t1);
+			// TODO limit moving to neighbours
+			frame.time = t1;
+
+			var t2 = x_to_time(x2 + e.dx);
+			t2 = Math.max(0, t2);
+			frame2.time = t2;
+
+			// dispatcher.fire('time.update', t1);
+		};
+	}
+
+	function Diamond(frame, y) {
+		var x, y2;
+
+		x = time_to_x(frame.time);
+		y2 = y + LINE_HEIGHT * 0.5  - DIAMOND_SIZE / 2;
+
+		var self = this;
+
+		var isOver = false;
+
+		this.path = function(ctx_wrap) {
+			ctx_wrap
+				.beginPath()
+				.moveTo(x, y2)
+				.lineTo(x + DIAMOND_SIZE / 2, y2 + DIAMOND_SIZE / 2)
+				.lineTo(x, y2 + DIAMOND_SIZE)
+				.lineTo(x - DIAMOND_SIZE / 2, y2 + DIAMOND_SIZE / 2)
+				.closePath();
+		};
+
+		this.paint = function(ctx_wrap) {
+			self.path(ctx_wrap);
+			if (!isOver)
+				ctx_wrap.fillStyle(Theme.c);
+			else
+				ctx_wrap.fillStyle('yellow'); // Theme.d
+
+			ctx_wrap.fill()
+			.stroke();
+		};
+
+		this.mouseover = function() {
+			isOver = true;
+			canvas.style.cursor = 'move'; // pointer move ew-resize
+			self.paint(ctx_wrap);
+		};
+
+		this.mouseout = function() {
+			isOver = false;
+			canvas.style.cursor = 'default';
+			self.paint(ctx_wrap);
+		};
+
+		this.mousedrag = function(e) {
+			var t = x_to_time(x + e.dx);
+			t = Math.max(0, t);
+			// TODO limit moving to neighbours
+			frame.time = t;
+			dispatcher.fire('time.update', t);
+			// console.log('frame', frame);
+			// console.log(s, format_friendly_seconds(s), this);
+		};
+
+	}
+
+	function repaint() {
+		needsRepaint = true;
+	}
+
+
+	function drawLayerContents() {
+		renderItems = [];
+		// horizontal Layer lines
+		for (i = 0, il = layers.length; i <= il; i++) {
+			ctx.strokeStyle = Theme.b;
+			ctx.beginPath();
+			y = i * LINE_HEIGHT;
+			y = ~~y - 0.5;
+
+			ctx_wrap
+			.moveTo(0, y)
+			.lineTo(width, y)
+			.stroke();
+		}
+
+
+		var frame, frame2, j;
+
+		// Draw Easing Rects
+		for (i = 0; i < il; i++) {
+			// check for keyframes
+			var layer = layers[i];
+			var values = layer.values;
+
+			y = i * LINE_HEIGHT;
+
+			for (j = 0; j < values.length - 1; j++) {
+				frame = values[j];
+				frame2 = values[j + 1];
+
+				// Draw Tween Rect
+				x = time_to_x(frame.time);
+				x2 = time_to_x(frame2.time);
+
+				if (!frame.tween || frame.tween == 'none') continue;
+
+				var y1 = y + 2;
+				var y2 = y + LINE_HEIGHT - 2;
+
+				renderItems.push(new EasingRect(x, y1, x2, y2, frame, frame2));
+
+				// // draw easing graph
+				// var color = parseInt(frame._color.substring(1,7), 16);
+				// color = 0xffffff ^ color;
+				// color = color.toString(16);           // convert to hex
+				// color = '#' + ('000000' + color).slice(-6);
+
+				// ctx.strokeStyle = color;
+				// var x3;
+				// ctx.beginPath();
+				// ctx.moveTo(x, y2);
+				// var dy = y1 - y2;
+				// var dx = x2 - x;
+
+				// for (x3=x; x3 < x2; x3++) {
+				// 	ctx.lineTo(x3, y2 + Tweens[frame.tween]((x3 - x)/dx) * dy);
+				// }
+				// ctx.stroke();
+			}
+
+			for (j = 0; j < values.length; j++) {
+				// Dimonds
+				frame = values[j];
+				renderItems.push(new Diamond(frame, y));
+			}
+		}
+
+		// render items
+		var item;
+		for (i = 0, il = renderItems.length; i < il; i++) {
+			item = renderItems[i];
+			item.paint(ctx_wrap);
+		}
+	}
+
+	function setTimeScale() {
+
+		var v = data.get('ui:timeScale').value;
+		if (time_scale !== v) {
+			time_scale = v;
+			time_scaled();
+		}
+	}
+
+	var over = null;
+	var mousedownItem = null;
+
+	function check() {
+		var item;
+		var last_over = over;
+		// over = [];
+		over = null;
+		for (i = renderItems.length; i-- > 0;) {
+			item = renderItems[i];
+			item.path(ctx_wrap);
+
+			if (ctx.isPointInPath(pointer.x * dpr, pointer.y * dpr)) {
+				// over.push(item);
+				over = item;
+				break;
+			}
+		}
+
+		// clear old mousein
+		if (last_over && last_over != over) {
+			item = last_over;
+			if (item.mouseout) item.mouseout();
+		}
+
+		if (over) {
+			item = over;
+			if (item.mouseover) item.mouseover();
+
+			if (mousedown2) {
+				mousedownItem = item;
+			}
+		}
+
+
+
+		// console.log(pointer)
+	}
+
+	function pointerEvents() {
+		if (!pointer) return;
+
+		ctx_wrap
+			.save()
+			.scale(dpr, dpr)
+			.translate(0, MARKER_TRACK_HEIGHT)
+			.beginPath()
+			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
+			.translate(-scrollLeft, -scrollTop)
+			.clip()
+				.run(check)
+			.restore();
+	}
+
+	function _paint() {
+		if (!needsRepaint) {
+			pointerEvents();
+			return;
+		}
+
+		scroll_canvas.repaint();
+
+		setTimeScale();
+
+		currentTime = data.get('ui:currentTime').value;
+		frame_start =  data.get('ui:scrollTime').value;
+
+		/**************************/
+		// background
+
+		ctx.fillStyle = Theme.a;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.save();
+		ctx.scale(dpr, dpr);
+
+		//
+
+		ctx.lineWidth = 1; // .5, 1, 2
+
+		width = Settings.width;
+		height = Settings.height;
+
+		var units = time_scale / tickMark1;
+		var offsetUnits = (frame_start * time_scale) % units;
+
+		var count = (width - LEFT_GUTTER + offsetUnits) / units;
+
+		// console.log('time_scale', time_scale, 'tickMark1', tickMark1, 'units', units, 'offsetUnits', offsetUnits, frame_start);
+
+		// time_scale = pixels to 1 second (40)
+		// tickMark1 = marks per second (marks / s)
+		// units = pixels to every mark (40)
+
+		// labels only
+		for (i = 0; i < count; i++) {
+			x = i * units + LEFT_GUTTER - offsetUnits;
+
+			// vertical lines
+			ctx.strokeStyle = Theme.b;
+			ctx.beginPath();
+			ctx.moveTo(x, 0);
+			ctx.lineTo(x, height);
+			ctx.stroke();
+
+			ctx.fillStyle = Theme.d;
+			ctx.textAlign = 'center';
+
+			var t = (i * units - offsetUnits) / time_scale + frame_start;
+			t = utils.format_friendly_seconds(t);
+			ctx.fillText(t, x, 38);
+		}
+
+		units = time_scale / tickMark2;
+		count = (width - LEFT_GUTTER + offsetUnits) / units;
+
+		// marker lines - main
+		for (i = 0; i < count; i++) {
+			ctx.strokeStyle = Theme.c;
+			ctx.beginPath();
+			x = i * units + LEFT_GUTTER - offsetUnits;
+			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
+			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 16);
+			ctx.stroke();
+		}
+
+		var mul = tickMark3 / tickMark2;
+		units = time_scale / tickMark3;
+		count = (width - LEFT_GUTTER + offsetUnits) / units;
+
+		// small ticks
+		for (i = 0; i < count; i++) {
+			if (i % mul === 0) continue;
+			ctx.strokeStyle = Theme.c;
+			ctx.beginPath();
+			x = i * units + LEFT_GUTTER - offsetUnits;
+			ctx.moveTo(x, MARKER_TRACK_HEIGHT - 0);
+			ctx.lineTo(x, MARKER_TRACK_HEIGHT - 10);
+			ctx.stroke();
+		}
+
+		// Encapsulate a scroll rect for the layers
+		ctx_wrap
+			.save()
+			.translate(0, MARKER_TRACK_HEIGHT)
+			.beginPath()
+			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
+			.translate(-scrollLeft, -scrollTop)
+			.clip()
+				.run(drawLayerContents)
+			.restore();
+
+		// Current Marker / Cursor
+		ctx.strokeStyle = 'red'; // Theme.c
+		x = (currentTime - frame_start) * time_scale + LEFT_GUTTER;
+
+		var txt = utils.format_friendly_seconds(currentTime);
+		var textWidth = ctx.measureText(txt).width;
+
+		var base_line = MARKER_TRACK_HEIGHT - 5, half_rect = textWidth / 2 + 4;
+
+		ctx.beginPath();
+		ctx.moveTo(x, base_line);
+		ctx.lineTo(x, height);
+		ctx.stroke();
+
+		ctx.fillStyle = 'red'; // black
+		ctx.textAlign = 'center';
+		ctx.beginPath();
+		ctx.moveTo(x, base_line + 5);
+		ctx.lineTo(x + 5, base_line);
+		ctx.lineTo(x + half_rect, base_line);
+		ctx.lineTo(x + half_rect, base_line - 14);
+		ctx.lineTo(x - half_rect, base_line - 14);
+		ctx.lineTo(x - half_rect, base_line);
+		ctx.lineTo(x - 5, base_line);
+		ctx.closePath();
+		ctx.fill();
+
+		ctx.fillStyle = 'white';
+		ctx.fillText(txt, x, base_line - 4);
+
+		ctx.restore();
+
+		needsRepaint = false;
+		// pointerEvents();
+
+	}
+
+	function y_to_track(y) {
+		if (y - MARKER_TRACK_HEIGHT < 0) return -1;
+		return (y - MARKER_TRACK_HEIGHT + scrollTop) / LINE_HEIGHT | 0;
+	}
+
+
+	function x_to_time(x) {
+		var units = time_scale / tickMark3;
+
+		// return frame_start + (x - LEFT_GUTTER) / time_scale;
+
+		return frame_start + ((x - LEFT_GUTTER) / units | 0) / tickMark3;
+	}
+
+	function time_to_x(s) {
+		var ds = s - frame_start;
+		ds *= time_scale;
+		ds += LEFT_GUTTER;
+
+		return ds;
+	}
+
+	var me = this;
+	this.repaint = repaint;
+	this._paint = _paint;
+
+	repaint();
+
+	var mousedown = false, selection = false;
+
+	var dragObject;
+	var canvasBounds;
+
+	document.addEventListener('mousemove', onMouseMove);
+
+	canvas.addEventListener('dblclick', function(e) {
+		canvasBounds = canvas.getBoundingClientRect();
+		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
+
+
+		var track = y_to_track(my);
+		var s = x_to_time(mx);
+
+
+		dispatcher.fire('keyframe', layers[track], currentTime);
+
+	});
+
+	function onMouseMove(e) {
+		canvasBounds = canvas.getBoundingClientRect();
+		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
+		onPointerMove(mx, my);
+	}
+
+	var pointerdidMoved = false;
+	var pointer = null;
+
+	function onPointerMove(x, y) {
+		if (mousedownItem) return;
+		pointerdidMoved = true;
+		pointer = {x: x, y: y};
+	}
+
+	canvas.addEventListener('mouseout', function() {
+		pointer = null;
+	});
+
+	var mousedown2 = false, mouseDownThenMove = false;
+	handleDrag(canvas, function down(e) {
+			mousedown2 = true;
+			pointer = {
+				x: e.offsetx,
+				y: e.offsety
+			};
+			pointerEvents();
+
+			if (!mousedownItem) dispatcher.fire('time.update', x_to_time(e.offsetx));
+			// Hit criteria
+		}, function move(e) {
+			mousedown2 = false;
+			if (mousedownItem) {
+				mouseDownThenMove = true;
+				if (mousedownItem.mousedrag) {
+					mousedownItem.mousedrag(e);
+				}
+			} else {
+				dispatcher.fire('time.update', x_to_time(e.offsetx));
+			}
+		}, function up(e) {
+			if (mouseDownThenMove) {
+				dispatcher.fire('keyframe.move');
+			}
+			else {
+				dispatcher.fire('time.update', x_to_time(e.offsetx));
+			}
+			mousedown2 = false;
+			mousedownItem = null;
+			mouseDownThenMove = false;
+		}
+	);
+
+	this.setState = function(state) {
+		layers = state.value;
+		repaint();
+	};
+
+}
+
+module.exports = TimelinePanel;
+
+},{"./settings":4,"./theme":5,"./ui_canvas":7,"./util_handle_drag":13,"./util_tween":14,"./utils":16,"./view_time_scroller":20}],20:[function(require,module,exports){
+var
+	Theme = require('./theme'),
+	utils = require('./utils'),
+	proxy_ctx = utils.proxy_ctx,
+	handleDrag = require('./util_handle_drag')
+	;
+
+
+function Rect() {
+	
+}
+
+Rect.prototype.set = function(x, y, w, h, color, outline) {
+	this.x = x;
+	this.y = y;
+	this.w = w;
+	this.h = h;
+	this.color = color;
+	this.outline = outline;
+};
+
+Rect.prototype.paint = function(ctx) {
+	ctx.fillStyle = Theme.b;  // // 'yellow';
+	ctx.strokeStyle = Theme.c;
+
+	this.shape(ctx);
+
+	ctx.stroke();
+	ctx.fill();
+};
+
+Rect.prototype.shape = function(ctx) {
+	ctx.beginPath();
+	ctx.rect(this.x, this.y, this.w, this.h);
+};
+
+Rect.prototype.contains = function(x, y) {
+	return x >= this.x && y >= this.y
+	 && x <= this.x + this.w && y <= this.y + this.h;
+};
+
+
+
+function ScrollCanvas(dispatcher, data) {
+	var width, height;
+
+	this.setSize = function(w, h) {
+		width = w;
+		height = h;
+	}
+
+	var TOP_SCROLL_TRACK = 20;
+	var MARGINS = 15;
+
+	var scroller = {
+		left: 0,
+		grip_length: 0,
+		k: 1
+	};
+
+	var scrollRect = new Rect();
+
+	this.paint = function(ctx) {
+		var totalTime = data.get('ui:totalTime').value;
+		var scrollTime = data.get('ui:scrollTime').value;
+		var currentTime = data.get('ui:currentTime').value;
+		
+		var pixels_per_second = data.get('ui:timeScale').value;
+
+		ctx.save();
+
+		var w = width - 2 * MARGINS;
+		var h = 16; // TOP_SCROLL_TRACK;
+		var h2 = h;
+
+
+		ctx.clearRect(0, 0, width, height);
+		ctx.translate(MARGINS, 5);
+
+		// outline scroller
+		ctx.beginPath();
+		ctx.strokeStyle = Theme.b;
+		ctx.rect(0, 0, w, h);
+		ctx.stroke();
+		
+		var totalTimePixels = totalTime * pixels_per_second;
+		var k = w / totalTimePixels;
+		scroller.k = k;
+
+		var grip_length = w * k;
+
+		scroller.grip_length = grip_length;
+
+		scroller.left = scrollTime / totalTime * w;
+		
+		scrollRect.set(scroller.left, 0, scroller.grip_length, h);
+		scrollRect.paint(ctx);
+
+		var r = currentTime / totalTime * w;		
+
+		ctx.fillStyle =  Theme.c;
+		ctx.lineWidth = 2;
+		
+		ctx.beginPath();
+		
+		// circle
+		// ctx.arc(r, h2 / 2, h2 / 1.5, 0, Math.PI * 2);
+
+		// line
+		ctx.rect(r, 0, 2, h + 5);
+		ctx.fill()
+
+		ctx.fillText(currentTime && currentTime.toFixed(2), r, h + 14);
+		// ctx.fillText(currentTime && currentTime.toFixed(3), 10, 10);
+		ctx.fillText(totalTime, 300, 14);
+
+		ctx.restore();
+	}
+
+	/** Handles dragging for scroll bar **/
+
+	var draggingx = null;
+
+	this.onDown = function(e) {
+		// console.log('ondown', e);
+
+		if (scrollRect.contains(e.offsetx - MARGINS, e.offsety -5)) {
+			draggingx = scroller.left;
+			return;
+		}
+		
+		var totalTime = data.get('ui:totalTime').value;
+		var pixels_per_second = data.get('ui:timeScale').value;
+		var w = width - 2 * MARGINS;
+
+		var t = (e.offsetx - MARGINS) / w * totalTime;
+		// t = Math.max(0, t);
+
+		// data.get('ui:currentTime').value = t;
+		dispatcher.fire('time.update', t);
+		
+	};
+
+	this.onMove = function move(e) {
+		if (draggingx != null) {
+			var totalTime = data.get('ui:totalTime').value;
+			var w = width - 2 * MARGINS;
+			
+			dispatcher.fire('update.scrollTime', 
+				(draggingx + e.dx)  / w * totalTime);
+
+		} else {
+			this.onDown(e);	
+		}
+		
+	};
+
+	this.onUp = function(e) {
+		draggingx = null;
+	}
+
+	/*** End handling for scrollbar ***/
+}
+
+module.exports = ScrollCanvas;
+},{"./theme":5,"./util_handle_drag":13,"./utils":16}]},{},[6]);
