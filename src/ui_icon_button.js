@@ -2,8 +2,6 @@ var font = require('./font.json'),
 	Theme = require('./theme'),
 	style = require('./utils').style;
 
-var dp;
-
 function IconButton(size, icon, tooltip, dp) {
 	var iconStyle = {
 		padding: '0.2em 0.4em',
@@ -196,9 +194,9 @@ IconButton.prototype.draw = function() {
 		ctx.translate(0 , -font.ascender);
 		ctx.beginPath();
 
-		for (var i = 0, il = path_commands.length; i < il; i++) {
-			var cmds = path_commands[i].split(',');
-			var params = cmds.slice(1);
+		for (let i = 0, il = path_commands.length; i < il; i++) {
+			const cmds = path_commands[i].split(',');
+			const params = cmds.slice(1);
 
 			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
 		}
@@ -210,9 +208,9 @@ IconButton.prototype.draw = function() {
 	ctx.translate(0, -font.ascender);
 	ctx.beginPath();
 
-	for (var i = 0, il = path_commands.length; i < il; i++) {
-		var cmds = path_commands[i].split(',');
-		var params = cmds.slice(1);
+	for (let i = 0, il = path_commands.length; i < il; i++) {
+		const cmds = path_commands[i].split(',');
+		const params = cmds.slice(1);
 
 		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
 	}

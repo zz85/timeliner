@@ -1,11 +1,18 @@
 {
-    "env": {
-        "browser": true,
-        "node": true
-    },
-    "rules": {
-        "no-unused-expressions": "error",
+	"env": {
+		"browser": true,
+		"node": true,
+		"es6": true
+	},
+	"rules": {
+		"no-unused-expressions": "error",
 		"no-nested-ternary": "error",
-		"no-unreachable": "error"
-    }
+		"no-unreachable": "error",
+		"no-dupe-keys": "error",
+		"no-redeclare": "warn",
+		"no-unused-vars": "warn",
+		"no-undef": "error",
+		"no-use-before-define": "error",
+		"indent": ["error", "tab"]
+	}
 }
