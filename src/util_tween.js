@@ -21,4 +21,4 @@ var Tweens = {
 	}
 };
 
-module.exports = Tweens;
+export { Tweens }

@@ -1,4 +1,4 @@
-var handleDrag = require('./util_handle_drag');
+import { handleDrag } from './util_handle_drag.js';
 
 function Canvas(w, h) {
 
@@ -80,7 +80,7 @@ function Canvas(w, h) {
 }
 
 
-module.exports = Canvas;
+export { Canvas }
 
 /*
  * Usage: canvas = new Canvas(width, height);

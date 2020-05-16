@@ -1,6 +1,7 @@
-var font = require('./font.json'),
-	Theme = require('./theme'),
-	style = require('./utils').style;
+import { font } from './font.js'
+import { Theme } from './theme.js'
+import { utils } from './utils.js'
+const { style} = utils
 
 function IconButton(size, icon, tooltip, dp) {
 	var iconStyle = {
@@ -231,4 +232,4 @@ IconButton.prototype.draw = function() {
 	*/
 };
 
-module.exports = IconButton;
+export { IconButton }

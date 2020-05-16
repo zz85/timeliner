@@ -1,4 +1,4 @@
-{
+const font = {
 	"unitsPerEm": 1792,
 	"ascender": 1536,
 	"descender": -256,
@@ -113,3 +113,5 @@
 		}
 	}
 }
+
+export { font }

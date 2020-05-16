@@ -1,10 +1,7 @@
-var
-	Theme = require('./theme'),
-	utils = require('./utils'),
-	proxy_ctx = utils.proxy_ctx,
-	handleDrag = require('./util_handle_drag')
-	;
-
+import { Theme } from './theme.js'
+import { utils } from './utils.js'
+const proxy_ctx = utils.proxy_ctx;
+import { handleDrag } from './util_handle_drag.js'
 
 function Rect() {
 
@@ -162,4 +159,4 @@ function ScrollCanvas(dispatcher, data) {
 	/*** End handling for scrollbar ***/
 }
 
-module.exports = ScrollCanvas;
+export { ScrollCanvas }

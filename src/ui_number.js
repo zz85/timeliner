@@ -1,15 +1,15 @@
-var Theme = require('./theme'),
-	Do = require('do.js'),
-	handleDrag = require('./util_handle_drag'),
-	style = require('./utils').style,
-	firstDefined = require('./utils').firstDefined
+import { Theme } from './theme.js'
+import {Do } from './utils/do.js'
+import {handleDrag } from './util_handle_drag.js'
+import { utils } from './utils.js'
+const { firstDefined, style } = utils
 	;
 
 /**************************/
-// NumberUI
+// UINumber
 /**************************/
 
-function NumberUI(config) {
+function UINumber(config) {
 	config = config || {};
 	var min = config.min === undefined ? -Infinity : config.min;
 
@@ -131,4 +131,4 @@ function NumberUI(config) {
 	};
 }
 
-module.exports = NumberUI;
+export { UINumber }

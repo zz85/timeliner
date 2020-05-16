@@ -2,24 +2,23 @@
  * @author Joshua Koo http://joshuakoo.com
  */
 
-var undo = require('./util_undo'),
-	Dispatcher = require('./util_dispatcher'),
-	Theme = require('./theme'),
-	UndoManager = undo.UndoManager,
-	UndoState = undo.UndoState,
-	Settings = require('./settings'),
-	utils = require('./utils'),
-	LayerCabinet = require('./view_layer_cabinet'),
-	TimelinePanel = require('./view_panel'),
-	package_json = require('../package.json'),
-	IconButton = require('./ui_icon_button'),
-	style = utils.style,
-	saveToFile = utils.saveToFile,
-	openAs = utils.openAs,
-	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./ui_scrollbar'),
-	DataStore = require('./util_datastore')
-	;
+const TIMELINER_VERSION = "2.0.0-dev";
+
+import { UndoManager, UndoState } from './util_undo.js'
+import { Dispatcher } from './util_dispatcher.js'
+import { Theme } from './theme.js'
+import { LayoutConstants as Settings } from './layout_constants.js';
+import { utils } from './utils.js'
+import { LayerCabinet } from './view_layer_cabinet.js'
+import { TimelinePanel } from './view_panel.js'
+import { IconButton } from './ui_icon_button.js'
+var style = utils.style
+var saveToFile = utils.saveToFile
+var openAs = utils.openAs
+var STORAGE_PREFIX = utils.STORAGE_PREFIX
+import { ScrollBar } from './ui_scrollbar.js'
+import { DataStore } from './util_datastore.js'
+import { DockingWindow } from './utils/docking_window.js'
 
 var Z_INDEX = 999;
 
@@ -261,8 +260,8 @@ function Timeliner(target) {
 		}
 
 		if (needsResize) {
-			div.style.width = width + 'px';
-			div.style.height = height + 'px';
+			div.style.width = Settings.width + 'px';
+			div.style.height = Settings.height + 'px';
 
 			restyle(layer_panel.dom, timeline.dom);
 
@@ -463,7 +462,7 @@ function Timeliner(target) {
 	var title_bar = document.createElement('span');
 	pane_title.appendChild(title_bar);
 
-	title_bar.innerHTML = 'Timeliner ' + package_json.version;
+	title_bar.innerHTML = 'Timeliner ' + TIMELINER_VERSION;
 	pane_title.appendChild(title_bar);
 
 	var top_right_bar = document.createElement('div');
@@ -795,9 +794,12 @@ function Timeliner(target) {
 	}
 
 	this.getValues = getValueRanges;
+
+	var widget = new DockingWindow(pane_title, ghostpane)
+	widget.resizes.do(resize)
 }
 
-var widget = new DockingWindow(pane_title, ghostpane)
-widget.resizes.do(resize)
 
 window.Timeliner = Timeliner;
+
+export { Timeliner }

@@ -1,21 +1,20 @@
-var
-	Settings = require('./settings'),
-	Theme = require('./theme'),
-	utils = require('./utils'),
-	proxy_ctx = utils.proxy_ctx,
-	Tweens = require('./util_tween'),
-	handleDrag = require('./util_handle_drag'),
-	ScrollCanvas = require('./view_time_scroller'),
-	Canvas = require('./ui_canvas')
-	;
+import { LayoutConstants}  from './layout_constants.js'
+import { Theme}  from './theme.js'
+import { utils}  from './utils.js'
+import { Tweens}  from './util_tween.js'
+import { handleDrag}  from './util_handle_drag.js'
+import { ScrollCanvas}  from './view_time_scroller.js'
+import { Canvas}  from './ui_canvas.js'
+
+const proxy_ctx  = utils.proxy_ctx;
 
 var
-	LINE_HEIGHT = Settings.LINE_HEIGHT,
-	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
+	LINE_HEIGHT = LayoutConstants.LINE_HEIGHT,
+	DIAMOND_SIZE = LayoutConstants.DIAMOND_SIZE,
 	TIME_SCROLLER_HEIGHT = 35,
 	MARKER_TRACK_HEIGHT = 25,
-	LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
-	time_scale = Settings.time_scale,
+	LEFT_PANE_WIDTH = LayoutConstants.LEFT_PANE_WIDTH,
+	time_scale = LayoutConstants.time_scale,
 	TOP = 10;
 
 
@@ -71,19 +70,19 @@ function TimelinePanel(data, dispatcher) {
 	};
 
 	this.resize = function() {
-		var h = (Settings.height - TIME_SCROLLER_HEIGHT);
+		var h = (LayoutConstants.height - TIME_SCROLLER_HEIGHT);
 		dpr = window.devicePixelRatio;
-		canvas.width = Settings.width * dpr;
+		canvas.width = LayoutConstants.width * dpr;
 		canvas.height = h * dpr;
-		canvas.style.width = Settings.width + 'px';
+		canvas.style.width = LayoutConstants.width + 'px';
 		canvas.style.height = h + 'px';
-		SCROLL_HEIGHT = Settings.height - TIME_SCROLLER_HEIGHT;
-		scroll_canvas.setSize(Settings.width, TIME_SCROLLER_HEIGHT);
+		SCROLL_HEIGHT = LayoutConstants.height - TIME_SCROLLER_HEIGHT;
+		scroll_canvas.setSize(LayoutConstants.width, TIME_SCROLLER_HEIGHT);
 	};
 
 	var div = document.createElement('div');
 
-	var scroll_canvas = new Canvas(Settings.width, TIME_SCROLLER_HEIGHT);
+	var scroll_canvas = new Canvas(LayoutConstants.width, TIME_SCROLLER_HEIGHT);
 	// data.addListener('ui', repaint );
 
 	utils.style(canvas, {
@@ -228,7 +227,7 @@ function TimelinePanel(data, dispatcher) {
 
 			ctx_wrap
 				.moveTo(0, y)
-				.lineTo(width, y)
+				.lineTo(LayoutConstants.width, y)
 				.stroke();
 		}
 
@@ -248,8 +247,8 @@ function TimelinePanel(data, dispatcher) {
 				frame2 = values[j + 1];
 
 				// Draw Tween Rect
-				x = time_to_x(frame.time);
-				x2 = time_to_x(frame2.time);
+				var x = time_to_x(frame.time);
+				var x2 = time_to_x(frame2.time);
 
 				if (!frame.tween || frame.tween == 'none') continue;
 
@@ -348,7 +347,7 @@ function TimelinePanel(data, dispatcher) {
 			.scale(dpr, dpr)
 			.translate(0, MARKER_TRACK_HEIGHT)
 			.beginPath()
-			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
+			.rect(0, 0, LayoutConstants.width, SCROLL_HEIGHT)
 			.translate(-scrollLeft, -scrollTop)
 			.clip()
 			.run(check)
@@ -380,8 +379,8 @@ function TimelinePanel(data, dispatcher) {
 
 		ctx.lineWidth = 1; // .5, 1, 2
 
-		width = Settings.width;
-		height = Settings.height;
+		var width = LayoutConstants.width;
+		var height = LayoutConstants.height;
 
 		var units = time_scale / tickMark1;
 		var offsetUnits = (frame_start * time_scale) % units;
@@ -446,7 +445,7 @@ function TimelinePanel(data, dispatcher) {
 			.save()
 			.translate(0, MARKER_TRACK_HEIGHT)
 			.beginPath()
-			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
+			.rect(0, 0, LayoutConstants.width, SCROLL_HEIGHT)
 			.translate(-scrollLeft, -scrollTop)
 			.clip()
 			.run(drawLayerContents)
@@ -597,4 +596,4 @@ function TimelinePanel(data, dispatcher) {
 
 }
 
-module.exports = TimelinePanel;
+export { TimelinePanel }

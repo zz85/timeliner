@@ -98,10 +98,10 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	}
 
 
-	this.release = function() {
-		element.removeEventListener('mousedown', onMouseDown);
-		element.removeEventListener('touchstart', onTouchStart);
-	};
+	// this.release = function() {
+	// 	element.removeEventListener('mousedown', onMouseDown);
+	// 	element.removeEventListener('touchstart', onTouchStart);
+	// };
 }
 
-module.exports = handleDrag;
+export { handleDrag }

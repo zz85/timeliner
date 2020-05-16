@@ -1,18 +1,6 @@
-var
-	Tweens = require('./util_tween');
+import { Tweens } from './util_tween.js'
 
-module.exports = {
-	STORAGE_PREFIX: 'timeliner-',
-	Z_INDEX: 999,
-	firstDefined: firstDefined,
-	style: style,
-	saveToFile: saveToFile,
-	openAs: openAs,
-	format_friendly_seconds: format_friendly_seconds,
-	findTimeinLayer: findTimeinLayer,
-	timeAtLayer: timeAtLayer,
-	proxy_ctx: proxy_ctx
-};
+var STORAGE_PREFIX = 'timeliner-'
 
 /**************************/
 // Utils
@@ -296,3 +284,17 @@ function proxy_ctx(ctx) {
 
 	return wrapper;
 }
+
+var utils = {
+	STORAGE_PREFIX,
+	firstDefined,
+	style,
+	saveToFile,
+	openAs,
+	format_friendly_seconds,
+	findTimeinLayer,
+	timeAtLayer,
+	proxy_ctx
+};
+
+export { utils }

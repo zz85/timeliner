@@ -1,10 +1,9 @@
-var
-	Theme = require('./theme'),
-	UINumber = require('./ui_number'),
-	Tweens = require('./util_tween'),
-	Settings = require('./settings'),
-	utils = require('./utils')
-	;
+import { Theme } from './theme.js'
+import { UINumber } from './ui_number.js'
+import { Tweens } from './util_tween.js'
+import { LayoutConstants } from './layout_constants.js'
+import { utils } from './utils.js'
+;
 
 // TODO - tagged by index instead, work off layers.
 
@@ -28,7 +27,7 @@ function LayerView(layer, dispatcher) {
 	dropdown.addEventListener('change', function(e) {
 		dispatcher.fire('ease', layer, dropdown.value);
 	});
-	var height = (Settings.LINE_HEIGHT - 1);
+	var height = (LayoutConstants.LINE_HEIGHT - 1);
 
 	var keyframe_button = document.createElement('button');
 	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
@@ -125,7 +124,7 @@ function LayerView(layer, dispatcher) {
 		borderBottom: '1px solid ' + Theme.b,
 		top: 0,
 		left: 0,
-		height: (Settings.LINE_HEIGHT - 1 ) + 'px',
+		height: (LayoutConstants.LINE_HEIGHT - 1 ) + 'px',
 		color: Theme.c
 	});
 
@@ -185,4 +184,4 @@ function LayerView(layer, dispatcher) {
 
 }
 
-module.exports = LayerView;
+export { LayerView }

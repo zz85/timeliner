@@ -1,11 +1,12 @@
-var Settings = require('./settings'),
-	ViewLayer = require('./view_layer'),
-	IconButton = require('./ui_icon_button'),
-	style = require('./utils').style,
-	Theme = require('./theme'),
-	STORAGE_PREFIX = require('./utils').STORAGE_PREFIX,
-	UINumber = require('./ui_number')
-	;
+import { LayoutConstants } from './layout_constants.js'
+import { LayerView } from './view_layer.js'
+import { IconButton } from './ui_icon_button.js'
+import { utils } from './utils.js'
+import { Theme } from './theme.js'
+import { UINumber } from './ui_number.js'
+
+
+const { STORAGE_PREFIX, style } = utils
 
 function LayerCabinet(data, dispatcher) {
 	var layer_store = data.get('layers');
@@ -13,14 +14,14 @@ function LayerCabinet(data, dispatcher) {
 	var div = document.createElement('div');
 
 	var top = document.createElement('div');
-	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + Settings.MARKER_TRACK_HEIGHT + 'px';
+	top.style.cssText = 'margin: 0px; top: 0; left: 0; height: ' + LayoutConstants.MARKER_TRACK_HEIGHT + 'px';
 	// top.style.textAlign = 'right';
 
 	var layer_scroll = document.createElement('div');
 	style(layer_scroll, {
 		position: 'absolute',
-		top: Settings.MARKER_TRACK_HEIGHT + 'px',
-		// height: (Settings.height - Settings.MARKER_TRACK_HEIGHT) + 'px'
+		top: LayoutConstants.MARKER_TRACK_HEIGHT + 'px',
+		// height: (LayoutConstants.height - LayoutConstants.MARKER_TRACK_HEIGHT) + 'px'
 		left: 0,
 		right: 0,
 		bottom: 0,
@@ -329,7 +330,7 @@ function LayerCabinet(data, dispatcher) {
 		var min_time = 10 * 60; // 10 minutes
 		min_time = data.get('ui:totalTime').value;
 		var max_time = 1;
-		var v = Settings.width * 0.8 / (t * (max_time - min_time) + min_time);
+		var v = LayoutConstants.width * 0.8 / (t * (max_time - min_time) + min_time);
 		return v;
 	}
 
@@ -337,7 +338,7 @@ function LayerCabinet(data, dispatcher) {
 		var min_time = 10 * 60; // 10 minutes
 		min_time = data.get('ui:totalTime').value;
 		var max_time = 1;
-		var t  = ((Settings.width * 0.8 / v) - min_time)  / (max_time - min_time);
+		var t  = ((LayoutConstants.width * 0.8 / v) - min_time)  / (max_time - min_time);
 		return t;
 	}
 
@@ -366,7 +367,7 @@ function LayerCabinet(data, dispatcher) {
 	this.setState = function(state) {
 
 		layer_store = state;
-		layers = layer_store.value;
+		var layers = layer_store.value;
 		// layers = state;
 		console.log(layer_uis.length, layers);
 		var i, layer;
@@ -380,7 +381,7 @@ function LayerCabinet(data, dispatcher) {
 					layer_ui.dom.style.display = 'block';
 				} else {
 					// new
-					layer_ui = new ViewLayer(layer, dispatcher);
+					layer_ui = new LayerView(layer, dispatcher);
 					layer_scroll.appendChild(layer_ui.dom);
 				}
 				layer_uis.push(layer_ui);
@@ -405,6 +406,8 @@ function LayerCabinet(data, dispatcher) {
 		var i;
 
 		s = s || 0;
+
+		var layers = layer_store.value;
 		for (i = layer_uis.length; i-- > 0;) {
 			// quick hack
 			if (i >= layers.length) {
@@ -434,4 +437,4 @@ function LayerCabinet(data, dispatcher) {
 	repaint();
 }
 
-module.exports = LayerCabinet;
+export { LayerCabinet }
