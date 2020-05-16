@@ -45,9 +45,9 @@ function handleDrag(element, ondown, onmove, onup, down_criteria) {
 	function handleMove(e) {
 		bounds = element.getBoundingClientRect();
 		var currentx = e.clientX,
-		currenty = e.clientY,
-		offsetx = currentx - bounds.left,
-		offsety = currenty - bounds.top;
+			currenty = e.clientY,
+			offsetx = currentx - bounds.left,
+			offsety = currenty - bounds.top;
 		pointer.x = currentx;
 		pointer.y = currenty;
 		pointer.dx = e.clientX - pointer.startx;

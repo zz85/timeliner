@@ -225,18 +225,18 @@ function LayerCabinet(data, dispatcher) {
 		// console.log('changed', dropdown.length, dropdown.value);
 
 		switch (dropdown.value) {
-			case '*new*':
-				dispatcher.fire('new');
-				break;
-			case '*import*':
-				dispatcher.fire('import');
-				break;
-			case '*select*':
-				dispatcher.fire('openfile');
-				break;
-			default:
-				dispatcher.fire('open', dropdown.value);
-				break;
+		case '*new*':
+			dispatcher.fire('new');
+			break;
+		case '*import*':
+			dispatcher.fire('import');
+			break;
+		case '*select*':
+			dispatcher.fire('openfile');
+			break;
+		default:
+			dispatcher.fire('open', dropdown.value);
+			break;
 		}
 	});
 

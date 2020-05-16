@@ -283,14 +283,14 @@ function proxy_ctx(ctx) {
 
 		var type = typeof(ctx[c]);
 		switch(type) {
-			case 'object':
-				break;
-			case 'function':
-				wrapper[c] = proxy_function(c);
-				break;
-			default:
-				wrapper[c] = proxy_property(c);
-				break;
+		case 'object':
+			break;
+		case 'function':
+			wrapper[c] = proxy_function(c);
+			break;
+		default:
+			wrapper[c] = proxy_property(c);
+			break;
 		}
 	}
 

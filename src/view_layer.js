@@ -4,7 +4,7 @@ var
 	Tweens = require('./util_tween'),
 	Settings = require('./settings'),
 	utils = require('./utils')
-;
+	;
 
 // TODO - tagged by index instead, work off layers.
 

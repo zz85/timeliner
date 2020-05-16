@@ -632,10 +632,10 @@ function Timeliner(target) {
 	// percentages
 	scrollbar.onScroll.do(function(type, scrollTo) {
 		switch(type) {
-			case 'scrollto':
-				layer_panel.scrollTo(scrollTo);
-				timeline.scrollTo(scrollTo);
-				break;
+		case 'scrollto':
+			layer_panel.scrollTo(scrollTo);
+			timeline.scrollTo(scrollTo);
+			break;
 	//		case 'pageup':
 	// 			scrollTop -= pageOffset;
 	// 			me.draw();
@@ -981,28 +981,28 @@ function Timeliner(target) {
 			if (clicked && clicked.isMoving) {
 
 				switch(checks()) {
-					case 'full-screen':
-						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-top-edge':
-						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight / 2);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-left-edge':
-						setBounds(ghostpane, 0, 0, window.innerWidth / 2, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-right-edge':
-						setBounds(ghostpane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-bottom-edge':
-						setBounds(ghostpane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
-						ghostpane.style.opacity = 0.2;
-						break;
-					default:
-						hintHide();
+				case 'full-screen':
+					setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
+					ghostpane.style.opacity = 0.2;
+					break;
+				case 'snap-top-edge':
+					setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight / 2);
+					ghostpane.style.opacity = 0.2;
+					break;
+				case 'snap-left-edge':
+					setBounds(ghostpane, 0, 0, window.innerWidth / 2, window.innerHeight);
+					ghostpane.style.opacity = 0.2;
+					break;
+				case 'snap-right-edge':
+					setBounds(ghostpane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+					ghostpane.style.opacity = 0.2;
+					break;
+				case 'snap-bottom-edge':
+					setBounds(ghostpane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
+					ghostpane.style.opacity = 0.2;
+					break;
+				default:
+					hintHide();
 				}
 
 				if (preSnapped) {
@@ -1084,24 +1084,24 @@ function Timeliner(target) {
 
 		function resizeEdges() {
 			switch(snapType) {
-				case 'full-screen':
+			case 'full-screen':
 					// hintFull();
-					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
-					break;
-				case 'snap-top-edge':
+				setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
+				break;
+			case 'snap-top-edge':
 					// hintTop();
-					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
-					break;
-				case 'snap-left-edge':
+				setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
+				break;
+			case 'snap-left-edge':
 					// hintLeft();
-					setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
-					break;
-				case 'snap-right-edge':
-					setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-					break;
-				case 'snap-bottom-edge':
-					setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
-					break;
+				setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
+				break;
+			case 'snap-right-edge':
+				setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+				break;
+			case 'snap-bottom-edge':
+				setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
+				break;
 			}
 		}
 
