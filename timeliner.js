@@ -1403,8 +1403,6 @@ var font = require('./font.json'),
 	Theme = require('./theme'),
 	style = require('./utils').style;
 
-var dp;
-
 function IconButton(size, icon, tooltip, dp) {
 	var iconStyle = {
 		padding: '0.2em 0.4em',
