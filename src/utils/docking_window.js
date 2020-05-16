@@ -1,7 +1,5 @@
 import { Do } from './do.js';
-import { LayoutConstants } from '../layout_constraints.js'
-
-var Settings = LayoutConstants;
+import { LayoutConstants } from '../layout_constants.js'
 
 const SNAP_FULL_SCREEN = 'full-screen'
 const SNAP_TOP_EDGE = 'snap-top-edge' // or actually top half
@@ -51,6 +49,9 @@ args eg.
 	})
 
 	// TODO callback when pane is resized
+	widget.resizes.do(() => {
+		something
+	})
 */
 
 function DockingWindow(pane, ghostpane) {
@@ -71,7 +72,7 @@ function DockingWindow(pane, ghostpane) {
 
 	var preSnapped;
 
-	var b, x, y;
+	var bounds, x, y;
 
 	var redraw = false;
 
@@ -89,31 +90,30 @@ function DockingWindow(pane, ghostpane) {
 	this.maximize = function() {
 		// TOOD toggle back to restored size
 		if (!preSnapped) preSnapped = {
-			width: b.width,
-			height: b.height
+			width: bounds.width,
+			height: bounds.height
 		};
 
 		snapType = SNAP_FULL_SCREEN;
 		resizeEdges();
 	}
 
+	this.resizes = new Do();
+
 
 	window.addEventListener('resize', function() {
-		if (snapType)
-			resizeEdges();
-		else
-			needsResize = true;
+		resizeEdges();
 	});
 
 	/* DOM Utils */
 	function hideGhostPane() {
 		// hide the hinter
-		setBounds(ghostpane, b.left, b.top, b.width, b.height);
+		setBounds(ghostpane, bounds.left, bounds.top, bounds.width, bounds.height);
 		ghostpane.style.opacity = 0;
 	}
 
-	setBounds(pane, 0, 0, Settings.width, Settings.height);
-	setBounds(ghostpane, 0, 0, Settings.width, Settings.height);
+	setBounds(pane, 0, 0, LayoutConstants.width, LayoutConstants.height);
+	setBounds(ghostpane, 0, 0, LayoutConstants.width, LayoutConstants.height);
 
 	// Mouse events
 	pane.addEventListener('mousedown', onMouseDown);
@@ -137,7 +137,6 @@ function DockingWindow(pane, ghostpane) {
 	}
 
 	function onMouseDown(e) {
-		console.log('down', e);
 		onDown(e);
 
 		document.addEventListener('mousemove', onMove);
@@ -162,8 +161,8 @@ function DockingWindow(pane, ghostpane) {
 			y: y,
 			cx: e.clientX,
 			cy: e.clientY,
-			w: b.width,
-			h: b.height,
+			w: bounds.width,
+			h: bounds.height,
 			isResizing: isResizing,
 			isMoving: isMoving,
 			onTopEdge: onTopEdge,
@@ -180,14 +179,14 @@ function DockingWindow(pane, ghostpane) {
 
 
 	function calc(e) {
-		b = pane.getBoundingClientRect();
-		x = e.clientX - b.left;
-		y = e.clientY - b.top;
+		bounds = pane.getBoundingClientRect();
+		x = e.clientX - bounds.left;
+		y = e.clientY - bounds.top;
 
 		onTopEdge = y < MARGINS;
 		onLeftEdge = x < MARGINS;
-		onRightEdge = x >= b.width - MARGINS;
-		onBottomEdge = y >= b.height - MARGINS;
+		onRightEdge = x >= bounds.width - MARGINS;
+		onBottomEdge = y >= bounds.height - MARGINS;
 	}
 
 	var e; // current mousemove event
@@ -207,7 +206,24 @@ function DockingWindow(pane, ghostpane) {
 
 		redraw = false;
 
-		if (pointerStart && pointerStart.isResizing) {
+		// style cursor
+		if (onRightEdge && onBottomEdge || onLeftEdge && onTopEdge) {
+			pane.style.cursor = 'nwse-resize';
+		} else if (onRightEdge && onTopEdge || onBottomEdge && onLeftEdge) {
+			pane.style.cursor = 'nesw-resize';
+		} else if (onRightEdge || onLeftEdge) {
+			pane.style.cursor = 'ew-resize';
+		} else if (onBottomEdge || onTopEdge) {
+			pane.style.cursor = 'ns-resize';
+		} else if (canMove()) {
+			pane.style.cursor = 'move';
+		} else {
+			pane.style.cursor = 'default';
+		}
+
+		if (!pointerStart) return;
+
+		if (pointerStart.isResizing) {
 
 			if (pointerStart.onRightEdge) pane.style.width = Math.max(x, minWidth) + 'px';
 			if (pointerStart.onBottomEdge) pane.style.height = Math.max(y, minHeight) + 'px';
@@ -230,14 +246,14 @@ function DockingWindow(pane, ghostpane) {
 
 			hideGhostPane();
 
-			resize(b.width, b.height);
+			self.resizes.fire(bounds.width, bounds.height);
 
 			return;
 		}
 
-		if (pointerStart && pointerStart.isMoving) {
+		if (pointerStart.isMoving) {
 
-			switch(checks()) {
+			switch(checkSnapType()) {
 			case SNAP_FULL_SCREEN:
 				setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
 				ghostpane.style.opacity = 0.2;
@@ -278,26 +294,9 @@ function DockingWindow(pane, ghostpane) {
 
 			return;
 		}
-
-		// This code executes when mouse moves without clicking
-
-		// style cursor
-		if (onRightEdge && onBottomEdge || onLeftEdge && onTopEdge) {
-			pane.style.cursor = 'nwse-resize';
-		} else if (onRightEdge && onTopEdge || onBottomEdge && onLeftEdge) {
-			pane.style.cursor = 'nesw-resize';
-		} else if (onRightEdge || onLeftEdge) {
-			pane.style.cursor = 'ew-resize';
-		} else if (onBottomEdge || onTopEdge) {
-			pane.style.cursor = 'ns-resize';
-		} else if (canMove()) {
-			pane.style.cursor = 'move';
-		} else {
-			pane.style.cursor = 'default';
-		}
 	}
 
-	function checks() {
+	function checkSnapType() {
 		// drag to full screen
 		if (e.clientY < FULLSCREEN_MARGINS) return SNAP_FULL_SCREEN;
 
@@ -317,24 +316,43 @@ function DockingWindow(pane, ghostpane) {
 
 	animate();
 
+	var self = this;
+
+	/* When one of the edges is move, resize pane */
 	function resizeEdges() {
+		if (!snapType) return;
+
+		var width, height;
+
 		switch(snapType) {
 		case SNAP_FULL_SCREEN:
-			setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
+			width = window.innerWidth;
+			height = window.innerHeight;
+			setBounds(pane, 0, 0, width, height);
 			break;
 		case SNAP_TOP_EDGE:
-			setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
+			width = window.innerWidth;
+			height = window.innerHeight / 2;
+			setBounds(pane, 0, 0, width, height);
 			break;
 		case SNAP_LEFT_EDGE:
-			setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
+			width = window.innerWidth / 2;
+			height = window.innerHeight;
+			setBounds(pane, 0, 0, width, height);
 			break;
 		case SNAP_RIGHT_EDGE:
-			setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
+			width = window.innerWidth / 2;
+			height = window.innerHeight;
+			setBounds(pane, window.innerWidth - width, 0, width, height);
 			break;
 		case SNAP_BOTTOM_EDGE:
-			setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
+			width = window.innerWidth;
+			height = window.innerHeight / 3;
+			setBounds(pane, 0, window.innerHeight - height, width, height);
 			break;
 		}
+
+		self.resizes.fire(width, height);
 	}
 
 	function onUp(e) {
@@ -342,11 +360,11 @@ function DockingWindow(pane, ghostpane) {
 
 		if (pointerStart && pointerStart.isMoving) {
 			// Snap
-			snapType = checks();
+			snapType = checkSnapType();
 			if (snapType) {
 				preSnapped = {
-					width: b.width,
-					height: b.height
+					width: bounds.width,
+					height: bounds.height
 				};
 				resizeEdges();
 			} else {

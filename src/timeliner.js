@@ -797,6 +797,7 @@ function Timeliner(target) {
 	this.getValues = getValueRanges;
 }
 
-DockingWindow(pane_title)
+var widget = new DockingWindow(pane_title, ghostpane)
+widget.resizes.do(resize)
 
 window.Timeliner = Timeliner;
