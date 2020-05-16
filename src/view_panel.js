@@ -125,8 +125,8 @@ function TimelinePanel(data, dispatcher) {
 
 		this.path = function() {
 			ctx_wrap.beginPath()
-			.rect(x1, y1, x2-x1, y2-y1)
-			.closePath();
+				.rect(x1, y1, x2-x1, y2-y1)
+				.closePath();
 		};
 
 		this.paint = function() {
@@ -185,7 +185,7 @@ function TimelinePanel(data, dispatcher) {
 				ctx_wrap.fillStyle('yellow'); // Theme.d
 
 			ctx_wrap.fill()
-			.stroke();
+				.stroke();
 		};
 
 		this.mouseover = function() {
@@ -227,9 +227,9 @@ function TimelinePanel(data, dispatcher) {
 			y = ~~y - 0.5;
 
 			ctx_wrap
-			.moveTo(0, y)
-			.lineTo(width, y)
-			.stroke();
+				.moveTo(0, y)
+				.lineTo(width, y)
+				.stroke();
 		}
 
 
@@ -351,7 +351,7 @@ function TimelinePanel(data, dispatcher) {
 			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
 			.translate(-scrollLeft, -scrollTop)
 			.clip()
-				.run(check)
+			.run(check)
 			.restore();
 	}
 
@@ -449,7 +449,7 @@ function TimelinePanel(data, dispatcher) {
 			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
 			.translate(-scrollLeft, -scrollTop)
 			.clip()
-				.run(drawLayerContents)
+			.run(drawLayerContents)
 			.restore();
 
 		// Current Marker / Cursor
@@ -566,7 +566,7 @@ function TimelinePanel(data, dispatcher) {
 		pointerEvents();
 
 		if (!mousedownItem) dispatcher.fire('time.update', x_to_time(e.offsetx));
-			// Hit criteria
+		// Hit criteria
 	}, function move(e) {
 		mousedown2 = false;
 		if (mousedownItem) {
