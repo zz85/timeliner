@@ -31,7 +31,7 @@ function NumberUI(config) {
 
 	var span = document.createElement('input');
 	// span.type = 'number'; // spinner
-	
+
 	style(span, {
 		textAlign: 'center',
 		fontSize: '10px',
@@ -99,7 +99,7 @@ function NumberUI(config) {
 	function onMove(e) {
 		var dx = e.dx;
 		var dy = e.dy;
-	
+
 		value = unchanged_value + (dx * xstep) + (dy * -ystep);
 
 		value = clamp(value);

@@ -27,11 +27,11 @@ function firstDefined() {
 	return undefined;
 }
 
-function style(element, var_args) {
-	for (var i = 1; i < arguments.length; ++i) {
-		var styles = arguments[i];
-		for (var s in styles) {
-			element.style[s] = styles[s];
+function style(element, ...styles) {
+	for (var i = 0; i < styles.length; ++i) {
+		var style = styles[i];
+		for (var s in style) {
+			element.style[s] = style[s];
 		}
 	}
 }
@@ -43,7 +43,7 @@ function saveToFile(string, filename) {
 
 	var blob = new Blob([string], { type: 'octet/stream' }), // application/json
 		url = window.URL.createObjectURL(blob);
-	
+
 	a.href = url;
 	a.download = filename;
 
@@ -80,7 +80,7 @@ function handleFileSelect(evt) {
 		var data = e.target.result;
 		openCallback(data);
 	};
-	
+
 	reader.readAsText(f);
 
 	input.value = '';
@@ -99,7 +99,7 @@ function openAs(callback, target) {
 		target = target || document.body;
 		target.appendChild(input);
 	}
-	
+
 	fakeClick(input);
 }
 
@@ -114,7 +114,7 @@ function fakeClick(target) {
 
 function format_friendly_seconds(s, type) {
 	// TODO Refactor to 60fps???
-	// 20 mins * 60 sec = 1080 
+	// 20 mins * 60 sec = 1080
 	// 1080s * 60fps = 1080 * 60 < Number.MAX_SAFE_INTEGER
 
 	var raw_secs = s | 0;
@@ -135,7 +135,7 @@ function format_friendly_seconds(s, type) {
 		// else str = mins + ':' + secs_micro;
 		// else str = secs_micro + 's'; /// .toFixed(2)
 	}
-	return str;	
+	return str;
 }
 
 // get object at time
@@ -246,13 +246,13 @@ function timeAtLayer(layer, t) {
 		value: entry.value,
 		can_tween: false,
 		keyframe: false
-	}; 
+	};
 
 }
 
 
 function proxy_ctx(ctx) {
-	// Creates a proxy 2d context wrapper which 
+	// Creates a proxy 2d context wrapper which
 	// allows the fluent / chaining API.
 	var wrapper = {};
 

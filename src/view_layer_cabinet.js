@@ -343,7 +343,7 @@ function LayerCabinet(data, dispatcher) {
 
 	function changeRange() {
 
-		dispatcher.fire('update.scale', Math.pow(100, -range.value) );
+		dispatcher.fire('update.scale', 6 * Math.pow(100, -range.value) );
 	}
 
 	var layer_uis = [], visible_layers = 0;

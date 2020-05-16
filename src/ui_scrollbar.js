@@ -3,7 +3,7 @@ var utils = require('./utils');
 
 // ********** class: ScrollBar ****************** //
 /*
-	Simple UI widget that displays a scrolltrack 
+	Simple UI widget that displays a scrolltrack
 	and slider, that fires some scroll events
 */
 // ***********************************************

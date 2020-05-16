@@ -96,5 +96,5 @@ module.exports = Canvas;
 // allow Drag
 // allow Click
 // mouseOver
-// 
+//
 

@@ -7,7 +7,7 @@ var
 
 
 function Rect() {
-	
+
 }
 
 Rect.prototype.set = function(x, y, w, h, color, outline) {
@@ -64,7 +64,7 @@ function ScrollCanvas(dispatcher, data) {
 		var totalTime = data.get('ui:totalTime').value;
 		var scrollTime = data.get('ui:scrollTime').value;
 		var currentTime = data.get('ui:currentTime').value;
-		
+
 		var pixels_per_second = data.get('ui:timeScale').value;
 
 		ctx.save();
@@ -82,7 +82,7 @@ function ScrollCanvas(dispatcher, data) {
 		ctx.strokeStyle = Theme.b;
 		ctx.rect(0, 0, w, h);
 		ctx.stroke();
-		
+
 		var totalTimePixels = totalTime * pixels_per_second;
 		var k = w / totalTimePixels;
 		scroller.k = k;
@@ -92,17 +92,17 @@ function ScrollCanvas(dispatcher, data) {
 		scroller.grip_length = grip_length;
 
 		scroller.left = scrollTime / totalTime * w;
-		
+
 		scrollRect.set(scroller.left, 0, scroller.grip_length, h);
 		scrollRect.paint(ctx);
 
-		var r = currentTime / totalTime * w;		
+		var r = currentTime / totalTime * w;
 
 		ctx.fillStyle =  Theme.c;
 		ctx.lineWidth = 2;
-		
+
 		ctx.beginPath();
-		
+
 		// circle
 		// ctx.arc(r, h2 / 2, h2 / 1.5, 0, Math.PI * 2);
 
@@ -128,7 +128,7 @@ function ScrollCanvas(dispatcher, data) {
 			draggingx = scroller.left;
 			return;
 		}
-		
+
 		var totalTime = data.get('ui:totalTime').value;
 		var pixels_per_second = data.get('ui:timeScale').value;
 		var w = width - 2 * MARGINS;
@@ -138,21 +138,21 @@ function ScrollCanvas(dispatcher, data) {
 
 		// data.get('ui:currentTime').value = t;
 		dispatcher.fire('time.update', t);
-		
+
 	};
 
 	this.onMove = function move(e) {
 		if (draggingx != null) {
 			var totalTime = data.get('ui:totalTime').value;
 			var w = width - 2 * MARGINS;
-			
-			dispatcher.fire('update.scrollTime', 
+
+			dispatcher.fire('update.scrollTime',
 				(draggingx + e.dx)  / w * totalTime);
 
 		} else {
-			this.onDown(e);	
+			this.onDown(e);
 		}
-		
+
 	};
 
 	this.onUp = function(e) {

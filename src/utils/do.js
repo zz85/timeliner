@@ -1,16 +1,23 @@
-function Do(parent) {
-	var listeners = [];
-	this.do = function(callback) {
-		listeners.push(callback);
-	};
-	this.undo = function(callback) {
-		listeners.splice(listeners.indexOf(callback), 1);
-	};
-	this.fire = function() {
-		for (var v = 0; v < listeners.length; v++) {
-			listeners[v].apply(parent, arguments);
+/* Over simplistic Event Dispatcher */
+
+class Do {
+	constructor() {
+		this.listeners = new Set()
+	}
+
+	do(callback) {
+		this.listeners.add(callback);
+	}
+
+	undo(callback) {
+		this.listeners.delete(callback);
+	}
+
+	fire(...args) {
+		for (let l of this.listeners) {
+			l(...args)
 		}
-	};
+	}
 }
 
 export { Do }

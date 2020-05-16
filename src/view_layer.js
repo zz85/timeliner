@@ -12,7 +12,7 @@ function LayerView(layer, dispatcher) {
 	var dom = document.createElement('div');
 
 	var label = document.createElement('span');
-	
+
 	label.style.cssText = 'font-size: 12px; padding: 4px;';
 
 	var dropdown = document.createElement('select');
@@ -33,7 +33,7 @@ function LayerView(layer, dispatcher) {
 	var keyframe_button = document.createElement('button');
 	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
 	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; height: ' + height + 'px; border-style:none; outline: none;'; //  border-style:inset;
-	
+
 	keyframe_button.addEventListener('click', function(e) {
 		console.log('clicked:keyframing...', state.get('_value').value);
 		dispatcher.fire('keyframe', layer, state.get('_value').value);
@@ -52,7 +52,7 @@ function LayerView(layer, dispatcher) {
 	button.style.cssText = 'font-size: 12px; padding: 1px; ';
 	dom.appendChild(button);
 
-	
+
 	*/
 
 	function ToggleButton(text) {
@@ -117,7 +117,7 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(keyframe_button);
 	dom.appendChild(number.dom);
 	dom.appendChild(dropdown);
-	
+
 
 	utils.style(dom, {
 		textAlign: 'left',

@@ -4,6 +4,10 @@
 		"node": true,
 		"es6": true
 	},
+	"parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module"
+    },
 	"rules": {
 		"no-unused-expressions": "error",
 		"no-nested-ternary": "error",
@@ -12,6 +16,7 @@
 		"no-redeclare": "warn",
 		"no-unused-vars": "warn",
 		"no-undef": "error",
+		"no-trailing-spaces": "error",
 		"no-use-before-define": "error",
 		"indent": ["error", "tab"]
 	}
