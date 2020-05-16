@@ -9,6 +9,7 @@
     "watch": "watchify src/timeliner.js --full-paths=false -t package-json-versionify --debug -o timeliner.js -v",
     "start": "npm run watch",
     "lint": "eslint src/",
+    "fix": "eslint --fix src/",
     "test": "echo \"Error: no tests :(\" && exit 1"
   },
   "repository": {

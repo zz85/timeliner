@@ -1,0 +1,35 @@
+<html>
+<head>
+</head>
+<body>
+<style>
+#box {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	background: red;
+}
+
+body {
+	overflow: hidden;
+	font-family: monospace;
+    font-size: 50px;
+}
+
+</style>
+
+<div id="box"></div>
+<script type="module">
+var box = document.getElementById('box')
+
+var started = 0;
+window.addEventListener('touchstart', () => {
+    started++;
+
+
+    box.innerHTML = started;
+})
+
+</script>
+</body>
+</html>

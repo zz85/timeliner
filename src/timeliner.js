@@ -194,6 +194,12 @@ function Timeliner(target) {
 	var currentTimeStore = data.get('ui:currentTime');
 	dispatcher.on('time.update', setCurrentTime);
 
+	dispatcher.on('totalTime.update', function(value) {
+		// context.totalTime = value;
+		// controller.setDuration(value);
+		// timeline.repaint();
+	});
+
 	dispatcher.on('update.scrollTime', function(v) {
 		v = Math.max(0, v);
 		data.get('ui:scrollTime').value = v;
@@ -407,8 +413,12 @@ function Timeliner(target) {
 	*/
 
 	var div = document.createElement('div');
-	div.style.cssText = 'position: absolute;';
-	div.style.top = '22px';
+	style(div, {
+		textAlign: 'left',
+		lineHeight: '1em',
+		position: 'absolute',
+		top: '22px'
+	});
 
 	var pane = document.createElement('div');
 
@@ -468,7 +478,7 @@ function Timeliner(target) {
 	// top_right_bar.appendChild(resize_small.dom);
 
 	// resize full
-	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
+	var resize_full = new IconButton(10, 'resize_full', 'Maximize', dispatcher);
 	style(resize_full.dom, button_styles, { marginRight: '2px' });
 	top_right_bar.appendChild(resize_full.dom);
 
@@ -746,6 +756,14 @@ function Timeliner(target) {
 
 	this.addLayer = addLayer;
 
+	this.dispose = function dispose() {
+
+		var domParent = pane.parentElement;
+		domParent.removeChild(pane);
+		domParent.removeChild(ghostpane);
+
+	};
+
 	this.setTarget = function(t) {
 		timeline = t;
 	};
@@ -777,9 +795,8 @@ function Timeliner(target) {
 	}
 
 	this.getValues = getValueRanges;
-
-
-
 }
+
+DockingWindow(pane_title)
 
 window.Timeliner = Timeliner;
