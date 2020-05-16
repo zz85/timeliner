@@ -16,7 +16,6 @@ function setBounds(element, x, y, w, h) {
 	//FIXME element === pane resize(w, h);
 }
 
-
 /*
 
 The Docking Widget
@@ -34,6 +33,7 @@ My origin implementation from https://codepen.io/zz85/pen/gbOoVP
 args eg.
 	var pane = document.getElementById('pane');
 	var ghostpane = document.getElementById('ghostpane');
+	widget = new DockingWindow(pane, ghostpane)
 
 
 	title_dom.addEventListener('mouseover', function() {
@@ -88,18 +88,25 @@ function DockingWindow(pane, ghostpane) {
 	}
 
 	this.maximize = function() {
-		// TOOD toggle back to restored size
-		if (!preSnapped) preSnapped = {
-			width: bounds.width,
-			height: bounds.height
-		};
+		if (!preSnapped) {
+			preSnapped = {
+				width: bounds.width,
+				height: bounds.height,
+				top: bounds.top,
+				left: bounds.left,
+			}
 
-		snapType = SNAP_FULL_SCREEN;
-		resizeEdges();
+			snapType = SNAP_FULL_SCREEN;
+			resizeEdges();
+		} else {
+			setBounds(pane, bounds.left, bounds.top, bounds.width, bounds.height);
+			calculateBounds()
+			snapType = null;
+			preSnapped = null;
+		}
 	}
 
 	this.resizes = new Do();
-
 
 	window.addEventListener('resize', function() {
 		resizeEdges();
@@ -107,7 +114,7 @@ function DockingWindow(pane, ghostpane) {
 
 	/* DOM Utils */
 	function hideGhostPane() {
-		// hide the hinter
+		// hide the hinter, animatating to the pane's bounds
 		setBounds(ghostpane, bounds.left, bounds.top, bounds.width, bounds.height);
 		ghostpane.style.opacity = 0;
 	}
@@ -117,6 +124,8 @@ function DockingWindow(pane, ghostpane) {
 
 	// Mouse events
 	pane.addEventListener('mousedown', onMouseDown);
+	document.addEventListener('mousemove', onMove);
+	document.addEventListener('mouseup', onMouseUp);
 
 	// Touch events
 	pane.addEventListener('touchstart', onTouchDown);
@@ -137,21 +146,16 @@ function DockingWindow(pane, ghostpane) {
 	}
 
 	function onMouseDown(e) {
+		console.log('mousedown')
 		onDown(e);
-
-		document.addEventListener('mousemove', onMove);
-		document.addEventListener('mouseup', onMouseUp);
 	}
 
 	function onMouseUp(e) {
 		onUp(e);
-
-		document.addEventListener('mousemove', onMove);
-		document.addEventListener('mouseup', onMouseUp);
 	}
 
 	function onDown(e) {
-		calc(e);
+		calculateBounds(e);
 
 		var isResizing = onRightEdge || onBottomEdge || onTopEdge || onLeftEdge;
 		var isMoving = !isResizing && canMove();
@@ -178,7 +182,7 @@ function DockingWindow(pane, ghostpane) {
 	}
 
 
-	function calc(e) {
+	function calculateBounds(e) {
 		bounds = pane.getBoundingClientRect();
 		x = e.clientX - bounds.left;
 		y = e.clientY - bounds.top;
@@ -193,7 +197,7 @@ function DockingWindow(pane, ghostpane) {
 
 	function onMove(ee) {
 		e = ee;
-		calc(e);
+		calculateBounds(e);
 
 		redraw = true;
 	}
@@ -223,6 +227,7 @@ function DockingWindow(pane, ghostpane) {
 
 		if (!pointerStart) return;
 
+		/* User is resizing */
 		if (pointerStart.isResizing) {
 
 			if (pointerStart.onRightEdge) pane.style.width = Math.max(x, minWidth) + 'px';
@@ -251,34 +256,21 @@ function DockingWindow(pane, ghostpane) {
 			return;
 		}
 
+		/* User is dragging */
 		if (pointerStart.isMoving) {
-
-			switch(checkSnapType()) {
-			case SNAP_FULL_SCREEN:
-				setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
+			var snapType = checkSnapType()
+			if (snapType) {
+				calcSnapBounds(snapType);
+				// console.log('snapping...', JSON.stringify(snapBounds))
+				var { left, top, width, height } = snapBounds;
+				setBounds(ghostpane, left, top, width, height);
 				ghostpane.style.opacity = 0.2;
-				break;
-			case SNAP_TOP_EDGE:
-				setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight / 2);
-				ghostpane.style.opacity = 0.2;
-				break;
-			case SNAP_LEFT_EDGE:
-				setBounds(ghostpane, 0, 0, window.innerWidth / 2, window.innerHeight);
-				ghostpane.style.opacity = 0.2;
-				break;
-			case SNAP_RIGHT_EDGE:
-				setBounds(ghostpane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-				ghostpane.style.opacity = 0.2;
-				break;
-			case SNAP_BOTTOM_EDGE:
-				setBounds(ghostpane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
-				ghostpane.style.opacity = 0.2;
-				break;
-			default:
+			} else {
 				hideGhostPane();
 			}
 
 			if (preSnapped) {
+				console.log('presnapped')
 				setBounds(pane,
 					e.clientX - preSnapped.width / 2,
 					e.clientY - Math.min(pointerStart.y, preSnapped.height),
@@ -318,45 +310,62 @@ function DockingWindow(pane, ghostpane) {
 
 	var self = this;
 
-	/* When one of the edges is move, resize pane */
-	function resizeEdges() {
+	var snapBounds = {}
+
+	function calcSnapBounds(snapType) {
 		if (!snapType) return;
 
-		var width, height;
+		var width, height, left, top;
 
 		switch(snapType) {
 		case SNAP_FULL_SCREEN:
 			width = window.innerWidth;
 			height = window.innerHeight;
-			setBounds(pane, 0, 0, width, height);
+			left = 0
+			top = 0
 			break;
 		case SNAP_TOP_EDGE:
 			width = window.innerWidth;
 			height = window.innerHeight / 2;
-			setBounds(pane, 0, 0, width, height);
+			left = 0
+			top = 0
 			break;
 		case SNAP_LEFT_EDGE:
 			width = window.innerWidth / 2;
 			height = window.innerHeight;
-			setBounds(pane, 0, 0, width, height);
+			left = 0
+			top = 0
 			break;
 		case SNAP_RIGHT_EDGE:
 			width = window.innerWidth / 2;
 			height = window.innerHeight;
-			setBounds(pane, window.innerWidth - width, 0, width, height);
+			left = window.innerWidth - width
+			top = 0
 			break;
 		case SNAP_BOTTOM_EDGE:
 			width = window.innerWidth;
 			height = window.innerHeight / 3;
-			setBounds(pane, 0, window.innerHeight - height, width, height);
+			left = 0
+			top = window.innerHeight - height
 			break;
 		}
+
+		Object.assign(snapBounds, { left, top, width, height });
+	}
+
+	/* When one of the edges is move, resize pane */
+	function resizeEdges() {
+		if (!snapType) return;
+
+		calcSnapBounds(snapType);
+		var { left, top, width, height } = snapBounds;
+		setBounds(pane, left, top, width, height);
 
 		self.resizes.fire(width, height);
 	}
 
 	function onUp(e) {
-		calc(e);
+		calculateBounds(e);
 
 		if (pointerStart && pointerStart.isMoving) {
 			// Snap
@@ -364,8 +373,10 @@ function DockingWindow(pane, ghostpane) {
 			if (snapType) {
 				preSnapped = {
 					width: bounds.width,
-					height: bounds.height
-				};
+					height: bounds.height,
+					top: bounds.top,
+					left: bounds.left,
+				}
 				resizeEdges();
 			} else {
 				preSnapped = null;
