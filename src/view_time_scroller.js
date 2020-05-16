@@ -32,8 +32,7 @@ Rect.prototype.shape = function(ctx) {
 };
 
 Rect.prototype.contains = function(x, y) {
-	return x >= this.x && y >= this.y
-	 && x <= this.x + this.w && y <= this.y + this.h;
+	return x >= this.x && y >= this.y && x <= this.x + this.w && y <= this.y + this.h;
 };
 
 

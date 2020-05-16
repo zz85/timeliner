@@ -65,13 +65,13 @@ function Canvas(w, h) {
 
 	handleDrag(canvas,
 		function down(e) {
-			if (child.onDown) { child.onDown(e) };
+			if (child.onDown) { child.onDown(e) }
 		},
 		function move(e) {
-			if (child.onMove) { child.onMove(e) };
+			if (child.onMove) { child.onMove(e) }
 		},
 		function up(e) {
-			if (child.onUp) { child.onUp(e) };
+			if (child.onUp) { child.onUp(e) }
 		}
 		// function hit(e) {
 		// 	if (child.onHit) { child.onHit(e) };

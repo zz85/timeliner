@@ -609,7 +609,7 @@ function Timeliner(target) {
 		zIndex: (Z_INDEX - 1),
 		// transition: 'all 0.25s ease-in-out',
 		transitionProperty: 'top, left, width, height, opacity',
- 		transitionDuration: '0.25s',
+		transitionDuration: '0.25s',
 		transitionTimingFunction: 'ease-in-out'
 	});
 
@@ -640,7 +640,7 @@ function Timeliner(target) {
 
 	// percentages
 	scrollbar.onScroll.do(function(type, scrollTo) {
-		switch(type) {
+		switch (type) {
 		case 'scrollto':
 			layer_panel.scrollTo(scrollTo);
 			timeline.scrollTo(scrollTo);

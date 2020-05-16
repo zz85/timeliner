@@ -4,8 +4,9 @@
 		"node": true,
 		"es6": true
 	},
+	"extends": "eslint:recommended",
 	"parserOptions": {
-        "ecmaVersion": 8,
+        "ecmaVersion": 2020,
         "sourceType": "module"
     },
 	"rules": {
@@ -17,6 +18,8 @@
 		"no-unused-vars": "warn",
 		"no-undef": "error",
 		"no-trailing-spaces": "error",
-		"indent": ["error", "tab"]
+		"indent": ["error", "tab"],
+		"keyword-spacing": "error",
+		"object-curly-spacing": ["error", "always"]
 	}
 }

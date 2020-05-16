@@ -315,7 +315,7 @@ function DockingWindow(pane, ghostpane) {
 
 		var width, height, left, top;
 
-		switch(snapType) {
+		switch (snapType) {
 		case SNAP_FULL_SCREEN:
 			width = window.innerWidth;
 			height = window.innerHeight;

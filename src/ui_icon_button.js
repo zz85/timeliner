@@ -1,7 +1,7 @@
 import { font } from './font.js'
 import { Theme } from './theme.js'
 import { utils } from './utils.js'
-const { style} = utils
+const { style } = utils
 
 function IconButton(size, icon, tooltip, dp) {
 	var iconStyle = {

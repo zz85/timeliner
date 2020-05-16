@@ -41,7 +41,7 @@ function ScrollBar(h, w, dispatcher) {
 
 	var scrolltrackHeight = h - 2;
 	scrolltrack.style.height = scrolltrackHeight + 'px';
-	scrolltrack.style.width = SCROLL_WIDTH + 'px';;
+	scrolltrack.style.width = SCROLL_WIDTH + 'px';
 
 	// var scrollTop = 0;
 	var scrollbar = document.createElement('div');

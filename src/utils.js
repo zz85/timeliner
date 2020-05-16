@@ -7,8 +7,8 @@ var STORAGE_PREFIX = 'timeliner-'
 /**************************/
 
 function firstDefined() {
-	for(var i = 0; i < arguments.length; i++) {
-		if(typeof arguments[i] !== 'undefined') {
+	for (var i = 0; i < arguments.length; i++) {
+		if (typeof arguments[i] !== 'undefined') {
 			return arguments[i];
 		}
 	}
@@ -270,7 +270,7 @@ function proxy_ctx(ctx) {
 		// string, number, boolean, function, object
 
 		var type = typeof(ctx[c]);
-		switch(type) {
+		switch (type) {
 		case 'object':
 			break;
 		case 'function':

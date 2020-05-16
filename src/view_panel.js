@@ -1,10 +1,10 @@
-import { LayoutConstants}  from './layout_constants.js'
-import { Theme}  from './theme.js'
-import { utils}  from './utils.js'
-import { Tweens}  from './util_tween.js'
-import { handleDrag}  from './util_handle_drag.js'
-import { ScrollCanvas}  from './view_time_scroller.js'
-import { Canvas}  from './ui_canvas.js'
+import { LayoutConstants }  from './layout_constants.js'
+import { Theme }  from './theme.js'
+import { utils }  from './utils.js'
+import { Tweens }  from './util_tween.js'
+import { handleDrag }  from './util_handle_drag.js'
+import { ScrollCanvas }  from './view_time_scroller.js'
+import { Canvas }  from './ui_canvas.js'
 
 const proxy_ctx  = utils.proxy_ctx;
 
@@ -548,7 +548,7 @@ function TimelinePanel(data, dispatcher) {
 	function onPointerMove(x, y) {
 		if (mousedownItem) return;
 		pointerdidMoved = true;
-		pointer = {x: x, y: y};
+		pointer = { x: x, y: y };
 	}
 
 	canvas.addEventListener('mouseout', function() {
