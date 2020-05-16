@@ -146,7 +146,6 @@ function DockingWindow(pane, ghostpane) {
 	}
 
 	function onMouseDown(e) {
-		console.log('mousedown')
 		onDown(e);
 	}
 
@@ -270,7 +269,6 @@ function DockingWindow(pane, ghostpane) {
 			}
 
 			if (preSnapped) {
-				console.log('presnapped')
 				setBounds(pane,
 					e.clientX - preSnapped.width / 2,
 					e.clientY - Math.min(pointerStart.y, preSnapped.height),

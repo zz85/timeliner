@@ -20,6 +20,7 @@ body {
 }
 </style>
 
+<button id="max">Maximize</button>
 <script type="module">
 
 import { DockingWindow } from '../src/utils/docking_window.js'
@@ -65,7 +66,9 @@ Object.assign(ghostpane.style, {
 document.body.appendChild(pane_title);
 document.body.appendChild(ghostpane);
 
-new DockingWindow(pane_title, ghostpane);
+var widget = new DockingWindow(pane_title, ghostpane);
+document.getElementById('max').onclick = () => widget.maximize();
+
 
 </script>
 </body>

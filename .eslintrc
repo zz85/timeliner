@@ -17,7 +17,6 @@
 		"no-unused-vars": "warn",
 		"no-undef": "error",
 		"no-trailing-spaces": "error",
-		"no-use-before-define": "error",
 		"indent": ["error", "tab"]
 	}
 }
