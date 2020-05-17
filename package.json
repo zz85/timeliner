@@ -4,8 +4,8 @@
   "description": "simple js animation timeline library",
   "main": "timeliner.js",
   "scripts": {
-    "build": "browserify src/timeliner.js --full-paths=false -t package-json-versionify -o timeliner.js",
-    "mini": "browserify src/timeliner.js -g uglifyify -t package-json-versionify  --full-paths=false -o timeliner.min.js",
+    "build": "rollup src/timeliner.js > build/timeliner.js",
+    "mini": "rollup -c rollup.config.js",
     "watch": "watchify src/timeliner.js --full-paths=false -t package-json-versionify --debug -o timeliner.js -v",
     "start": "npm run watch",
     "lint": "eslint src/",
@@ -33,8 +33,8 @@
   "homepage": "https://github.com/zz85/timeliner",
   "devDependencies": {
     "do.js": "^1.0.0",
-    "package-json-versionify": "^1.0.2",
-    "uglifyify": "^2.6.0"
+    "rollup": "^2.10.2",
+    "rollup-plugin-uglify": "^6.0.4"
   },
   "dependencies": {
     "eslint": "^7.0.0"
