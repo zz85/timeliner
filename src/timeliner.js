@@ -477,7 +477,7 @@ function Timeliner(target) {
 	// top_right_bar.appendChild(resize_small.dom);
 
 	// resize full
-	var resize_full = new IconButton(10, 'resize_full', 'Maximize', dispatcher);
+	var resize_full = new IconButton(10, 'resize_full', 'maximize', dispatcher);
 	style(resize_full.dom, button_styles, { marginRight: '2px' });
 	top_right_bar.appendChild(resize_full.dom);
 
@@ -764,7 +764,7 @@ function Timeliner(target) {
 	};
 
 	this.setTarget = function(t) {
-		timeline = t;
+		target = t;
 	};
 
 	function getValueRanges(ranges, interval) {
@@ -795,8 +795,17 @@ function Timeliner(target) {
 
 	this.getValues = getValueRanges;
 
-	var widget = new DockingWindow(pane_title, ghostpane)
+	/* Integrate pane into docking window */
+	var widget = new DockingWindow(pane, ghostpane)
 	widget.resizes.do(resize)
+
+	pane_title.addEventListener('mouseover', function() {
+		widget.allowMove(true);
+	});
+
+	pane_title.addEventListener('mouseout', function() {
+		widget.allowMove(false);
+	});
 }
 
 

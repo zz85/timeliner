@@ -3,7 +3,7 @@ import { Theme } from './theme.js'
 import { utils } from './utils.js'
 const { style } = utils
 
-function IconButton(size, icon, tooltip, dp) {
+function IconButton(size, icon, tooltip, dispatcher) {
 	var iconStyle = {
 		padding: '0.2em 0.4em',
 		margin: '0em',
@@ -52,7 +52,7 @@ function IconButton(size, icon, tooltip, dp) {
 		me.draw();
 	};
 
-	if (dp) dp.on('resize', this.resize);
+	if (dispatcher) dispatcher.on('resize', this.resize);
 
 	this.setSize = function(s) {
 		size = s;
@@ -130,7 +130,7 @@ function IconButton(size, icon, tooltip, dp) {
 		ctx.shadowOffsetY = 1 * dpr;
 		me.draw();
 
-		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
+		if (tooltip && dispatcher) dispatcher.fire('status', 'button: ' + tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {
