@@ -68,6 +68,23 @@ or
 1. Select time between 2 keyframes
 2. Select easing type from the dropdown
 
+### Development
+
+To test without compiling, open test_module.html in the browser.
+
+Format code
+
+```
+yarn run fix
+```
+
+Generate Build
+
+```
+yarn run mini
+```
+
+
 ## Releases
 
 1.5.0

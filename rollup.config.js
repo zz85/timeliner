@@ -1,17 +1,4 @@
-/*
-import commonjs from '@rollup/plugin-commonjs';
-
-export default {
-	input: 'src/timeliner.js',
-	output: {
-		dir: 'build',
-		format: 'cjs'
-	},
-	plugins: [commonjs()]
-};
-*/
-
-import { terser } from "rollup-plugin-terser";
+simport { terser } from "rollup-plugin-terser";
 
 export default {
 	input: 'src/timeliner.js',

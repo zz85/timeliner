@@ -6,6 +6,7 @@ const SNAP_TOP_EDGE = 'snap-top-edge' // or actually top half
 const SNAP_LEFT_EDGE = 'snap-left-edge'
 const SNAP_RIGHT_EDGE = 'snap-right-edge'
 const SNAP_BOTTOM_EDGE = 'snap-bottom-edge'
+const SNAP_DOCK_BOTTOM = 'dock-bottom'
 
 function setBounds(element, x, y, w, h) {
 	element.style.left = x + 'px';
@@ -108,29 +109,12 @@ function DockingWindow(pane, ghostpane) {
 
 	this.resizes = new Do();
 
-	window.addEventListener('resize', function() {
-		resizeEdges();
-	});
-
 	/* DOM Utils */
 	function hideGhostPane() {
 		// hide the hinter, animatating to the pane's bounds
 		setBounds(ghostpane, bounds.left, bounds.top, bounds.width, bounds.height);
 		ghostpane.style.opacity = 0;
 	}
-
-	setBounds(pane, 0, 0, LayoutConstants.width, LayoutConstants.height);
-	setBounds(ghostpane, 0, 0, LayoutConstants.width, LayoutConstants.height);
-
-	// Mouse events
-	pane.addEventListener('mousedown', onMouseDown);
-	document.addEventListener('mousemove', onMove);
-	document.addEventListener('mouseup', onMouseUp);
-
-	// Touch events
-	pane.addEventListener('touchstart', onTouchDown);
-	document.addEventListener('touchmove', onTouchMove);
-	document.addEventListener('touchend', onTouchEnd);
 
 	function onTouchDown(e) {
 		onDown(e.touches[0]);
@@ -304,8 +288,6 @@ function DockingWindow(pane, ghostpane) {
 
 	}
 
-	animate();
-
 	var self = this;
 
 	var snapBounds = {}
@@ -346,6 +328,11 @@ function DockingWindow(pane, ghostpane) {
 			left = 0
 			top = window.innerHeight - height
 			break;
+		case SNAP_DOCK_BOTTOM:
+			width = bounds.width
+			height = bounds.height
+			left = (window.innerWidth - width) * 0.5
+			top = window.innerHeight - height
 		}
 
 		Object.assign(snapBounds, { left, top, width, height });
@@ -385,6 +372,33 @@ function DockingWindow(pane, ghostpane) {
 
 		pointerStart = null;
 	}
+
+	function init() {
+		window.addEventListener('resize', function() {
+			resizeEdges();
+		});
+
+		setBounds(pane, 0, 0, LayoutConstants.width, LayoutConstants.height);
+		setBounds(ghostpane, 0, 0, LayoutConstants.width, LayoutConstants.height);
+
+		// Mouse events
+		pane.addEventListener('mousedown', onMouseDown);
+		document.addEventListener('mousemove', onMove);
+		document.addEventListener('mouseup', onMouseUp);
+
+		// Touch events
+		pane.addEventListener('touchstart', onTouchDown);
+		document.addEventListener('touchmove', onTouchMove);
+		document.addEventListener('touchend', onTouchEnd);
+
+		bounds = pane.getBoundingClientRect();
+		snapType = SNAP_DOCK_BOTTOM
+		resizeEdges();
+
+		animate();
+	}
+
+	init();
 }
 
 
