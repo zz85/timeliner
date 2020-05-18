@@ -1,10 +1,10 @@
-import { LayoutConstants }  from './layout_constants.js'
-import { Theme }  from './theme.js'
-import { utils }  from './utils.js'
-import { Tweens }  from './util_tween.js'
-import { handleDrag }  from './util_handle_drag.js'
+import { LayoutConstants }  from '../layout_constants.js'
+import { Theme }  from '../theme.js'
+import { utils }  from '../utils/utils.js'
+import { Tweens }  from '../utils/util_tween.js'
+import { handleDrag }  from '../utils/util_handle_drag.js'
 import { ScrollCanvas }  from './view_time_scroller.js'
-import { Canvas }  from './ui/ui_canvas.js'
+import { Canvas }  from '../ui/ui_canvas.js'
 
 const proxy_ctx  = utils.proxy_ctx;
 

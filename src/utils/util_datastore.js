@@ -1,7 +1,7 @@
 var package_json = { version: "test-version" };
 
-import { LayoutConstants } from './layout_constants.js'
-import { Do } from './utils/do.js'
+import { LayoutConstants } from '../layout_constants.js'
+import { Do } from './do.js'
 
 // Data Store with a source of truth
 function DataStore() {

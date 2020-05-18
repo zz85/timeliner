@@ -4,20 +4,20 @@
 
 const TIMELINER_VERSION = "2.0.0-dev";
 
-import { UndoManager, UndoState } from './util_undo.js'
-import { Dispatcher } from './util_dispatcher.js'
+import { UndoManager, UndoState } from './utils/util_undo.js'
+import { Dispatcher } from './utils/util_dispatcher.js'
 import { Theme } from './theme.js'
 import { LayoutConstants as Settings } from './layout_constants.js';
-import { utils } from './utils.js'
-import { LayerCabinet } from './view_layer_cabinet.js'
-import { TimelinePanel } from './view_panel.js'
+import { utils } from './utils/utils.js'
+import { LayerCabinet } from './views/view_layer_cabinet.js'
+import { TimelinePanel } from './views/view_panel.js'
 import { IconButton } from './ui/ui_icon_button.js'
 var style = utils.style
 var saveToFile = utils.saveToFile
 var openAs = utils.openAs
 var STORAGE_PREFIX = utils.STORAGE_PREFIX
 import { ScrollBar } from './ui/ui_scrollbar.js'
-import { DataStore } from './util_datastore.js'
+import { DataStore } from './utils/util_datastore.js'
 import { DockingWindow } from './utils/docking_window.js'
 
 var Z_INDEX = 999;
