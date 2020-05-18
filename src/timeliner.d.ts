@@ -8,7 +8,7 @@ export interface LayerProp {
 
 export class Timeliner {
     constructor(target: Object);
-    setTarget(target: Object);
+    setTarget(target: Object): void;
     openLocalSave(): void;
     save(): void;
     load(): void;

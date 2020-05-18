@@ -1,9 +1,9 @@
 import { LayoutConstants } from './layout_constants.js'
 import { LayerView } from './view_layer.js'
-import { IconButton } from './ui_icon_button.js'
+import { IconButton } from './ui/ui_icon_button.js'
 import { utils } from './utils.js'
 import { Theme } from './theme.js'
-import { UINumber } from './ui_number.js'
+import { UINumber } from './ui/ui_number.js'
 
 
 const { STORAGE_PREFIX, style } = utils

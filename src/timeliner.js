@@ -11,12 +11,12 @@ import { LayoutConstants as Settings } from './layout_constants.js';
 import { utils } from './utils.js'
 import { LayerCabinet } from './view_layer_cabinet.js'
 import { TimelinePanel } from './view_panel.js'
-import { IconButton } from './ui_icon_button.js'
+import { IconButton } from './ui/ui_icon_button.js'
 var style = utils.style
 var saveToFile = utils.saveToFile
 var openAs = utils.openAs
 var STORAGE_PREFIX = utils.STORAGE_PREFIX
-import { ScrollBar } from './ui_scrollbar.js'
+import { ScrollBar } from './ui/ui_scrollbar.js'
 import { DataStore } from './util_datastore.js'
 import { DockingWindow } from './utils/docking_window.js'
 
@@ -720,7 +720,6 @@ function Timeliner(target) {
 		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
 
 		scrollbar.setHeight(scrollable_height - 2);
-		// scrollbar.setThumb
 
 		style(scrollbar.dom, {
 			top: Settings.MARKER_TRACK_HEIGHT + 'px',

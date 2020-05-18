@@ -29,28 +29,24 @@ var target = {
 
 // initialize timeliner
 var timeliner = new Timeliner(target);
-// timeliner.addLayer('x');
-// timeliner.addLayer('y');
-// timeliner.addLayer('rotate');
-
-// var o = {"version":"1.2.0","modified":"Mon Dec 08 2014 10:41:11 GMT+0800 (SGT)","title":"Untitled", "layers": [{"name":"x","values":[],"tmpValue":0,"_color":"#10b00d"},{"name":"y","values":[{"time":0,"value":-1.2999770000000004,"_color":"#4a2392","tween":"quadEaseIn"},{"time":3.3,"value":-1.1999850000000003,"_color":"#cddfd8"}],"tmpValue":-1.2999770000000004,"_color":"#344260"},{"name":"rotate","values":[{"time":0,"value":4.200005,"_color":"#ec9bb5","tween":"quadEaseInOut"},{"time":2.1,"value":28.000009,"_color":"#ac8e14","tween":"quadEaseIn"},{"time":5,"value":50.400018,"_color":"#5c659"}],"tmpValue":50.400018,"_color":"#1fa995"}]};
-// timeliner.load(o);
-
+timeliner.addLayer('x');
+timeliner.addLayer('y');
+timeliner.addLayer('rotate');
 
 timeliner.load({"version":"1.2.0","modified":"Mon Dec 08 2014 10:41:11 GMT+0800 (SGT)","title":"Untitled","layers":[{"name":"x","values":[{"time":0.1,"value":0,"_color":"#893c0f","tween":"quadEaseIn"},{"time":3,"value":3.500023,"_color":"#b074a0"}],"tmpValue":3.500023,"_color":"#6ee167"},{"name":"y","values":[{"time":0.1,"value":0,"_color":"#abac31","tween":"quadEaseOut"},{"time":0.5,"value":-1.000001,"_color":"#355ce8","tween":"quadEaseIn"},{"time":1.1,"value":0,"_color":"#47e90","tween":"quadEaseOut"},{"time":1.7,"value":-0.5,"_color":"#f76bca","tween":"quadEaseOut"},{"time":2.3,"value":0,"_color":"#d59cfd"}],"tmpValue":-0.5,"_color":"#8bd589"},{"name":"rotate","values":[{"time":0.1,"value":-25.700014000000003,"_color":"#f50ae9","tween":"quadEaseInOut"},{"time":2.8,"value":0,"_color":"#2e3712"}],"tmpValue":-25.700014000000003,"_color":"#2d9f57"}]});
 
-// timeliner.load({"version":"1.3.0","modified":"Tue Dec 16 2014 10:27:28 GMT+0800 (SGT)","title":"Untitled","layers":[{"name":"a","values":[],"_value":0,"_color":"#9ab426"}],"name":"simple"});
-
-var w2 = window.innerWidth / 2;
-var h2 = window.innerHeight / 2;
 
 function animate() {
 	requestAnimationFrame(animate);
+
+	var w2 = window.innerWidth / 2;
+	var h2 = window.innerHeight / 2;
 
 	box.style.transform = 'translateX(' +  (target.x * 100 + w2) + 'px) translateY(' + (target.y * 100 + h2) + 'px) rotate(' + target.rotate * 50 + 'deg)';
 }
 
 animate();
+
 
 </script>
 </body>

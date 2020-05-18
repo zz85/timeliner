@@ -1,7 +1,7 @@
-import { Theme } from './theme.js'
-import { Do } from './utils/do.js'
-import { handleDrag } from './util_handle_drag.js'
-import { utils } from './utils.js'
+import { Theme } from '../theme.js'
+import { Do } from '../utils/do.js'
+import { handleDrag } from '../util_handle_drag.js'
+import { utils } from '../utils.js'
 const { firstDefined, style } = utils
 	;
 

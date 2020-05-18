@@ -1,5 +1,5 @@
-import { Do } from './utils/do.js'
-import { utils } from './utils.js'
+import { Do } from '../utils/do.js'
+import { utils } from '../utils.js'
 
 // ********** class: ScrollBar ****************** //
 /*

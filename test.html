@@ -42,11 +42,11 @@ timeliner.load({"version":"1.2.0","modified":"Mon Dec 08 2014 10:41:11 GMT+0800 
 
 // timeliner.load({"version":"1.3.0","modified":"Tue Dec 16 2014 10:27:28 GMT+0800 (SGT)","title":"Untitled","layers":[{"name":"a","values":[],"_value":0,"_color":"#9ab426"}],"name":"simple"});
 
-var w2 = window.innerWidth / 2;
-var h2 = window.innerHeight / 2;
-
 function animate() {
 	requestAnimationFrame(animate);
+
+	var w2 = window.innerWidth / 2;
+	var h2 = window.innerHeight / 2;
 
 	box.style.transform = 'translateX(' +  (target.x * 100 + w2) + 'px) translateY(' + (target.y * 100 + h2) + 'px) rotate(' + target.rotate * 50 + 'deg)';
 }

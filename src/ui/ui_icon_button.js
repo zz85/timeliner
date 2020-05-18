@@ -1,6 +1,6 @@
-import { font } from './font.js'
-import { Theme } from './theme.js'
-import { utils } from './utils.js'
+import { font } from '../font.js'
+import { Theme } from '../theme.js'
+import { utils } from '../utils.js'
 const { style } = utils
 
 function IconButton(size, icon, tooltip, dispatcher) {

@@ -38,6 +38,12 @@ Include the timeliner.js file.
 <script src="timeliner.js"></script>
 ```
 
+or import via ES modules
+
+```js
+import { Timeliner } from './build/timeliner.min.js'
+```
+
 Load data by code, file upload or loading from saved localStorage.
 
 ```js
@@ -86,6 +92,9 @@ yarn run mini
 
 
 ## Releases
+
+2.0.0
+- Refactored using ES modules
 
 1.5.0
 - Fix package.json dependencies

@@ -1,4 +1,4 @@
-import { handleDrag } from './util_handle_drag.js';
+import { handleDrag } from '../util_handle_drag.js';
 
 function Canvas(w, h) {
 

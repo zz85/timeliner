@@ -1,5 +1,5 @@
 import { Theme } from './theme.js'
-import { UINumber } from './ui_number.js'
+import { UINumber } from './ui/ui_number.js'
 import { Tweens } from './util_tween.js'
 import { LayoutConstants } from './layout_constants.js'
 import { utils } from './utils.js'
