@@ -3,8 +3,8 @@ import { Theme }  from '../theme.js'
 import { utils }  from '../utils/utils.js'
 import { Tweens }  from '../utils/util_tween.js'
 import { handleDrag }  from '../utils/util_handle_drag.js'
-import { ScrollCanvas }  from './view_time_scroller.js'
-import { Canvas }  from '../ui/ui_canvas.js'
+import { ScrollCanvas }  from './time_scroller.js'
+import { Canvas }  from '../ui/canvas.js'
 
 const proxy_ctx  = utils.proxy_ctx;
 
@@ -98,7 +98,6 @@ function TimelinePanel(data, dispatcher) {
 	});
 
 	scroll_canvas.uses(new ScrollCanvas(dispatcher, data));
-
 
 	div.appendChild(canvas);
 	div.appendChild(scroll_canvas.dom);

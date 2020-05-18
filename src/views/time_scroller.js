@@ -3,6 +3,8 @@ import { utils } from '../utils/utils.js'
 const proxy_ctx = utils.proxy_ctx;
 import { handleDrag } from '../utils/util_handle_drag.js'
 
+/* This is the top bar where it shows a horizontal scrolls as well as a custom view port */
+
 function Rect() {
 
 }
@@ -64,6 +66,8 @@ function ScrollCanvas(dispatcher, data) {
 		var pixels_per_second = data.get('ui:timeScale').value;
 
 		ctx.save();
+		var dpr = window.devicePixelRatio;
+		ctx.scale(dpr, dpr);
 
 		var w = width - 2 * MARGINS;
 		var h = 16; // TOP_SCROLL_TRACK;
@@ -134,6 +138,8 @@ function ScrollCanvas(dispatcher, data) {
 
 		// data.get('ui:currentTime').value = t;
 		dispatcher.fire('time.update', t);
+
+		e.preventDefault();
 
 	};
 

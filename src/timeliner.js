@@ -9,14 +9,14 @@ import { Dispatcher } from './utils/util_dispatcher.js'
 import { Theme } from './theme.js'
 import { LayoutConstants as Settings } from './layout_constants.js';
 import { utils } from './utils/utils.js'
-import { LayerCabinet } from './views/view_layer_cabinet.js'
-import { TimelinePanel } from './views/view_panel.js'
-import { IconButton } from './ui/ui_icon_button.js'
+import { LayerCabinet } from './views/layer_cabinet.js'
+import { TimelinePanel } from './views/panel.js'
+import { IconButton } from './ui/icon_button.js'
 var style = utils.style
 var saveToFile = utils.saveToFile
 var openAs = utils.openAs
 var STORAGE_PREFIX = utils.STORAGE_PREFIX
-import { ScrollBar } from './ui/ui_scrollbar.js'
+import { ScrollBar } from './ui/scrollbar.js'
 import { DataStore } from './utils/util_datastore.js'
 import { DockingWindow } from './utils/docking_window.js'
 
