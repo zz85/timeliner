@@ -59,7 +59,7 @@ time_scaled();
 function TimelinePanel(data, dispatcher) {
 
 	var dpr = window.devicePixelRatio;
-	var canvas = document.createElement('canvas');
+	var track_canvas = document.createElement('canvas');
 
 	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
 	var layers = data.get('layers').value;
@@ -72,10 +72,10 @@ function TimelinePanel(data, dispatcher) {
 	this.resize = function() {
 		var h = (LayoutConstants.height - TIME_SCROLLER_HEIGHT);
 		dpr = window.devicePixelRatio;
-		canvas.width = LayoutConstants.width * dpr;
-		canvas.height = h * dpr;
-		canvas.style.width = LayoutConstants.width + 'px';
-		canvas.style.height = h + 'px';
+		track_canvas.width = LayoutConstants.width * dpr;
+		track_canvas.height = h * dpr;
+		track_canvas.style.width = LayoutConstants.width + 'px';
+		track_canvas.style.height = h + 'px';
 		SCROLL_HEIGHT = LayoutConstants.height - TIME_SCROLLER_HEIGHT;
 		scroll_canvas.setSize(LayoutConstants.width, TIME_SCROLLER_HEIGHT);
 	};
@@ -85,7 +85,7 @@ function TimelinePanel(data, dispatcher) {
 	var scroll_canvas = new Canvas(LayoutConstants.width, TIME_SCROLLER_HEIGHT);
 	// data.addListener('ui', repaint );
 
-	utils.style(canvas, {
+	utils.style(track_canvas, {
 		position: 'absolute',
 		top: TIME_SCROLLER_HEIGHT + 'px',
 		left: '0px'
@@ -99,14 +99,17 @@ function TimelinePanel(data, dispatcher) {
 
 	scroll_canvas.uses(new ScrollCanvas(dispatcher, data));
 
-	div.appendChild(canvas);
+	div.appendChild(track_canvas);
 	div.appendChild(scroll_canvas.dom);
+	scroll_canvas.dom.id = 'scroll-canvas'
+	track_canvas.id = 'track-canvas'
 
 	// this.dom = canvas;
 	this.dom = div;
+	this.dom.id = 'timeline-panel'
 	this.resize();
 
-	var ctx = canvas.getContext('2d');
+	var ctx = track_canvas.getContext('2d');
 	var ctx_wrap = proxy_ctx(ctx);
 
 	var currentTime; // measured in seconds
@@ -134,11 +137,11 @@ function TimelinePanel(data, dispatcher) {
 		};
 
 		this.mouseover = function() {
-			canvas.style.cursor = 'pointer'; // pointer move ew-resize
+			track_canvas.style.cursor = 'pointer'; // pointer move ew-resize
 		};
 
 		this.mouseout = function() {
-			canvas.style.cursor = 'default';
+			track_canvas.style.cursor = 'default';
 		};
 
 		this.mousedrag = function(e) {
@@ -188,13 +191,13 @@ function TimelinePanel(data, dispatcher) {
 
 		this.mouseover = function() {
 			isOver = true;
-			canvas.style.cursor = 'move'; // pointer move ew-resize
+			track_canvas.style.cursor = 'move'; // pointer move ew-resize
 			self.paint(ctx_wrap);
 		};
 
 		this.mouseout = function() {
 			isOver = false;
-			canvas.style.cursor = 'default';
+			track_canvas.style.cursor = 'default';
 			self.paint(ctx_wrap);
 		};
 
@@ -370,7 +373,7 @@ function TimelinePanel(data, dispatcher) {
 		// background
 
 		ctx.fillStyle = Theme.a;
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, track_canvas.width, track_canvas.height);
 		ctx.save();
 		ctx.scale(dpr, dpr);
 
@@ -522,8 +525,8 @@ function TimelinePanel(data, dispatcher) {
 
 	document.addEventListener('mousemove', onMouseMove);
 
-	canvas.addEventListener('dblclick', function(e) {
-		canvasBounds = canvas.getBoundingClientRect();
+	track_canvas.addEventListener('dblclick', function(e) {
+		canvasBounds = track_canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 
 
@@ -536,7 +539,7 @@ function TimelinePanel(data, dispatcher) {
 	});
 
 	function onMouseMove(e) {
-		canvasBounds = canvas.getBoundingClientRect();
+		canvasBounds = track_canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 		onPointerMove(mx, my);
 	}
@@ -550,12 +553,12 @@ function TimelinePanel(data, dispatcher) {
 		pointer = { x: x, y: y };
 	}
 
-	canvas.addEventListener('mouseout', function() {
+	track_canvas.addEventListener('mouseout', function() {
 		pointer = null;
 	});
 
 	var mousedown2 = false, mouseDownThenMove = false;
-	handleDrag(canvas, function down(e) {
+	handleDrag(track_canvas, function down(e) {
 		mousedown2 = true;
 		pointer = {
 			x: e.offsetx,

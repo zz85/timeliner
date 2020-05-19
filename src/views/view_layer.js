@@ -65,12 +65,13 @@ function LayerView(layer, dispatcher) {
 			padding: '1px',
 			borderSize: '2px',
 			outline: 'none',
-			background: '#fff'
+			background: Theme.a,
+			color: Theme.c,
 		});
 
 		this.pressed = false;
 
-		button.onclick = function() {
+		button.onclick = () => {
 			this.pressed = !this.pressed;
 
 			utils.style(button, {
@@ -78,7 +79,7 @@ function LayerView(layer, dispatcher) {
 			})
 
 			if (this.onClick) this.onClick();
-		}.bind(this);
+		};
 
 		this.dom = button;
 
@@ -100,7 +101,6 @@ function LayerView(layer, dispatcher) {
 		dispatcher.fire('action:mute', layer, mute_toggle.pressed);
 	}
 
-
 	var number = new UINumber(layer, dispatcher);
 
 	number.onChange.do(function(value, done) {
@@ -116,7 +116,6 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(keyframe_button);
 	dom.appendChild(number.dom);
 	dom.appendChild(dropdown);
-
 
 	utils.style(dom, {
 		textAlign: 'left',

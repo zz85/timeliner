@@ -199,6 +199,7 @@ function Timeliner(target) {
 		// timeline.repaint();
 	});
 
+	/* update scroll viewport */
 	dispatcher.on('update.scrollTime', function(v) {
 		v = Math.max(0, v);
 		data.get('ui:scrollTime').value = v;
@@ -796,6 +797,7 @@ function Timeliner(target) {
 
 	/* Integrate pane into docking window */
 	var widget = new DockingWindow(pane, ghostpane)
+	widget.allowMove(false);
 	widget.resizes.do(resize)
 
 	pane_title.addEventListener('mouseover', function() {

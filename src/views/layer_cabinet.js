@@ -28,6 +28,8 @@ function LayerCabinet(data, dispatcher) {
 		overflow: 'hidden'
 	});
 
+	layer_scroll.id = 'layer_scroll'
+
 	div.appendChild(layer_scroll);
 
 	var playing = false;
