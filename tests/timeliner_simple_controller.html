@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	</head>
+	<body>
+		<script type="module">
+
+        import { Timeliner } from '../src/timeliner.js'
+
+        class Track {
+            constructor(name) {
+                this.name = name;
+                this.times = []
+                this.values = [];
+            }
+        }
+
+        class SimpleController {
+            constructor() {
+                this.tracks = [];
+            }
+
+            init() {
+                console.trace('init')
+
+                this.tracks.push(new Track('layer 1'))
+                this.tracks.push(new Track('layer 2'))
+                this.tracks.push(new Track('layer 3'))
+            }
+
+            setDisplayTime( time ) {
+                console.log('setDisplayTime', ...arguments)
+
+            }
+
+            setDuration( duration ) {
+
+            }
+
+            getChannelNames() {
+                console.log('getChannelNames', ...arguments)
+                return this.tracks.map(v => v.name);
+            }
+
+            _getChannel(channelName) {
+                return this.tracks.find(v => v.name === channelName)
+            }
+
+            getChannelKeyTimes( channelName ) {
+                console.log('getChannelKeyTimes', ...arguments)
+                return this._getChannel(channelName).times
+            }
+
+            setKeyframe( channelName, time ) {
+                console.trace('setKeyframe', ...arguments)
+
+                this.getChannelKeyTimes(channelName).push(time)
+            }
+
+            delKeyframe( channelName, time ) {
+                console.trace('delKeyframe', ...arguments)
+                var times = this.getChannelKeyTimes(channelName)
+                times.splice(times.indexOf(time), 1);
+            }
+
+            moveKeyframe( channelName, time, delta, moveRemaining ) {
+                console.trace('moveKeyframe', ...arguments)
+                var channel = this._getChannel(channelName);
+                var times = channel.times;
+
+                if (moveRemaining) {
+                    channel.times = times.map(oldtime => {
+                        time >= oldtime ? time + delta : time
+                    })
+                } else {
+                    times.splice(times.indexOf(time), 1, time + delta);
+                }
+            }
+
+            serialize() {
+                console.trace('serialize', ...arguments)
+            }
+
+            deserialize( structs ) {   
+                console.trace('deserialize', ...arguments)
+            }
+
+        }
+
+        window.controller = new SimpleController( )
+        var timeliner = new Timeliner( controller );
+
+
+		</script>
+
+	</body>
+</html>
