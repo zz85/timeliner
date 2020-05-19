@@ -15,11 +15,11 @@ function LayerView(layer, dispatcher) {
 	label.style.cssText = 'font-size: 12px; padding: 4px;';
 
 	label.addEventListener('click', function(e) {
-		context.dispatcher.fire('label', channelName);
+		// context.dispatcher.fire('label', channelName);
 	});
 
 	label.addEventListener('mouseover', function(e) {
-		context.dispatcher.fire('label', channelName);
+		// context.dispatcher.fire('label', channelName);
 	});
 
 	var dropdown = document.createElement('select');

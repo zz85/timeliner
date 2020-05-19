@@ -13,8 +13,6 @@ function setBounds(element, x, y, w, h) {
 	element.style.top = y + 'px';
 	element.style.width = w + 'px';
 	element.style.height = h + 'px';
-
-	//FIXME element === pane resize(w, h);
 }
 
 /*
@@ -392,8 +390,11 @@ function DockingWindow(pane, ghostpane) {
 		document.addEventListener('touchend', onTouchEnd);
 
 		bounds = pane.getBoundingClientRect();
-		snapType = SNAP_DOCK_BOTTOM
-		resizeEdges();
+		snapType = SNAP_DOCK_BOTTOM;
+
+		// use setTimeout as a hack to get diemensions correctly! :(
+		setTimeout(() => resizeEdges());
+		hideGhostPane();
 
 		animate();
 	}
