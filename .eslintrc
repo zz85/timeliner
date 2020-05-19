@@ -1,11 +1,25 @@
 {
-    "env": {
-        "browser": true,
-        "node": true
+	"env": {
+		"browser": true,
+		"node": true,
+		"es6": true
+	},
+	"extends": "eslint:recommended",
+	"parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
     },
-    "rules": {
-        "no-unused-expressions": "error",
+	"rules": {
+		"no-unused-expressions": "error",
 		"no-nested-ternary": "error",
-		"no-unreachable": "error"
-    }
+		"no-unreachable": "error",
+		"no-dupe-keys": "error",
+		"no-redeclare": "warn",
+		"no-unused-vars": "warn",
+		"no-undef": "error",
+		"no-trailing-spaces": "error",
+		"indent": ["error", "tab"],
+		"keyword-spacing": "error",
+		"object-curly-spacing": ["error", "always"]
+	}
 }

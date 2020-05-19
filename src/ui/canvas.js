@@ -1,4 +1,4 @@
-var handleDrag = require('./util_handle_drag');
+import { handleDrag } from '../utils/util_handle_drag.js';
 
 function Canvas(w, h) {
 
@@ -65,13 +65,13 @@ function Canvas(w, h) {
 
 	handleDrag(canvas,
 		function down(e) {
-			if (child.onDown) { child.onDown(e) };
+			if (child.onDown) { child.onDown(e) }
 		},
 		function move(e) {
-			if (child.onMove) { child.onMove(e) };
+			if (child.onMove) { child.onMove(e) }
 		},
 		function up(e) {
-			if (child.onUp) { child.onUp(e) };
+			if (child.onUp) { child.onUp(e) }
 		}
 		// function hit(e) {
 		// 	if (child.onHit) { child.onHit(e) };
@@ -80,7 +80,7 @@ function Canvas(w, h) {
 }
 
 
-module.exports = Canvas;
+export { Canvas }
 
 /*
  * Usage: canvas = new Canvas(width, height);
@@ -96,5 +96,5 @@ module.exports = Canvas;
 // allow Drag
 // allow Click
 // mouseOver
-// 
+//
 

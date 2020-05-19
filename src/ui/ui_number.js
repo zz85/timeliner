@@ -1,15 +1,14 @@
-var Theme = require('./theme'),
-	Do = require('do.js'),
-	handleDrag = require('./util_handle_drag'),
-	style = require('./utils').style,
-	firstDefined = require('./utils').firstDefined
-	;
+import { Theme } from '../theme.js'
+import { Do } from '../utils/do.js'
+import { handleDrag } from '../utils/util_handle_drag.js'
+import { utils } from '../utils/utils.js'
+const { firstDefined, style } = utils;
 
 /**************************/
-// NumberUI
+// UINumber
 /**************************/
 
-function NumberUI(config) {
+function UINumber(config) {
 	config = config || {};
 	var min = config.min === undefined ? -Infinity : config.min;
 
@@ -31,7 +30,7 @@ function NumberUI(config) {
 
 	var span = document.createElement('input');
 	// span.type = 'number'; // spinner
-	
+
 	style(span, {
 		textAlign: 'center',
 		fontSize: '10px',
@@ -73,7 +72,7 @@ function NumberUI(config) {
 		// Disregard pixel/line/page scrolling and just
 		// use event direction.
 		var inc = e.deltaY > 0? 1 : -1;
-		if(e.altKey) {
+		if (e.altKey) {
 			inc *= wheelStepFine;
 		} else {
 			inc *= wheelStep;
@@ -99,7 +98,7 @@ function NumberUI(config) {
 	function onMove(e) {
 		var dx = e.dx;
 		var dy = e.dy;
-	
+
 		value = unchanged_value + (dx * xstep) + (dy * -ystep);
 
 		value = clamp(value);
@@ -131,4 +130,4 @@ function NumberUI(config) {
 	};
 }
 
-module.exports = NumberUI;
+export { UINumber }

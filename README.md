@@ -38,6 +38,12 @@ Include the timeliner.js file.
 <script src="timeliner.js"></script>
 ```
 
+or import via ES modules
+
+```js
+import { Timeliner } from './build/timeliner.min.js'
+```
+
 Load data by code, file upload or loading from saved localStorage.
 
 ```js
@@ -68,7 +74,27 @@ or
 1. Select time between 2 keyframes
 2. Select easing type from the dropdown
 
+### Development
+
+To test without compiling, open test_module.html in the browser.
+
+Format code
+
+```
+yarn run fix
+```
+
+Generate Build
+
+```
+yarn run mini
+```
+
+
 ## Releases
+
+2.0.0
+- Refactored using ES modules
 
 1.5.0
 - Fix package.json dependencies

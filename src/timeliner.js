@@ -2,24 +2,23 @@
  * @author Joshua Koo http://joshuakoo.com
  */
 
-var undo = require('./util_undo'),
-	Dispatcher = require('./util_dispatcher'),
-	Theme = require('./theme'),
-	UndoManager = undo.UndoManager,
-	UndoState = undo.UndoState,
-	Settings = require('./settings'),
-	utils = require('./utils'),
-	LayerCabinet = require('./view_layer_cabinet'),
-	TimelinePanel = require('./view_panel'),
-	package_json = require('../package.json'),
-	IconButton = require('./ui_icon_button'),
-	style = utils.style,
-	saveToFile = utils.saveToFile,
-	openAs = utils.openAs,
-	STORAGE_PREFIX = utils.STORAGE_PREFIX,
-	ScrollBar = require('./ui_scrollbar'),
-	DataStore = require('./util_datastore')
-	;
+const TIMELINER_VERSION = "2.0.0-dev";
+
+import { UndoManager, UndoState } from './utils/util_undo.js'
+import { Dispatcher } from './utils/util_dispatcher.js'
+import { Theme } from './theme.js'
+import { LayoutConstants as Settings } from './layout_constants.js';
+import { utils } from './utils/utils.js'
+import { LayerCabinet } from './views/layer_cabinet.js'
+import { TimelinePanel } from './views/panel.js'
+import { IconButton } from './ui/icon_button.js'
+var style = utils.style
+var saveToFile = utils.saveToFile
+var openAs = utils.openAs
+var STORAGE_PREFIX = utils.STORAGE_PREFIX
+import { ScrollBar } from './ui/scrollbar.js'
+import { DataStore } from './utils/util_datastore.js'
+import { DockingWindow } from './utils/docking_window.js'
 
 var Z_INDEX = 999;
 
@@ -194,6 +193,13 @@ function Timeliner(target) {
 	var currentTimeStore = data.get('ui:currentTime');
 	dispatcher.on('time.update', setCurrentTime);
 
+	dispatcher.on('totalTime.update', function(value) {
+		// context.totalTime = value;
+		// controller.setDuration(value);
+		// timeline.repaint();
+	});
+
+	/* update scroll viewport */
 	dispatcher.on('update.scrollTime', function(v) {
 		v = Math.max(0, v);
 		data.get('ui:scrollTime').value = v;
@@ -255,8 +261,8 @@ function Timeliner(target) {
 		}
 
 		if (needsResize) {
-			div.style.width = width + 'px';
-			div.style.height = height + 'px';
+			div.style.width = Settings.width + 'px';
+			div.style.height = Settings.height + 'px';
 
 			restyle(layer_panel.dom, timeline.dom);
 
@@ -407,8 +413,12 @@ function Timeliner(target) {
 	*/
 
 	var div = document.createElement('div');
-	div.style.cssText = 'position: absolute;';
-	div.style.top = '22px';
+	style(div, {
+		textAlign: 'left',
+		lineHeight: '1em',
+		position: 'absolute',
+		top: '22px'
+	});
 
 	var pane = document.createElement('div');
 
@@ -453,7 +463,7 @@ function Timeliner(target) {
 	var title_bar = document.createElement('span');
 	pane_title.appendChild(title_bar);
 
-	title_bar.innerHTML = 'Timeliner ' + package_json.version;
+	title_bar.innerHTML = 'Timeliner ' + TIMELINER_VERSION;
 	pane_title.appendChild(title_bar);
 
 	var top_right_bar = document.createElement('div');
@@ -600,7 +610,7 @@ function Timeliner(target) {
 		zIndex: (Z_INDEX - 1),
 		// transition: 'all 0.25s ease-in-out',
 		transitionProperty: 'top, left, width, height, opacity',
- 		transitionDuration: '0.25s',
+		transitionDuration: '0.25s',
 		transitionTimingFunction: 'ease-in-out'
 	});
 
@@ -631,11 +641,11 @@ function Timeliner(target) {
 
 	// percentages
 	scrollbar.onScroll.do(function(type, scrollTo) {
-		switch(type) {
-			case 'scrollto':
-				layer_panel.scrollTo(scrollTo);
-				timeline.scrollTo(scrollTo);
-				break;
+		switch (type) {
+		case 'scrollto':
+			layer_panel.scrollTo(scrollTo);
+			timeline.scrollTo(scrollTo);
+			break;
 	//		case 'pageup':
 	// 			scrollTop -= pageOffset;
 	// 			me.draw();
@@ -711,7 +721,6 @@ function Timeliner(target) {
 		var scrollable_height = Settings.TIMELINE_SCROLL_HEIGHT;
 
 		scrollbar.setHeight(scrollable_height - 2);
-		// scrollbar.setThumb
 
 		style(scrollbar.dom, {
 			top: Settings.MARKER_TRACK_HEIGHT + 'px',
@@ -746,8 +755,16 @@ function Timeliner(target) {
 
 	this.addLayer = addLayer;
 
+	this.dispose = function dispose() {
+
+		var domParent = pane.parentElement;
+		domParent.removeChild(pane);
+		domParent.removeChild(ghostpane);
+
+	};
+
 	this.setTarget = function(t) {
-		timeline = t;
+		target = t;
 	};
 
 	function getValueRanges(ranges, interval) {
@@ -778,358 +795,21 @@ function Timeliner(target) {
 
 	this.getValues = getValueRanges;
 
-	(function DockingWindow() {
-		"use strict";
-
-		// Minimum resizable area
-		var minWidth = 100;
-		var minHeight = 80;
-
-		// Thresholds
-		var FULLSCREEN_MARGINS = 2;
-		var SNAP_MARGINS = 8;
-		var MARGINS = 2;
-
-		// End of what's configurable.
-
-		var clicked = null;
-		var onRightEdge, onBottomEdge, onLeftEdge, onTopEdge;
-
-		var preSnapped;
-
-		var b, x, y;
-
-		var redraw = false;
-
-		// var pane = document.getElementById('pane');
-		// var ghostpane = document.getElementById('ghostpane');
-
-		var mouseOnTitle = false;
-		var snapType;
-
-		pane_title.addEventListener('mouseover', function() {
-			mouseOnTitle = true;
-		});
-
-		pane_title.addEventListener('mouseout', function() {
-			mouseOnTitle = false;
-		});
-
-		resize_full.onClick(function() {
-			// TOOD toggle back to restored size
-			if (!preSnapped) preSnapped = {
-				width: b.width,
-				height: b.height
-			};
-
-			snapType = 'full-screen';
-			resizeEdges();
-		});
-
-		// pane_status.addEventListener('mouseover', function() {
-		// 	mouseOnTitle = true;
-		// });
-
-		// pane_status.addEventListener('mouseout', function() {
-		// 	mouseOnTitle = false;
-		// });
-
-		window.addEventListener('resize', function() {
-			if (snapType)
-				resizeEdges();
-			else
-				needsResize = true;
-		});
-
-		// utils
-		function setBounds(element, x, y, w, h) {
-			element.style.left = x + 'px';
-			element.style.top = y + 'px';
-			element.style.width = w + 'px';
-			element.style.height = h + 'px';
-
-			if (element === pane) {
-				resize(w, h);
-			}
-		}
-
-		function hintHide() {
-			setBounds(ghostpane, b.left, b.top, b.width, b.height);
-			ghostpane.style.opacity = 0;
-		}
-
-		setBounds(pane, 0, 0, Settings.width, Settings.height);
-		setBounds(ghostpane, 0, 0, Settings.width, Settings.height);
-
-		// Mouse events
-		pane.addEventListener('mousedown', onMouseDown);
-		document.addEventListener('mousemove', onMove);
-		document.addEventListener('mouseup', onUp);
-
-		// Touch events
-		pane.addEventListener('touchstart', onTouchDown);
-		document.addEventListener('touchmove', onTouchMove);
-		document.addEventListener('touchend', onTouchEnd);
-
-
-		function onTouchDown(e) {
-			onDown(e.touches[0]);
-			e.preventDefault();
-		}
-
-		function onTouchMove(e) {
-			onMove(e.touches[0]);
-		}
-
-		function onTouchEnd(e) {
-			if (e.touches.length == 0) onUp(e.changedTouches[0]);
-		}
-
-		function onMouseDown(e) {
-			onDown(e);
-		}
-
-		function onDown(e) {
-			calc(e);
-
-			var isResizing = onRightEdge || onBottomEdge || onTopEdge || onLeftEdge;
-			var isMoving = !isResizing && canMove();
-
-			clicked = {
-				x: x,
-				y: y,
-				cx: e.clientX,
-				cy: e.clientY,
-				w: b.width,
-				h: b.height,
-				isResizing: isResizing,
-				isMoving: isMoving,
-				onTopEdge: onTopEdge,
-				onLeftEdge: onLeftEdge,
-				onRightEdge: onRightEdge,
-				onBottomEdge: onBottomEdge
-			};
-
-			if (isResizing || isMoving) {
-				e.preventDefault();
-				e.stopPropagation();
-			}
-		}
-
-		function canMove() {
-			return mouseOnTitle;
-			// return x > 0 && x < b.width && y > 0 && y < b.height
-			// && y < 18;
-		}
-
-		function calc(e) {
-			b = pane.getBoundingClientRect();
-			x = e.clientX - b.left;
-			y = e.clientY - b.top;
-
-			onTopEdge = y < MARGINS;
-			onLeftEdge = x < MARGINS;
-			onRightEdge = x >= b.width - MARGINS;
-			onBottomEdge = y >= b.height - MARGINS;
-		}
-
-		var e; // current mousemove event
-
-		function onMove(ee) {
-			e = ee;
-			calc(e);
-
-			redraw = true;
-		}
-
-		function animate() {
-
-			requestAnimationFrame(animate);
-
-			if (!redraw) return;
-
-			redraw = false;
-
-			if (clicked && clicked.isResizing) {
-
-				if (clicked.onRightEdge) pane.style.width = Math.max(x, minWidth) + 'px';
-				if (clicked.onBottomEdge) pane.style.height = Math.max(y, minHeight) + 'px';
-
-				if (clicked.onLeftEdge) {
-					var currentWidth = Math.max(clicked.cx - e.clientX  + clicked.w, minWidth);
-					if (currentWidth > minWidth) {
-						pane.style.width = currentWidth + 'px';
-						pane.style.left = e.clientX + 'px';
-					}
-				}
-
-				if (clicked.onTopEdge) {
-					var currentHeight = Math.max(clicked.cy - e.clientY  + clicked.h, minHeight);
-					if (currentHeight > minHeight) {
-						pane.style.height = currentHeight + 'px';
-						pane.style.top = e.clientY + 'px';
-					}
-				}
-
-				hintHide();
-
-				resize(b.width, b.height);
-
-				return;
-			}
-
-			if (clicked && clicked.isMoving) {
-
-				switch(checks()) {
-					case 'full-screen':
-						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-top-edge':
-						setBounds(ghostpane, 0, 0, window.innerWidth, window.innerHeight / 2);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-left-edge':
-						setBounds(ghostpane, 0, 0, window.innerWidth / 2, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-right-edge':
-						setBounds(ghostpane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-						ghostpane.style.opacity = 0.2;
-						break;
-					case 'snap-bottom-edge':
-						setBounds(ghostpane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
-						ghostpane.style.opacity = 0.2;
-						break;
-					default:
-						hintHide();
-				}
-
-				if (preSnapped) {
-					setBounds(pane,
-						e.clientX - preSnapped.width / 2,
-						e.clientY - Math.min(clicked.y, preSnapped.height),
-						preSnapped.width,
-						preSnapped.height
-					);
-					return;
-				}
-
-				// moving
-				pane.style.top = (e.clientY - clicked.y) + 'px';
-				pane.style.left = (e.clientX - clicked.x) + 'px';
-
-				return;
-			}
-
-			// This code executes when mouse moves without clicking
-
-			// style cursor
-			if (onRightEdge && onBottomEdge || onLeftEdge && onTopEdge) {
-				pane.style.cursor = 'nwse-resize';
-			} else if (onRightEdge && onTopEdge || onBottomEdge && onLeftEdge) {
-				pane.style.cursor = 'nesw-resize';
-			} else if (onRightEdge || onLeftEdge) {
-				pane.style.cursor = 'ew-resize';
-			} else if (onBottomEdge || onTopEdge) {
-				pane.style.cursor = 'ns-resize';
-			} else if (canMove()) {
-				pane.style.cursor = 'move';
-			} else {
-				pane.style.cursor = 'default';
-			}
-		}
-
-		function checks() {
-			/*
-			var rightScreenEdge, bottomScreenEdge;
-
-			rightScreenEdge = window.innerWidth - MARGINS;
-			bottomScreenEdge = window.innerHeight - MARGINS;
-
-			// Edge Checkings
-			// hintFull();
-			if (b.top < FULLSCREEN_MARGINS || b.left < FULLSCREEN_MARGINS || b.right > window.innerWidth - FULLSCREEN_MARGINS || b.bottom > window.innerHeight - FULLSCREEN_MARGINS)
-				return 'full-screen';
-
-			// hintTop();
-			if (b.top < MARGINS) return 'snap-top-edge';
-
-			// hintLeft();
-			if (b.left < MARGINS) return 'snap-left-edge';
-
-			// hintRight();
-			if (b.right > rightScreenEdge) return 'snap-right-edge';
-
-			// hintBottom();
-			if (b.bottom > bottomScreenEdge) return 'snap-bottom-edge';
-			*/
-
-			if (e.clientY < FULLSCREEN_MARGINS) return 'full-screen';
-
-			if (e.clientY < SNAP_MARGINS) return 'snap-top-edge';
-
-			// hintLeft();
-			if (e.clientX < SNAP_MARGINS) return 'snap-left-edge';
-
-			// hintRight();
-			if (window.innerWidth - e.clientX < SNAP_MARGINS) return 'snap-right-edge';
-
-			// hintBottom();
-			if (window.innerHeight- e.clientY < SNAP_MARGINS) return 'snap-bottom-edge';
-
-		}
-
-		animate();
-
-		function resizeEdges() {
-			switch(snapType) {
-				case 'full-screen':
-					// hintFull();
-					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight);
-					break;
-				case 'snap-top-edge':
-					// hintTop();
-					setBounds(pane, 0, 0, window.innerWidth, window.innerHeight / 2);
-					break;
-				case 'snap-left-edge':
-					// hintLeft();
-					setBounds(pane, 0, 0, window.innerWidth / 2, window.innerHeight);
-					break;
-				case 'snap-right-edge':
-					setBounds(pane, window.innerWidth / 2, 0, window.innerWidth / 2, window.innerHeight);
-					break;
-				case 'snap-bottom-edge':
-					setBounds(pane, 0, window.innerHeight / 2, window.innerWidth, window.innerHeight / 2);
-					break;
-			}
-		}
-
-		function onUp(e) {
-			calc(e);
-
-			if (clicked && clicked.isMoving) {
-				// Snap
-				snapType = checks();
-				if (snapType) {
-					preSnapped = {
-						width: b.width,
-						height: b.height
-					};
-					resizeEdges();
-				} else {
-					preSnapped = null;
-				}
-
-				hintHide();
-
-			}
-
-			clicked = null;
-
-		}
-	})();
-
+	/* Integrate pane into docking window */
+	var widget = new DockingWindow(pane, ghostpane)
+	widget.allowMove(false);
+	widget.resizes.do(resize)
+
+	pane_title.addEventListener('mouseover', function() {
+		widget.allowMove(true);
+	});
+
+	pane_title.addEventListener('mouseout', function() {
+		widget.allowMove(false);
+	});
 }
 
+
 window.Timeliner = Timeliner;
+
+export { Timeliner }

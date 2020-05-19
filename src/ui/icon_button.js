@@ -1,10 +1,9 @@
-var font = require('./font.json'),
-	Theme = require('./theme'),
-	style = require('./utils').style;
+import { font } from './font.js'
+import { Theme } from '../theme.js'
+import { utils } from '../utils/utils.js'
+const { style } = utils
 
-var dp;
-
-function IconButton(size, icon, tooltip, dp) {
+function IconButton(size, icon, tooltip, dispatcher) {
 	var iconStyle = {
 		padding: '0.2em 0.4em',
 		margin: '0em',
@@ -53,7 +52,7 @@ function IconButton(size, icon, tooltip, dp) {
 		me.draw();
 	};
 
-	if (dp) dp.on('resize', this.resize);
+	if (dispatcher) dispatcher.on('resize', this.resize);
 
 	this.setSize = function(s) {
 		size = s;
@@ -90,7 +89,7 @@ function IconButton(size, icon, tooltip, dp) {
 		function clearLongHoldTimer() {
 			clearTimeout(longHoldTimer);
 		}
-		
+
 		button.addEventListener('mousedown', startHold);
 		button.addEventListener('touchstart', startHold);
 		button.addEventListener('mouseup', clearLongHoldTimer);
@@ -122,7 +121,7 @@ function IconButton(size, icon, tooltip, dp) {
 	button.addEventListener('mouseover', function() {
 		// button.style.background = up;
 		style(button, borders);
-		
+
 		ctx.fillStyle = Theme.d;
 		// me.dropshadow = true;
 		ctx.shadowColor = Theme.b;
@@ -131,7 +130,7 @@ function IconButton(size, icon, tooltip, dp) {
 		ctx.shadowOffsetY = 1 * dpr;
 		me.draw();
 
-		if (tooltip && dp) dp.fire('status', 'button: ' + tooltip);
+		if (tooltip && dispatcher) dispatcher.fire('status', 'button: ' + tooltip);
 	});
 
 	button.addEventListener('mousedown', function() {
@@ -149,7 +148,7 @@ function IconButton(size, icon, tooltip, dp) {
 
 	button.addEventListener('mouseout', function() {
 		// ctx.fillStyle = Theme.c;
-		
+
 
 		button.style.background = normal;
 		style(button, no_borders);
@@ -196,9 +195,9 @@ IconButton.prototype.draw = function() {
 		ctx.translate(0 , -font.ascender);
 		ctx.beginPath();
 
-		for (var i = 0, il = path_commands.length; i < il; i++) {
-			var cmds = path_commands[i].split(',');
-			var params = cmds.slice(1);
+		for (let i = 0, il = path_commands.length; i < il; i++) {
+			const cmds = path_commands[i].split(',');
+			const params = cmds.slice(1);
 
 			ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
 		}
@@ -210,9 +209,9 @@ IconButton.prototype.draw = function() {
 	ctx.translate(0, -font.ascender);
 	ctx.beginPath();
 
-	for (var i = 0, il = path_commands.length; i < il; i++) {
-		var cmds = path_commands[i].split(',');
-		var params = cmds.slice(1);
+	for (let i = 0, il = path_commands.length; i < il; i++) {
+		const cmds = path_commands[i].split(',');
+		const params = cmds.slice(1);
 
 		ctx[this.CMD_MAP[cmds[0]]].apply(ctx, params);
 	}
@@ -233,4 +232,4 @@ IconButton.prototype.draw = function() {
 	*/
 };
 
-module.exports = IconButton;
+export { IconButton }

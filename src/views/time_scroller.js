@@ -1,13 +1,12 @@
-var
-	Theme = require('./theme'),
-	utils = require('./utils'),
-	proxy_ctx = utils.proxy_ctx,
-	handleDrag = require('./util_handle_drag')
-	;
+import { Theme } from '../theme.js'
+import { utils } from '../utils/utils.js'
+const proxy_ctx = utils.proxy_ctx;
+import { handleDrag } from '../utils/util_handle_drag.js'
 
+/* This is the top bar where it shows a horizontal scrolls as well as a custom view port */
 
 function Rect() {
-	
+
 }
 
 Rect.prototype.set = function(x, y, w, h, color, outline) {
@@ -35,8 +34,7 @@ Rect.prototype.shape = function(ctx) {
 };
 
 Rect.prototype.contains = function(x, y) {
-	return x >= this.x && y >= this.y
-	 && x <= this.x + this.w && y <= this.y + this.h;
+	return x >= this.x && y >= this.y && x <= this.x + this.w && y <= this.y + this.h;
 };
 
 
@@ -64,15 +62,15 @@ function ScrollCanvas(dispatcher, data) {
 		var totalTime = data.get('ui:totalTime').value;
 		var scrollTime = data.get('ui:scrollTime').value;
 		var currentTime = data.get('ui:currentTime').value;
-		
+
 		var pixels_per_second = data.get('ui:timeScale').value;
 
 		ctx.save();
+		var dpr = window.devicePixelRatio;
+		ctx.scale(dpr, dpr);
 
 		var w = width - 2 * MARGINS;
 		var h = 16; // TOP_SCROLL_TRACK;
-		var h2 = h;
-
 
 		ctx.clearRect(0, 0, width, height);
 		ctx.translate(MARGINS, 5);
@@ -82,7 +80,7 @@ function ScrollCanvas(dispatcher, data) {
 		ctx.strokeStyle = Theme.b;
 		ctx.rect(0, 0, w, h);
 		ctx.stroke();
-		
+
 		var totalTimePixels = totalTime * pixels_per_second;
 		var k = w / totalTimePixels;
 		scroller.k = k;
@@ -92,17 +90,17 @@ function ScrollCanvas(dispatcher, data) {
 		scroller.grip_length = grip_length;
 
 		scroller.left = scrollTime / totalTime * w;
-		
+
 		scrollRect.set(scroller.left, 0, scroller.grip_length, h);
 		scrollRect.paint(ctx);
 
-		var r = currentTime / totalTime * w;		
+		var r = currentTime / totalTime * w;
 
 		ctx.fillStyle =  Theme.c;
 		ctx.lineWidth = 2;
-		
+
 		ctx.beginPath();
-		
+
 		// circle
 		// ctx.arc(r, h2 / 2, h2 / 1.5, 0, Math.PI * 2);
 
@@ -128,7 +126,7 @@ function ScrollCanvas(dispatcher, data) {
 			draggingx = scroller.left;
 			return;
 		}
-		
+
 		var totalTime = data.get('ui:totalTime').value;
 		var pixels_per_second = data.get('ui:timeScale').value;
 		var w = width - 2 * MARGINS;
@@ -138,21 +136,27 @@ function ScrollCanvas(dispatcher, data) {
 
 		// data.get('ui:currentTime').value = t;
 		dispatcher.fire('time.update', t);
-		
+
+		if (e.preventDefault) e.preventDefault();
+
 	};
 
 	this.onMove = function move(e) {
 		if (draggingx != null) {
 			var totalTime = data.get('ui:totalTime').value;
 			var w = width - 2 * MARGINS;
-			
-			dispatcher.fire('update.scrollTime', 
-				(draggingx + e.dx)  / w * totalTime);
+			var scrollTime = (draggingx + e.dx) / w * totalTime;
+
+			console.log(scrollTime, draggingx, e.dx, scroller.grip_length, w);
+
+			if (draggingx  + e.dx + scroller.grip_length > w) return;
+
+			dispatcher.fire('update.scrollTime', scrollTime);
 
 		} else {
-			this.onDown(e);	
+			this.onDown(e);
 		}
-		
+
 	};
 
 	this.onUp = function(e) {
@@ -162,4 +166,4 @@ function ScrollCanvas(dispatcher, data) {
 	/*** End handling for scrollbar ***/
 }
 
-module.exports = ScrollCanvas;
+export { ScrollCanvas }

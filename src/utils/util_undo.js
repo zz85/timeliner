@@ -71,7 +71,4 @@ UndoManager.prototype.get = function() {
 	return this.states[this.index];
 };
 
-module.exports = {
-	UndoState: UndoState,
-	UndoManager: UndoManager
-};
+export { UndoState, UndoManager };

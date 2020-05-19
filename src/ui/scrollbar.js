@@ -1,9 +1,9 @@
-var SimpleEvent = require('do.js');
-var utils = require('./utils');
+import { Do } from '../utils/do.js'
+import { utils } from '../utils/utils.js'
 
 // ********** class: ScrollBar ****************** //
 /*
-	Simple UI widget that displays a scrolltrack 
+	Simple UI widget that displays a scrolltrack
 	and slider, that fires some scroll events
 */
 // ***********************************************
@@ -41,7 +41,7 @@ function ScrollBar(h, w, dispatcher) {
 
 	var scrolltrackHeight = h - 2;
 	scrolltrack.style.height = scrolltrackHeight + 'px';
-	scrolltrack.style.width = SCROLL_WIDTH + 'px';;
+	scrolltrack.style.width = SCROLL_WIDTH + 'px';
 
 	// var scrollTop = 0;
 	var scrollbar = document.createElement('div');
@@ -84,7 +84,7 @@ function ScrollBar(h, w, dispatcher) {
 
 	this.setLength(1);
 	this.setPosition(0);
-	this.onScroll = new SimpleEvent();
+	this.onScroll = new Do();
 
 	var mouse_down_grip;
 
@@ -131,4 +131,4 @@ function ScrollBar(h, w, dispatcher) {
 
 }
 
-module.exports = ScrollBar;
+export { ScrollBar }

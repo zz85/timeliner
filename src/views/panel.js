@@ -1,21 +1,20 @@
-var
-	Settings = require('./settings'),
-	Theme = require('./theme'),
-	utils = require('./utils'),
-	proxy_ctx = utils.proxy_ctx,
-	Tweens = require('./util_tween'),
-	handleDrag = require('./util_handle_drag'),
-	ScrollCanvas = require('./view_time_scroller'),
-	Canvas = require('./ui_canvas')
-	;
+import { LayoutConstants }  from '../layout_constants.js'
+import { Theme }  from '../theme.js'
+import { utils }  from '../utils/utils.js'
+import { Tweens }  from '../utils/util_tween.js'
+import { handleDrag }  from '../utils/util_handle_drag.js'
+import { ScrollCanvas }  from './time_scroller.js'
+import { Canvas }  from '../ui/canvas.js'
+
+const proxy_ctx  = utils.proxy_ctx;
 
 var
-	LINE_HEIGHT = Settings.LINE_HEIGHT,
-	DIAMOND_SIZE = Settings.DIAMOND_SIZE,
+	LINE_HEIGHT = LayoutConstants.LINE_HEIGHT,
+	DIAMOND_SIZE = LayoutConstants.DIAMOND_SIZE,
 	TIME_SCROLLER_HEIGHT = 35,
 	MARKER_TRACK_HEIGHT = 25,
-	LEFT_PANE_WIDTH = Settings.LEFT_PANE_WIDTH,
-	time_scale = Settings.time_scale,
+	LEFT_PANE_WIDTH = LayoutConstants.LEFT_PANE_WIDTH,
+	time_scale = LayoutConstants.time_scale,
 	TOP = 10;
 
 
@@ -60,7 +59,7 @@ time_scaled();
 function TimelinePanel(data, dispatcher) {
 
 	var dpr = window.devicePixelRatio;
-	var canvas = document.createElement('canvas');
+	var track_canvas = document.createElement('canvas');
 
 	var scrollTop = 0, scrollLeft = 0, SCROLL_HEIGHT;
 	var layers = data.get('layers').value;
@@ -71,22 +70,22 @@ function TimelinePanel(data, dispatcher) {
 	};
 
 	this.resize = function() {
-		var h = (Settings.height - TIME_SCROLLER_HEIGHT);
+		var h = (LayoutConstants.height - TIME_SCROLLER_HEIGHT);
 		dpr = window.devicePixelRatio;
-		canvas.width = Settings.width * dpr;
-		canvas.height = h * dpr;
-		canvas.style.width = Settings.width + 'px';
-		canvas.style.height = h + 'px';
-		SCROLL_HEIGHT = Settings.height - TIME_SCROLLER_HEIGHT;
-		scroll_canvas.setSize(Settings.width, TIME_SCROLLER_HEIGHT);
+		track_canvas.width = LayoutConstants.width * dpr;
+		track_canvas.height = h * dpr;
+		track_canvas.style.width = LayoutConstants.width + 'px';
+		track_canvas.style.height = h + 'px';
+		SCROLL_HEIGHT = LayoutConstants.height - TIME_SCROLLER_HEIGHT;
+		scroll_canvas.setSize(LayoutConstants.width, TIME_SCROLLER_HEIGHT);
 	};
 
 	var div = document.createElement('div');
 
-	var scroll_canvas = new Canvas(Settings.width, TIME_SCROLLER_HEIGHT);
+	var scroll_canvas = new Canvas(LayoutConstants.width, TIME_SCROLLER_HEIGHT);
 	// data.addListener('ui', repaint );
 
-	utils.style(canvas, {
+	utils.style(track_canvas, {
 		position: 'absolute',
 		top: TIME_SCROLLER_HEIGHT + 'px',
 		left: '0px'
@@ -100,15 +99,17 @@ function TimelinePanel(data, dispatcher) {
 
 	scroll_canvas.uses(new ScrollCanvas(dispatcher, data));
 
-
-	div.appendChild(canvas);
+	div.appendChild(track_canvas);
 	div.appendChild(scroll_canvas.dom);
+	scroll_canvas.dom.id = 'scroll-canvas'
+	track_canvas.id = 'track-canvas'
 
 	// this.dom = canvas;
 	this.dom = div;
+	this.dom.id = 'timeline-panel'
 	this.resize();
 
-	var ctx = canvas.getContext('2d');
+	var ctx = track_canvas.getContext('2d');
 	var ctx_wrap = proxy_ctx(ctx);
 
 	var currentTime; // measured in seconds
@@ -125,8 +126,8 @@ function TimelinePanel(data, dispatcher) {
 
 		this.path = function() {
 			ctx_wrap.beginPath()
-			.rect(x1, y1, x2-x1, y2-y1)
-			.closePath();
+				.rect(x1, y1, x2-x1, y2-y1)
+				.closePath();
 		};
 
 		this.paint = function() {
@@ -136,11 +137,11 @@ function TimelinePanel(data, dispatcher) {
 		};
 
 		this.mouseover = function() {
-			canvas.style.cursor = 'pointer'; // pointer move ew-resize
+			track_canvas.style.cursor = 'pointer'; // pointer move ew-resize
 		};
 
 		this.mouseout = function() {
-			canvas.style.cursor = 'default';
+			track_canvas.style.cursor = 'default';
 		};
 
 		this.mousedrag = function(e) {
@@ -185,18 +186,18 @@ function TimelinePanel(data, dispatcher) {
 				ctx_wrap.fillStyle('yellow'); // Theme.d
 
 			ctx_wrap.fill()
-			.stroke();
+				.stroke();
 		};
 
 		this.mouseover = function() {
 			isOver = true;
-			canvas.style.cursor = 'move'; // pointer move ew-resize
+			track_canvas.style.cursor = 'move'; // pointer move ew-resize
 			self.paint(ctx_wrap);
 		};
 
 		this.mouseout = function() {
 			isOver = false;
-			canvas.style.cursor = 'default';
+			track_canvas.style.cursor = 'default';
 			self.paint(ctx_wrap);
 		};
 
@@ -227,9 +228,9 @@ function TimelinePanel(data, dispatcher) {
 			y = ~~y - 0.5;
 
 			ctx_wrap
-			.moveTo(0, y)
-			.lineTo(width, y)
-			.stroke();
+				.moveTo(0, y)
+				.lineTo(LayoutConstants.width, y)
+				.stroke();
 		}
 
 
@@ -248,8 +249,8 @@ function TimelinePanel(data, dispatcher) {
 				frame2 = values[j + 1];
 
 				// Draw Tween Rect
-				x = time_to_x(frame.time);
-				x2 = time_to_x(frame2.time);
+				var x = time_to_x(frame.time);
+				var x2 = time_to_x(frame2.time);
 
 				if (!frame.tween || frame.tween == 'none') continue;
 
@@ -348,10 +349,10 @@ function TimelinePanel(data, dispatcher) {
 			.scale(dpr, dpr)
 			.translate(0, MARKER_TRACK_HEIGHT)
 			.beginPath()
-			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
+			.rect(0, 0, LayoutConstants.width, SCROLL_HEIGHT)
 			.translate(-scrollLeft, -scrollTop)
 			.clip()
-				.run(check)
+			.run(check)
 			.restore();
 	}
 
@@ -372,7 +373,7 @@ function TimelinePanel(data, dispatcher) {
 		// background
 
 		ctx.fillStyle = Theme.a;
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.clearRect(0, 0, track_canvas.width, track_canvas.height);
 		ctx.save();
 		ctx.scale(dpr, dpr);
 
@@ -380,8 +381,8 @@ function TimelinePanel(data, dispatcher) {
 
 		ctx.lineWidth = 1; // .5, 1, 2
 
-		width = Settings.width;
-		height = Settings.height;
+		var width = LayoutConstants.width;
+		var height = LayoutConstants.height;
 
 		var units = time_scale / tickMark1;
 		var offsetUnits = (frame_start * time_scale) % units;
@@ -446,10 +447,10 @@ function TimelinePanel(data, dispatcher) {
 			.save()
 			.translate(0, MARKER_TRACK_HEIGHT)
 			.beginPath()
-			.rect(0, 0, Settings.width, SCROLL_HEIGHT)
+			.rect(0, 0, LayoutConstants.width, SCROLL_HEIGHT)
 			.translate(-scrollLeft, -scrollTop)
 			.clip()
-				.run(drawLayerContents)
+			.run(drawLayerContents)
 			.restore();
 
 		// Current Marker / Cursor
@@ -524,8 +525,8 @@ function TimelinePanel(data, dispatcher) {
 
 	document.addEventListener('mousemove', onMouseMove);
 
-	canvas.addEventListener('dblclick', function(e) {
-		canvasBounds = canvas.getBoundingClientRect();
+	track_canvas.addEventListener('dblclick', function(e) {
+		canvasBounds = track_canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 
 
@@ -538,7 +539,7 @@ function TimelinePanel(data, dispatcher) {
 	});
 
 	function onMouseMove(e) {
-		canvasBounds = canvas.getBoundingClientRect();
+		canvasBounds = track_canvas.getBoundingClientRect();
 		var mx = e.clientX - canvasBounds.left , my = e.clientY - canvasBounds.top;
 		onPointerMove(mx, my);
 	}
@@ -549,45 +550,45 @@ function TimelinePanel(data, dispatcher) {
 	function onPointerMove(x, y) {
 		if (mousedownItem) return;
 		pointerdidMoved = true;
-		pointer = {x: x, y: y};
+		pointer = { x: x, y: y };
 	}
 
-	canvas.addEventListener('mouseout', function() {
+	track_canvas.addEventListener('mouseout', function() {
 		pointer = null;
 	});
 
 	var mousedown2 = false, mouseDownThenMove = false;
-	handleDrag(canvas, function down(e) {
-			mousedown2 = true;
-			pointer = {
-				x: e.offsetx,
-				y: e.offsety
-			};
-			pointerEvents();
+	handleDrag(track_canvas, function down(e) {
+		mousedown2 = true;
+		pointer = {
+			x: e.offsetx,
+			y: e.offsety
+		};
+		pointerEvents();
 
-			if (!mousedownItem) dispatcher.fire('time.update', x_to_time(e.offsetx));
-			// Hit criteria
-		}, function move(e) {
-			mousedown2 = false;
-			if (mousedownItem) {
-				mouseDownThenMove = true;
-				if (mousedownItem.mousedrag) {
-					mousedownItem.mousedrag(e);
-				}
-			} else {
-				dispatcher.fire('time.update', x_to_time(e.offsetx));
+		if (!mousedownItem) dispatcher.fire('time.update', x_to_time(e.offsetx));
+		// Hit criteria
+	}, function move(e) {
+		mousedown2 = false;
+		if (mousedownItem) {
+			mouseDownThenMove = true;
+			if (mousedownItem.mousedrag) {
+				mousedownItem.mousedrag(e);
 			}
-		}, function up(e) {
-			if (mouseDownThenMove) {
-				dispatcher.fire('keyframe.move');
-			}
-			else {
-				dispatcher.fire('time.update', x_to_time(e.offsetx));
-			}
-			mousedown2 = false;
-			mousedownItem = null;
-			mouseDownThenMove = false;
+		} else {
+			dispatcher.fire('time.update', x_to_time(e.offsetx));
 		}
+	}, function up(e) {
+		if (mouseDownThenMove) {
+			dispatcher.fire('keyframe.move');
+		}
+		else {
+			dispatcher.fire('time.update', x_to_time(e.offsetx));
+		}
+		mousedown2 = false;
+		mousedownItem = null;
+		mouseDownThenMove = false;
+	}
 	);
 
 	this.setState = function(state) {
@@ -597,4 +598,4 @@ function TimelinePanel(data, dispatcher) {
 
 }
 
-module.exports = TimelinePanel;
+export { TimelinePanel }

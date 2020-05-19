@@ -1,37 +1,25 @@
-var
-	Tweens = require('./util_tween');
+import { Tweens } from './util_tween.js'
 
-module.exports = {
-	STORAGE_PREFIX: 'timeliner-',
-	Z_INDEX: 999,
-	firstDefined: firstDefined,
-	style: style,
-	saveToFile: saveToFile,
-	openAs: openAs,
-	format_friendly_seconds: format_friendly_seconds,
-	findTimeinLayer: findTimeinLayer,
-	timeAtLayer: timeAtLayer,
-	proxy_ctx: proxy_ctx
-};
+var STORAGE_PREFIX = 'timeliner-'
 
 /**************************/
 // Utils
 /**************************/
 
 function firstDefined() {
-	for(var i = 0; i < arguments.length; i++) {
-		if(typeof arguments[i] !== 'undefined') {
+	for (var i = 0; i < arguments.length; i++) {
+		if (typeof arguments[i] !== 'undefined') {
 			return arguments[i];
 		}
 	}
 	return undefined;
 }
 
-function style(element, var_args) {
-	for (var i = 1; i < arguments.length; ++i) {
-		var styles = arguments[i];
-		for (var s in styles) {
-			element.style[s] = styles[s];
+function style(element, ...styles) {
+	for (var i = 0; i < styles.length; ++i) {
+		var style = styles[i];
+		for (var s in style) {
+			element.style[s] = style[s];
 		}
 	}
 }
@@ -43,7 +31,7 @@ function saveToFile(string, filename) {
 
 	var blob = new Blob([string], { type: 'octet/stream' }), // application/json
 		url = window.URL.createObjectURL(blob);
-	
+
 	a.href = url;
 	a.download = filename;
 
@@ -80,7 +68,7 @@ function handleFileSelect(evt) {
 		var data = e.target.result;
 		openCallback(data);
 	};
-	
+
 	reader.readAsText(f);
 
 	input.value = '';
@@ -99,7 +87,7 @@ function openAs(callback, target) {
 		target = target || document.body;
 		target.appendChild(input);
 	}
-	
+
 	fakeClick(input);
 }
 
@@ -114,7 +102,7 @@ function fakeClick(target) {
 
 function format_friendly_seconds(s, type) {
 	// TODO Refactor to 60fps???
-	// 20 mins * 60 sec = 1080 
+	// 20 mins * 60 sec = 1080
 	// 1080s * 60fps = 1080 * 60 < Number.MAX_SAFE_INTEGER
 
 	var raw_secs = s | 0;
@@ -135,7 +123,7 @@ function format_friendly_seconds(s, type) {
 		// else str = mins + ':' + secs_micro;
 		// else str = secs_micro + 's'; /// .toFixed(2)
 	}
-	return str;	
+	return str;
 }
 
 // get object at time
@@ -246,13 +234,13 @@ function timeAtLayer(layer, t) {
 		value: entry.value,
 		can_tween: false,
 		keyframe: false
-	}; 
+	};
 
 }
 
 
 function proxy_ctx(ctx) {
-	// Creates a proxy 2d context wrapper which 
+	// Creates a proxy 2d context wrapper which
 	// allows the fluent / chaining API.
 	var wrapper = {};
 
@@ -282,17 +270,31 @@ function proxy_ctx(ctx) {
 		// string, number, boolean, function, object
 
 		var type = typeof(ctx[c]);
-		switch(type) {
-			case 'object':
-				break;
-			case 'function':
-				wrapper[c] = proxy_function(c);
-				break;
-			default:
-				wrapper[c] = proxy_property(c);
-				break;
+		switch (type) {
+		case 'object':
+			break;
+		case 'function':
+			wrapper[c] = proxy_function(c);
+			break;
+		default:
+			wrapper[c] = proxy_property(c);
+			break;
 		}
 	}
 
 	return wrapper;
 }
+
+var utils = {
+	STORAGE_PREFIX,
+	firstDefined,
+	style,
+	saveToFile,
+	openAs,
+	format_friendly_seconds,
+	findTimeinLayer,
+	timeAtLayer,
+	proxy_ctx
+};
+
+export { utils }

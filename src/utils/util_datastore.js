@@ -1,6 +1,7 @@
-var package_json = require('../package.json'),
-	Settings = require('./settings'),
-	Do = require('do.js');
+var package_json = { version: "test-version" };
+
+import { LayoutConstants } from '../layout_constants.js'
+import { Do } from './do.js'
 
 // Data Store with a source of truth
 function DataStore() {
@@ -28,9 +29,9 @@ DataStore.prototype.blank = function() {
 
 	data.ui = {
 		currentTime: 0,
-		totalTime: Settings.default_length,
+		totalTime: LayoutConstants.default_length,
 		scrollTime: 0,
-		timeScale: Settings.time_scale
+		timeScale: LayoutConstants.time_scale
 	};
 
 	data.layers = [];
@@ -74,6 +75,7 @@ DataStore.prototype.getValue = function(paths) {
 DataStore.prototype.setValue = function(paths, value) {
 	var descend = paths.split(this.DELIMITER);
 	var reference = this.data;
+	var path;
 	for (var i = 0, il = descend.length - 1; path = descend[i], i < il ; i++) {
 		reference = reference[path];
 	}
@@ -108,4 +110,4 @@ DataProx.prototype.get = function(path) {
 	return this.store.get(path, this.path);
 };
 
-module.exports = DataStore;
+export { DataStore }

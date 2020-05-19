@@ -1,0 +1,75 @@
+<html>
+<head>
+</head>
+<body>
+<style>
+#box {
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	background: red;
+}
+
+body {
+	overflow: hidden;
+	font-family: monospace;
+}
+
+body {
+	overflow: hidden;
+}
+</style>
+
+<button id="max">Maximize</button>
+<script type="module">
+
+import { DockingWindow } from '../src/utils/docking_window.js'
+
+var pane_title = document.createElement('div');
+
+pane_title.id = 'pane';
+
+pane_title.innerHTML = "Drag Me"
+
+Object.assign(pane_title.style, {
+	position: 'fixed',
+	top: '20px',
+	left: '20px',
+	margin: 0,
+	border: '1px solid #1f1f1f',
+	padding: 0,
+	overflow: 'hidden',
+	backgroundColor: '#6f6f6f',
+	color: '#2f2f2f',
+	zIndex: 50,
+	fontFamily: 'monospace',
+	fontSize: '12px',
+	width: '500px',
+	height: '500px'
+});
+
+var ghostpane = document.createElement('div');
+ghostpane.id = 'ghostpane';
+Object.assign(ghostpane.style, {
+	background: '#999',
+	opacity: 0.2,
+	position: 'fixed',
+	margin: 0,
+	padding: 0,
+	zIndex: 10,
+	transition: 'all 0.25s ease-in-out',
+	transitionProperty: 'top, left, width, height, opacity',
+	transitionDuration: '0.25s',
+	transitionTimingFunction: 'ease-in-out',
+});
+
+document.body.appendChild(pane_title);
+document.body.appendChild(ghostpane);
+
+var widget = new DockingWindow(pane_title, ghostpane);
+document.getElementById('max').onclick = () => widget.maximize();
+
+
+</script>
+</body>
+</html>

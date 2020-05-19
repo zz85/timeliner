@@ -32,4 +32,4 @@ function Dispatcher() {
 
 }
 
-module.exports = Dispatcher;
+export { Dispatcher }

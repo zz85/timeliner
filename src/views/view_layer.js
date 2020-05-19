@@ -1,9 +1,8 @@
-var
-	Theme = require('./theme'),
-	UINumber = require('./ui_number'),
-	Tweens = require('./util_tween'),
-	Settings = require('./settings'),
-	utils = require('./utils')
+import { Theme } from '../theme.js'
+import { UINumber } from '../ui/ui_number.js'
+import { Tweens } from '../utils/util_tween.js'
+import { LayoutConstants } from '../layout_constants.js'
+import { utils } from '../utils/utils.js'
 ;
 
 // TODO - tagged by index instead, work off layers.
@@ -12,7 +11,7 @@ function LayerView(layer, dispatcher) {
 	var dom = document.createElement('div');
 
 	var label = document.createElement('span');
-	
+
 	label.style.cssText = 'font-size: 12px; padding: 4px;';
 
 	label.addEventListener('click', function(e) {
@@ -36,12 +35,12 @@ function LayerView(layer, dispatcher) {
 	dropdown.addEventListener('change', function(e) {
 		dispatcher.fire('ease', layer, dropdown.value);
 	});
-	var height = (Settings.LINE_HEIGHT - 1);
+	var height = (LayoutConstants.LINE_HEIGHT - 1);
 
 	var keyframe_button = document.createElement('button');
 	keyframe_button.innerHTML = '&#9672;'; // '&diams;' &#9671; 9679 9670 9672
 	keyframe_button.style.cssText = 'background: none; font-size: 12px; padding: 0px; font-family: monospace; float: right; width: 20px; height: ' + height + 'px; border-style:none; outline: none;'; //  border-style:inset;
-	
+
 	keyframe_button.addEventListener('click', function(e) {
 		console.log('clicked:keyframing...', state.get('_value').value);
 		dispatcher.fire('keyframe', layer, state.get('_value').value);
@@ -60,7 +59,7 @@ function LayerView(layer, dispatcher) {
 	button.style.cssText = 'font-size: 12px; padding: 1px; ';
 	dom.appendChild(button);
 
-	
+
 	*/
 
 	function ToggleButton(text) {
@@ -74,12 +73,13 @@ function LayerView(layer, dispatcher) {
 			padding: '1px',
 			borderSize: '2px',
 			outline: 'none',
-			background: '#fff'
+			background: Theme.a,
+			color: Theme.c,
 		});
 
 		this.pressed = false;
 
-		button.onclick = function() {
+		button.onclick = () => {
 			this.pressed = !this.pressed;
 
 			utils.style(button, {
@@ -87,7 +87,7 @@ function LayerView(layer, dispatcher) {
 			})
 
 			if (this.onClick) this.onClick();
-		}.bind(this);
+		};
 
 		this.dom = button;
 
@@ -109,7 +109,6 @@ function LayerView(layer, dispatcher) {
 		dispatcher.fire('action:mute', layer, mute_toggle.pressed);
 	}
 
-
 	var number = new UINumber(layer, dispatcher);
 
 	number.onChange.do(function(value, done) {
@@ -125,7 +124,6 @@ function LayerView(layer, dispatcher) {
 	dom.appendChild(keyframe_button);
 	dom.appendChild(number.dom);
 	dom.appendChild(dropdown);
-	
 
 	utils.style(dom, {
 		textAlign: 'left',
@@ -133,7 +131,7 @@ function LayerView(layer, dispatcher) {
 		borderBottom: '1px solid ' + Theme.b,
 		top: 0,
 		left: 0,
-		height: (Settings.LINE_HEIGHT - 1 ) + 'px',
+		height: (LayoutConstants.LINE_HEIGHT - 1 ) + 'px',
 		color: Theme.c
 	});
 
@@ -193,4 +191,4 @@ function LayerView(layer, dispatcher) {
 
 }
 
-module.exports = LayerView;
+export { LayerView }
