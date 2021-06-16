@@ -10,83 +10,83 @@ var Tweens = {
 		return t;
 	},
 	// Slight acceleration from zero to full speed
-	easeInSine: function (t) {
+	sineEaseIn: function (t) {
 		return -1 * Math.cos(t * (Math.PI / 2)) + 1;
 	},
 	// Slight deceleration at the end
-	easeOutSine: function (t) {
+	sineEaseOut: function (t) {
 		return Math.sin(t * (Math.PI / 2));
 	},
 	// Slight acceleration at beginning and slight deceleration at end
-	easeInOutSine: function (t) {
+	sineEaseInOut: function (t) {
 		return -0.5 * (Math.cos(Math.PI * t) - 1);
 	},
 	// Accelerating from zero velocity
-	easeInQuad: function (t) {
+	quadEaseIn: function (t) {
 		return t * t;
 	},
 	// Decelerating to zero velocity
-	easeOutQuad: function (t) {
+	quadEaseOut: function (t) {
 		return t * (2 - t);
 	},
 	// Acceleration until halfway, then deceleration
-	easeInOutQuad: function (t) {
+	quadEaseInOut: function (t) {
 		return t < 0.5 ? 2 * t * t : - 1 + (4 - 2 * t) * t;
 	},
 	// Accelerating from zero velocity
-	easeInCubic: function (t) {
+	cubicEaseIn: function (t) {
 		return t * t * t;
 	},
 	// Decelerating to zero velocity
-	easeOutCubic: function (t) {
+	cubicEaseOut: function (t) {
 		const t1 = t - 1;
 		return t1 * t1 * t1 + 1;
 	},
 	// Acceleration until halfway, then deceleration
-	easeInOutCubic: function (t) {
+	cubicEaseInOut: function (t) {
 		return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
 	},
 	// Accelerating from zero velocity
-	easeInQuart: function (t) {
+	quartEaseIn: function (t) {
 		return t * t * t * t;
 	},
 	// Decelerating to zero velocity
-	easeOutQuart: function (t) {
+	quartEaseOut: function (t) {
 		const t1 = t - 1;
 		return 1 - t1 * t1 * t1 * t1;
 	},
 	// Acceleration until halfway, then deceleration
-	easeInOutQuart: function (t) {
+	quartEaseInOut: function (t) {
 		const t1 = t - 1;
 		return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * t1 * t1 * t1 * t1;
 	},
 	// Accelerating from zero velocity
-	easeInQuint: function (t) {
+	quintEaseIn: function (t) {
 		return t * t * t * t * t;
 	},
 	// Decelerating to zero velocity
-	easeOutQuint: function (t) {
+	quintEaseOut: function (t) {
 		const t1 = t - 1;
 		return 1 + t1 * t1 * t1 * t1 * t1;
 	},
 	// Acceleration until halfway, then deceleration
-	easeInOutQuint: function (t) {
+	quintEaseInOut: function (t) {
 		const t1 = t - 1;
 		return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * t1 * t1 * t1 * t1 * t1;
 	},
 	// Accelerate exponentially until finish
-	easeInExpo: function (t) {
+	expoEaseIn: function (t) {
 		if (t === 0) return 0;
 		return Math.pow(2, 10 * (t - 1));
 	},
 	// Initial exponential acceleration slowing to stop
-	easeOutExpo: function (t) {
+	expoEaseOut: function (t) {
 		if (t === 1) return 1;
 		return (-Math.pow(2, -10 * t) + 1);
 	},
 
 	// Exponential acceleration and deceleration
-	easeInOutExpo: function (t) {
+	expoEaseInOut: function (t) {
 		if (t === 0 || t === 1) return t;
 		const scaledTime = t * 2;
 		const scaledTime1 = scaledTime - 1;
@@ -97,19 +97,19 @@ var Tweens = {
 	},
 
 	// Increasing velocity until stop
-	easeInCirc: function (t) {
+	circEaseIn: function (t) {
 		const scaledTime = t / 1;
 		return -1 * (Math.sqrt(1 - scaledTime * t) - 1);
 	},
 
 	// Start fast, decreasing velocity until stop
-	easeOutCirc: function (t) {
+	circEaseOut: function (t) {
 		const t1 = t - 1;
 		return Math.sqrt(1 - t1 * t1);
 	},
 
 	// Fast increase in velocity, fast decrease in velocity
-	easeInOutCirc: function (t) {
+	circEaseInOut: function (t) {
 		const scaledTime = t * 2;
 		const scaledTime1 = scaledTime - 2;
 		if (scaledTime < 1) {
@@ -153,7 +153,7 @@ var Tweens = {
 
 	},
 	// Bounces slowly then quickly to finish
-	easeInElastic(t, magnitude = 0.7) {
+	elasticEaseIn(t, magnitude = 0.7) {
 
 		if (t === 0 || t === 1) {
 			return t;
@@ -173,7 +173,7 @@ var Tweens = {
 	},
 
 	// Fast acceleration, bounces to zero
-	easeOutElastic(t, magnitude = 0.7) {
+	elasticEaseOut(t, magnitude = 0.7) {
 
 		const p = 1 - magnitude;
 		const scaledTime = t * 2;
@@ -191,7 +191,7 @@ var Tweens = {
 	},
 
 	// Slow start and end, two bounces sandwich a fast motion
-	easeInOutElastic(t, magnitude = 0.65) {
+	elasticEaseInOut(t, magnitude = 0.65) {
 
 		const p = 1 - magnitude;
 
@@ -219,7 +219,7 @@ var Tweens = {
 	},
 
 	// Bounce to completion
-	easeOutBounce: function (t) {
+	bounceEaseOut: function (t) {
 
 		const scaledTime = t / 1;
 
@@ -247,12 +247,12 @@ var Tweens = {
 	},
 
 	// Bounce increasing in velocity until completion
-	easeInBounce: function (t) {
+	bounceEaseIn: function (t) {
 		return 1 - Tweens.easeOutBounce(1 - t);
 	},
 
 	// Bounce in and bounce out
-	easeInOutBounce: function (t) {
+	bounceEaseInOut: function (t) {
 
 		if (t < 0.5) {
 
