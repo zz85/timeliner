@@ -56,8 +56,8 @@ function Timeliner(target) {
 		return data.data;
 	}
 
-	this.setData = function setData (data) {
-		data.setJSON(data);
+	this.setData = function setData (newData) {
+		data.setJSON(newData);
 	}
 
 	// Undo manager
