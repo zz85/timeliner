@@ -76,7 +76,7 @@ function Timeliner(target) {
 		if (typeof(v) === 'number') {
 			dispatcher.fire('keyframe', layers[index], 0);
 		} else {
-			publicDispatcher.fire('keyframe.update', index, v);
+			publicDispatcher.fire('keyframe.update', index, v.index);
 		}
 	});
 
