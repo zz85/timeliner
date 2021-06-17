@@ -39,6 +39,7 @@ function LayerProp(name) {
 //onSaveFrame, onLoadFrame
 
 function Timeliner(target) {
+	var captureFocus = true;
 	// Dispatcher for coordination
 	var dispatcher = new Dispatcher();
 	var publicDispatcher = new Dispatcher();
@@ -712,7 +713,7 @@ function Timeliner(target) {
 		var active = document.activeElement;
 		// console.log( active.nodeName );
 
-		if (active.nodeName.match(/(INPUT|BUTTON|SELECT|TIMELINER)/)) {
+		if (active.nodeName.match(/(INPUT|BUTTON|SELECT|TIMELINER)/) && captureFocus) {
 			active.blur();
 		}
 
@@ -782,6 +783,10 @@ function Timeliner(target) {
 	}
 
 	this.addLayer = addLayer;
+
+	this.setFocusCapture = function setFocusCapture(value) {
+		captureFocus = value;
+	};
 
 	this.dispose = function dispose() {
 
