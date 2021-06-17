@@ -56,6 +56,10 @@ function Timeliner(target) {
 		return data.data;
 	}
 
+	this.setData = function setData (data) {
+		data.setJSON(data);
+	}
+
 	// Undo manager
 	var undo_manager = new UndoManager(dispatcher);
 
