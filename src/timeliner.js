@@ -52,6 +52,9 @@ function Timeliner(target) {
 	var layers = layer_store.value;
 
 	window._data = data; // expose it for debugging
+	this.getData = function getData () {
+		return data.data;
+	}
 
 	// Undo manager
 	var undo_manager = new UndoManager(dispatcher);
