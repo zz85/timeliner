@@ -43,6 +43,7 @@ function Timeliner(target) {
 	var dispatcher = new Dispatcher();
 	var publicDispatcher = new Dispatcher();
 	this.on = publicDispatcher.on;
+	this.fire = publicDispatcher.fire;
 
 	// Data
 	var data = new DataStore();
@@ -67,6 +68,13 @@ function Timeliner(target) {
 		let time = data.get('ui:currentTime').value;
 		publicDispatcher.fire('update', layers.map(layer => utils.percentageAtLayer(layer, time)));
 	}
+
+	publicDispatcher.on('keyframe', function(index) {
+		var t = data.get('ui:currentTime').value;
+		var v = utils.findTimeinLayer(layers[index], t);
+		// Only fire keyframe event if there's is not currently a keyframe here.
+		if (typeof(v) === 'number') dispatcher.fire('keyframe', index, 0);
+	});
 
 	dispatcher.on('keyframe', function(layer, value) {
 		var index = layers.indexOf(layer);
