@@ -73,7 +73,7 @@ function Timeliner(target) {
 		var t = data.get('ui:currentTime').value;
 		var v = utils.findTimeinLayer(layers[index], t);
 		// Only fire keyframe event if there's is not currently a keyframe here.
-		if (typeof(v) === 'number') dispatcher.fire('keyframe', index, 0);
+		if (typeof(v) === 'number') dispatcher.fire('keyframe', layers[index], 0);
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {

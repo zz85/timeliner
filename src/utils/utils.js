@@ -245,6 +245,11 @@ function percentageAtLayer(layer, t) {
 	// not the most optimized for now, but would do.
 
 	var values = layer.values;
+	if (!values) return {
+		start: 0,
+		end: 0,
+		percentage: 0
+	}
 	var i, il, entry, prev_entry;
 
 	il = values.length;
