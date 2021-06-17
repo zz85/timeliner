@@ -57,7 +57,7 @@ function Timeliner(target) {
 	}
 
 	this.setData = function setData (newData) {
-		data.setJSON(newData);
+		load(newData);
 	}
 
 	// Undo manager
