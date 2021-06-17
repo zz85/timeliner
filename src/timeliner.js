@@ -73,7 +73,11 @@ function Timeliner(target) {
 		var t = data.get('ui:currentTime').value;
 		var v = utils.findTimeinLayer(layers[index], t);
 		// Only fire keyframe event if there's is not currently a keyframe here.
-		if (typeof(v) === 'number') dispatcher.fire('keyframe', layers[index], 0);
+		if (typeof(v) === 'number') {
+			dispatcher.fire('keyframe', layers[index], 0);
+		} else {
+			publicDispatcher.fire('keyframe.update', index, v);
+		}
 	});
 
 	dispatcher.on('keyframe', function(layer, value) {
@@ -81,8 +85,6 @@ function Timeliner(target) {
 
 		var t = data.get('ui:currentTime').value;
 		var v = utils.findTimeinLayer(layer, t);
-
-		console.log(v);
 
 		// console.log(v, '...keyframe index', index, utils.format_friendly_seconds(t), typeof(v));
 		// console.log('layer', layer, value);
