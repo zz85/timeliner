@@ -36,9 +36,15 @@ function LayerProp(name) {
 	*/
 }
 
+//onSaveFrame, onLoadFrame
+
 function Timeliner(target) {
+	var captureFocus = true;
 	// Dispatcher for coordination
 	var dispatcher = new Dispatcher();
+	var publicDispatcher = new Dispatcher();
+	this.on = publicDispatcher.on;
+	this.fire = publicDispatcher.fire;
 
 	// Data
 	var data = new DataStore();
@@ -46,6 +52,13 @@ function Timeliner(target) {
 	var layers = layer_store.value;
 
 	window._data = data; // expose it for debugging
+	this.getData = function getData () {
+		return data.data;
+	}
+
+	this.setData = function setData (newData) {
+		load(newData);
+	}
 
 	// Undo manager
 	var undo_manager = new UndoManager(dispatcher);
@@ -59,6 +72,22 @@ function Timeliner(target) {
 		undo_manager.save(new UndoState(data, 'Loaded'), true);
 	});
 
+	function dispatchNewData() {
+		let time = data.get('ui:currentTime').value;
+		publicDispatcher.fire('update', layers.map(layer => utils.percentageAtLayer(layer, time)));
+	}
+
+	publicDispatcher.on('keyframe', function(index) {
+		var t = data.get('ui:currentTime').value;
+		var v = utils.findTimeinLayer(layers[index], t);
+		// Only fire keyframe event if there's is not currently a keyframe here.
+		if (typeof(v) === 'number') {
+			dispatcher.fire('keyframe', layers[index], 0);
+		} else {
+			publicDispatcher.fire('keyframe.update', index, v.index);
+		}
+	});
+
 	dispatcher.on('keyframe', function(layer, value) {
 		var index = layers.indexOf(layer);
 
@@ -69,6 +98,9 @@ function Timeliner(target) {
 		// console.log('layer', layer, value);
 
 		if (typeof(v) === 'number') {
+			let originalPercentage = utils.percentageAtLayer(layer, t);
+			publicDispatcher.fire('keyframe.add', index, v, originalPercentage);
+
 			layer.values.splice(v, 0, {
 				time: t,
 				value: value,
@@ -81,6 +113,7 @@ function Timeliner(target) {
 			layer.values.splice(v.index, 1);
 
 			undo_manager.save(new UndoState(data, 'Remove Keyframe'));
+			publicDispatcher.fire('keyframe.delete', index, v.index);
 		}
 
 		repaintAll();
@@ -88,6 +121,7 @@ function Timeliner(target) {
 	});
 
 	dispatcher.on('keyframe.move', function(layer, value) {
+		dispatchNewData();
 		undo_manager.save(new UndoState(data, 'Move Keyframe'));
 	});
 
@@ -213,6 +247,7 @@ function Timeliner(target) {
 
 		if (start_play) start_play = performance.now() - value * 1000;
 		repaintAll();
+		dispatchNewData();
 		// layer_panel.repaint(s);
 	}
 
@@ -231,14 +266,14 @@ function Timeliner(target) {
 	dispatcher.on('controls.undo', function() {
 		var history = undo_manager.undo();
 		data.setJSONString(history.state);
-
+		dispatchNewData();
 		updateState();
 	});
 
 	dispatcher.on('controls.redo', function() {
 		var history = undo_manager.redo();
 		data.setJSONString(history.state);
-
+		dispatchNewData();
 		updateState();
 	});
 
@@ -334,6 +369,7 @@ function Timeliner(target) {
 	}
 
 	function load(o) {
+		dispatchNewData();
 		data.setJSON(o);
 		//
 		if (data.getValue('ui') === undefined) {
@@ -684,7 +720,7 @@ function Timeliner(target) {
 		var active = document.activeElement;
 		// console.log( active.nodeName );
 
-		if (active.nodeName.match(/(INPUT|BUTTON|SELECT|TIMELINER)/)) {
+		if (active.nodeName.match(/(INPUT|BUTTON|SELECT|TIMELINER)/) && captureFocus) {
 			active.blur();
 		}
 
@@ -754,6 +790,10 @@ function Timeliner(target) {
 	}
 
 	this.addLayer = addLayer;
+
+	this.setFocusCapture = function setFocusCapture(value) {
+		captureFocus = value;
+	};
 
 	this.dispose = function dispose() {
 

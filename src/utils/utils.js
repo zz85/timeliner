@@ -239,6 +239,88 @@ function timeAtLayer(layer, t) {
 }
 
 
+function percentageAtLayer(layer, t) {
+	// Find the percentage of layer at t seconds.
+	// this expect layer to be sorted
+	// not the most optimized for now, but would do.
+
+	var values = layer.values;
+	if (!values) return {
+		start: 0,
+		end: 0,
+		percentage: 0
+	}
+	var i, il, entry, prev_entry;
+
+	il = values.length;
+
+	// can't do anything
+	if (il === 0) return;
+
+	// find boundary cases
+	entry = values[0];
+	if (t < entry.time) {
+		return {
+			start: 0,
+			end: 1,
+			percentage: 0
+		};
+	}
+
+	for (i=0; i<il; i++) {
+		prev_entry = entry;
+		entry = values[i];
+
+		if (t === entry.time) {
+			// only exception is on the last KF, where we display tween from prev entry
+			if (i === il - 1) {
+				return {
+					start: i,
+					end: i,
+					percentage: 1
+				};
+			}
+			return {
+				start: i,
+				end: i + 1,
+				percentage: 0
+			};
+		}
+		if (t < entry.time) {
+			// possibly a tween
+			if (!prev_entry.tween) { // or if value is none
+				return {
+					start: i - 1,
+					end: i,
+					percentage: 0
+				};
+			}
+
+			// calculate tween
+			var time_diff = entry.time - prev_entry.time;
+			var tween = prev_entry.tween;
+
+			var dt = t - prev_entry.time;
+			var k = dt / time_diff;
+			var new_value = Tweens[tween](k);
+
+			return {
+				start: i - 1,
+				end: i,
+				percentage: new_value
+			};
+		}
+	}
+	// time is after all entries
+	return {
+		start: i - 1,
+		end: i - 1,
+		percentage: 1
+	};
+
+}
+
+
 function proxy_ctx(ctx) {
 	// Creates a proxy 2d context wrapper which
 	// allows the fluent / chaining API.
@@ -294,6 +376,7 @@ var utils = {
 	format_friendly_seconds,
 	findTimeinLayer,
 	timeAtLayer,
+	percentageAtLayer,
 	proxy_ctx
 };
 
